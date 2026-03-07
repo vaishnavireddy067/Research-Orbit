@@ -1,0 +1,17 @@
+fastapi==0.110.0
+uvicorn==0.28.0
+sqlalchemy==2.0.28
+pydantic==2.6.4
+python-multipart==0.0.9
+pdfplumber==0.11.0
+psycopg2-binary
+python-jose[cryptography]
+passlib[bcrypt]
+openai
+faiss-cpu
+sentence-transformers
+numpy
+pandas
+groq
+python-dotenv
+aiofiles
