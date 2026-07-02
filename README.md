@@ -1,7 +1,3 @@
-<p align="center">
-  <img src="C:\Users\anugu vaishnavi\.gemini\antigravity\brain\a5bbe753-b8e8-43e8-b325-2b551adddcf9\researchpilot_logo_1772844205957.png" alt="ResearchPilot AI Logo" width="200"/>
-</p>
-
 # 🚀 ResearchPilot AI: Autonomous Research Intelligence Hub
 
 **ResearchPilot AI** is a state-of-the-art laboratory for academic and industrial research analysis. It leverages the power of Llama 3 via Groq to provide deep, structured insights into complex research papers, enabling scholars and professionals to identify gaps, risks, and implementation pathways instantly.
@@ -70,7 +66,7 @@
    ```bash
    python main.py
    ```
-   > 🚩 API Documentation: [http://localhost:8001/docs](http://localhost:8001/docs)
+
 
 ### 3. Frontend Setup
 1. Navigate to the `frontend` directory:
@@ -85,7 +81,6 @@
    ```bash
    npm run dev
    ```
-   > 🚩 Web Interface: [http://localhost:5173](http://localhost:5173)
 
 
 
