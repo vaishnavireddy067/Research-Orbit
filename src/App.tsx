@@ -222,7 +222,7 @@ export const App: React.FC = () => {
   const isDarkMode = theme === 'dark';
 
   return (
-    <div className={`min-h-screen flex font-sans select-none overflow-x-hidden relative transition-colors duration-300 ${
+    <div className={`h-screen flex font-sans select-none overflow-hidden relative transition-colors duration-300 ${
       isDarkMode ? 'bg-[#070b13] text-slate-100' : 'bg-slate-50 text-slate-900'
     }`}>
       {/* Background Grid & Ambient Glows */}
@@ -247,7 +247,7 @@ export const App: React.FC = () => {
       />
 
       {/* Main Content Pane */}
-      <div className={`flex-1 flex flex-col min-w-0 relative z-10 transition-colors duration-300 ${
+      <div className={`flex-1 flex flex-col min-w-0 h-screen overflow-hidden relative z-10 transition-colors duration-300 ${
         isDarkMode ? 'bg-[#070b13]/90' : 'bg-slate-50/90'
       }`}>
         
@@ -265,7 +265,7 @@ export const App: React.FC = () => {
         />
 
         {/* View Switcher displaying all dashboards inside content */}
-        <main className="flex-1 p-4 sm:p-6 lg:p-8 max-w-[1700px] w-full mx-auto">
+        <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 max-w-[1700px] w-full mx-auto scrollbar-thin">
           
           {/* 1. WORKSPACE */}
           {(activeTab === 'overview' || activeTab === 'dashboard') && (

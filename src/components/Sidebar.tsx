@@ -149,12 +149,12 @@ export const Sidebar: React.FC<SidebarProps> = ({
   };
 
   return (
-    <aside className={`no-print border-r flex flex-col justify-between h-screen sticky top-0 z-30 select-none w-60 shrink-0 font-sans transition-colors ${
+    <aside className={`no-print border-r flex flex-col justify-between h-full z-30 select-none w-60 shrink-0 font-sans transition-colors ${
       isDarkMode ? 'border-[#162347] bg-[#070e24] text-slate-300' : 'border-slate-200 bg-white text-slate-700 shadow-xs'
     }`}>
       
       {/* Brand Header */}
-      <div className={`p-4 border-b ${isDarkMode ? 'border-[#162347]' : 'border-slate-200'}`}>
+      <div className={`shrink-0 p-4 border-b ${isDarkMode ? 'border-[#162347]' : 'border-slate-200'}`}>
         <div 
           onClick={() => setActiveTab('overview')}
           className="flex items-center gap-3 cursor-pointer group"
@@ -247,7 +247,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
       </div>
 
       {/* Bottom User Card with Role Switcher */}
-      <div className={`p-3 border-t relative transition-colors ${
+      <div className={`shrink-0 p-3 border-t relative transition-colors ${
         isDarkMode ? 'border-[#162347] bg-[#060b1c]' : 'border-slate-200 bg-slate-50'
       }`}>
         
