@@ -19,23 +19,33 @@ import {
   FolderPlus,
   Clock,
   ArrowUpRight,
-  ChevronRight
+  ChevronRight,
+  Bot,
+  Dna,
+  Radar,
+  ShieldAlert,
+  FileCode2,
+  Zap
 } from 'lucide-react';
 import { PaperAnalysis } from '../../types';
 import { NavTab } from '../Sidebar';
+import { LivePaperStudio } from '../LivePaperStudio';
 
 interface DashboardViewProps {
   papers: PaperAnalysis[];
   onSelectPaper: (p: PaperAnalysis) => void;
   onNavigate: (tab: NavTab) => void;
+  isDarkMode?: boolean;
 }
 
 export const DashboardView: React.FC<DashboardViewProps> = ({
   papers,
   onSelectPaper,
   onNavigate,
+  isDarkMode = true,
 }) => {
   const [searchTopic, setSearchTopic] = useState('');
+  const [dashboardIdea, setDashboardIdea] = useState('');
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -156,6 +166,134 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
       </div>
 
+      {/* ROW 1.5: AI Research Copilot Command Deck */}
+      <div className="rounded-3xl bg-[#0b1329] border border-[#1e293b] p-6 shadow-xl relative overflow-hidden space-y-4">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 border-b border-slate-800/80 pb-3">
+          <div className="flex items-center gap-2.5">
+            <div className="h-8 w-8 rounded-xl bg-gradient-to-tr from-blue-600 to-purple-600 flex items-center justify-center text-white shadow-md shadow-blue-600/30">
+              <Bot className="w-4 h-4" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <h3 className="text-sm font-bold text-white">
+                  AI Research Copilot • Ideation & Uniqueness Hub
+                </h3>
+                <span className="bg-blue-500/10 text-blue-300 border border-blue-500/20 px-2 py-0.5 rounded-full text-[10px] font-mono">
+                  Active
+                </span>
+              </div>
+              <p className="text-[11px] text-slate-400">
+                Audit if your idea exists in literature, mutate it into an uncontested direction, or stress-test your hypothesis.
+              </p>
+            </div>
+          </div>
+
+          <button
+            onClick={() => onNavigate('research_chat')}
+            className="flex items-center gap-1 text-xs text-blue-400 hover:text-blue-300 font-semibold cursor-pointer"
+          >
+            <span>Open AI Assistant Studio</span>
+            <ChevronRight className="w-4 h-4" />
+          </button>
+        </div>
+
+        {/* Quick Idea Audit Bar */}
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            onNavigate('research_chat');
+          }}
+          className="flex items-center gap-2 bg-[#060b19] border border-slate-800 rounded-xl p-1.5 pl-3.5 shadow-sm"
+        >
+          <Zap className="w-4 h-4 text-yellow-400 shrink-0" />
+          <input
+            type="text"
+            value={dashboardIdea}
+            onChange={(e) => setDashboardIdea(e.target.value)}
+            placeholder="Type a research idea to check if it exists in literature (e.g., Causal Graph neural operator for flood forecasting)..."
+            className="w-full bg-transparent text-xs text-slate-200 placeholder-slate-500 focus:outline-none"
+          />
+          <button
+            type="submit"
+            className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white px-4 py-2 rounded-lg text-xs font-bold transition-all shrink-0 flex items-center gap-1 shadow-md shadow-blue-600/20 cursor-pointer"
+          >
+            <span>Audit Novelty</span>
+            <ArrowRight className="w-3.5 h-3.5" />
+          </button>
+        </form>
+
+        {/* 4 Feature Launchpad Cards */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 pt-1">
+          <div
+            onClick={() => onNavigate('research_chat')}
+            className="p-3.5 rounded-xl bg-[#060b19] border border-slate-800 hover:border-purple-500/50 transition-all cursor-pointer group flex items-start gap-3"
+          >
+            <div className="p-2 rounded-lg bg-purple-500/10 text-purple-400 group-hover:scale-110 transition-transform">
+              <Dna className="w-4 h-4" />
+            </div>
+            <div>
+              <div className="text-xs font-bold text-white group-hover:text-purple-300 transition-colors">
+                Genetic Mutator Lab
+              </div>
+              <p className="text-[11px] text-slate-400 mt-0.5">
+                Mutate saturated ideas into 4 novel offspring paradigms.
+              </p>
+            </div>
+          </div>
+
+          <div
+            onClick={() => onNavigate('research_chat')}
+            className="p-3.5 rounded-xl bg-[#060b19] border border-slate-800 hover:border-cyan-500/50 transition-all cursor-pointer group flex items-start gap-3"
+          >
+            <div className="p-2 rounded-lg bg-cyan-500/10 text-cyan-400 group-hover:scale-110 transition-transform">
+              <Radar className="w-4 h-4" />
+            </div>
+            <div>
+              <div className="text-xs font-bold text-white group-hover:text-cyan-300 transition-colors">
+                White-Space Radar
+              </div>
+              <p className="text-[11px] text-slate-400 mt-0.5">
+                2D visual landscape of literature collision clusters.
+              </p>
+            </div>
+          </div>
+
+          <div
+            onClick={() => onNavigate('research_chat')}
+            className="p-3.5 rounded-xl bg-[#060b19] border border-slate-800 hover:border-rose-500/50 transition-all cursor-pointer group flex items-start gap-3"
+          >
+            <div className="p-2 rounded-lg bg-rose-500/10 text-rose-400 group-hover:scale-110 transition-transform">
+              <ShieldAlert className="w-4 h-4" />
+            </div>
+            <div>
+              <div className="text-xs font-bold text-white group-hover:text-rose-300 transition-colors">
+                Devil's Advocate
+              </div>
+              <p className="text-[11px] text-slate-400 mt-0.5">
+                Stress-test hypothesis against Reviewer #2 traps.
+              </p>
+            </div>
+          </div>
+
+          <div
+            onClick={() => onNavigate('research_chat')}
+            className="p-3.5 rounded-xl bg-[#060b19] border border-slate-800 hover:border-emerald-500/50 transition-all cursor-pointer group flex items-start gap-3"
+          >
+            <div className="p-2 rounded-lg bg-emerald-500/10 text-emerald-400 group-hover:scale-110 transition-transform">
+              <FileCode2 className="w-4 h-4" />
+            </div>
+            <div>
+              <div className="text-xs font-bold text-white group-hover:text-emerald-300 transition-colors">
+                LaTeX & Code Scaffolding
+              </div>
+              <p className="text-[11px] text-slate-400 mt-0.5">
+                1-click Overleaf abstract, PyTorch loss, & O1-O4 objectives.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* ROW 2: 4 Key Metric Cards Row matching Screenshot */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         
@@ -225,19 +363,28 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
       </div>
 
-      {/* ROW 3: Left Column (Continue Research, Pipeline, Recent Papers) + Right Column (Activity, Actions, Opportunity) */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+      {/* ROW 3: LIVE RESEARCH PAPER CREATION STATION ("Akade research paper chese la") */}
+      <div className="pt-2">
+        <LivePaperStudio paper={papers[0]} isDarkMode={isDarkMode} />
+      </div>
+
+      {/* ROW 4: BALANCED 2-COLUMN WORKSPACE OPERATIONS (Zero Empty Side Margins!) */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
         
-        {/* LEFT COLUMN (Span 2) */}
-        <div className="lg:col-span-2 space-y-5">
+        {/* LEFT COLUMN: Active Project & Recent Papers */}
+        <div className="space-y-6">
           
           {/* Continue Your Research Featured Box */}
-          <div className="rounded-3xl bg-[#0d1633] border border-[#1b2b5a] p-6 shadow-xl space-y-4">
+          <div className={`rounded-3xl border p-6 shadow-xl space-y-4 transition-colors ${
+            isDarkMode ? 'bg-[#0d1633] border-[#1b2b5a]' : 'bg-white border-slate-200 shadow-md'
+          }`}>
             <div className="flex items-center justify-between">
-              <h3 className="text-base font-bold text-white">Continue Your Research</h3>
+              <h3 className={`text-base font-bold ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
+                Active Research In Progress
+              </h3>
               <button 
                 onClick={() => onNavigate('my_research')}
-                className="text-xs font-semibold text-blue-400 hover:text-blue-300 flex items-center gap-1 cursor-pointer"
+                className="text-xs font-semibold text-blue-500 hover:text-blue-400 flex items-center gap-1 cursor-pointer"
               >
                 <span>View All</span>
                 <ArrowRight className="w-3.5 h-3.5" />
@@ -250,7 +397,11 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             {/* Main Active Project Card */}
             <div 
               onClick={() => onNavigate('research_gaps')}
-              className="p-4 sm:p-5 rounded-2xl bg-[#111c40] border border-[#1e2e60] hover:border-blue-500/50 transition-all cursor-pointer flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4"
+              className={`p-4 sm:p-5 rounded-2xl border transition-all cursor-pointer flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 ${
+                isDarkMode 
+                  ? 'bg-[#111c40] border-[#1e2e60] hover:border-blue-500/50' 
+                  : 'bg-slate-50 border-slate-200 hover:border-blue-400'
+              }`}
             >
               <div className="flex items-start gap-4">
                 {/* Glowing Doc Icon */}
@@ -259,31 +410,31 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 </div>
 
                 <div className="space-y-2">
-                  <h4 className="text-sm font-bold text-white leading-tight">
-                    AI-Based Flood Prediction Using IoT
+                  <h4 className={`text-sm font-bold leading-tight ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
+                    AI-Based Flood Prediction Using IoT & Edge GNNs
                   </h4>
 
                   {/* Badges */}
                   <div className="flex items-center gap-2 flex-wrap text-[10px] font-semibold">
-                    <span className="px-2.5 py-0.5 rounded-full bg-blue-500/15 text-blue-300 border border-blue-500/30">
+                    <span className="px-2.5 py-0.5 rounded-full bg-blue-500/15 text-blue-400 border border-blue-500/30">
                       Climate Science
                     </span>
-                    <span className="px-2.5 py-0.5 rounded-full bg-teal-500/15 text-teal-300 border border-teal-500/30">
-                      IoT
+                    <span className="px-2.5 py-0.5 rounded-full bg-teal-500/15 text-teal-400 border border-teal-500/30">
+                      IoT Telemetry
                     </span>
-                    <span className="px-2.5 py-0.5 rounded-full bg-purple-500/15 text-purple-300 border border-purple-500/30">
-                      Machine Learning
+                    <span className="px-2.5 py-0.5 rounded-full bg-purple-500/15 text-purple-400 border border-purple-500/30">
+                      Edge Graph Neural Networks
                     </span>
                   </div>
 
                   {/* Progress Bar */}
                   <div className="space-y-1 pt-1">
                     <div className="flex items-center justify-between text-[11px] text-slate-400">
-                      <span>Research Progress</span>
-                      <span className="font-bold text-blue-400">60%</span>
+                      <span>Manuscript Milestone Readiness</span>
+                      <span className="font-bold text-blue-500">65%</span>
                     </div>
-                    <div className="w-56 sm:w-72 bg-slate-800 h-1.5 rounded-full overflow-hidden">
-                      <div className="bg-gradient-to-r from-blue-500 to-indigo-500 h-full rounded-full w-[60%]" />
+                    <div className="w-56 sm:w-80 bg-slate-800/80 h-1.5 rounded-full overflow-hidden">
+                      <div className="bg-gradient-to-r from-blue-500 to-indigo-500 h-full rounded-full w-[65%]" />
                     </div>
                   </div>
 
@@ -299,7 +450,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                       <Check className="w-3.5 h-3.5" /> Gaps: 5
                     </span>
                     <span className="flex items-center gap-1 text-emerald-400">
-                      <Check className="w-3.5 h-3.5" /> Ideas: 2
+                      <Check className="w-3.5 h-3.5" /> Ideas: 4
                     </span>
                   </div>
                 </div>
@@ -307,34 +458,97 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
               {/* Right Arrow Circle Action */}
               <div className="self-end sm:self-center">
-                <div className="w-10 h-10 rounded-full bg-blue-600 hover:bg-blue-500 text-white flex items-center justify-center shadow-md shadow-blue-600/30 transition-transform group-hover:scale-105">
+                <div className="w-10 h-10 rounded-full bg-blue-600 hover:bg-blue-500 text-white flex items-center justify-center shadow-md shadow-blue-600/30 transition-transform hover:scale-105">
                   <ArrowRight className="w-5 h-5" />
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Research Pipeline Journey matching Screenshot */}
-          <div className="rounded-3xl bg-[#0d1633] border border-[#1b2b5a] p-6 shadow-xl space-y-4">
+          {/* Recent Papers Grid */}
+          <div className={`rounded-3xl border p-6 shadow-xl space-y-4 transition-colors ${
+            isDarkMode ? 'bg-[#0d1633] border-[#1b2b5a]' : 'bg-white border-slate-200 shadow-md'
+          }`}>
+            <div className="flex items-center justify-between">
+              <h3 className={`text-base font-bold ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
+                Recent Indexed Literature
+              </h3>
+              <button 
+                onClick={() => onNavigate('my_research')}
+                className="text-xs font-semibold text-blue-500 hover:text-blue-400 flex items-center gap-1 cursor-pointer"
+              >
+                <span>View Library</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </button>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {[
+                { title: 'Transformer Architecture in NLP', tag: 'NLP / SOTA', desc: 'Attention Is All You Need baseline', bg: 'from-blue-600/20 to-indigo-600/20' },
+                { title: 'Physics-Informed Neural Surrogates', tag: 'Hydrology', desc: 'Lagrangian mass-conservation loss', bg: 'from-teal-600/20 to-emerald-600/20' },
+                { title: 'Quantized INT4 Edge Graph Operators', tag: 'Hardware AI', desc: 'Low-power microcontroller deployment', bg: 'from-purple-600/20 to-pink-600/20' },
+                { title: 'Causal Invariance for Distribution Shift', tag: 'Machine Learning', desc: 'Out-of-distribution robustness bounds', bg: 'from-amber-600/20 to-orange-600/20' }
+              ].map((paper, i) => (
+                <div 
+                  key={i}
+                  onClick={() => onNavigate('paper_analysis')}
+                  className={`p-3.5 rounded-2xl border transition-all cursor-pointer space-y-2 ${
+                    isDarkMode 
+                      ? 'bg-[#111c40] border-[#1e2e60] hover:border-blue-500/40' 
+                      : 'bg-slate-50 border-slate-200 hover:border-blue-400'
+                  }`}
+                >
+                  <div className="flex items-center justify-between">
+                    <div className={`w-8 h-8 rounded-xl bg-gradient-to-tr ${paper.bg} border border-white/10 flex items-center justify-center text-blue-300`}>
+                      <FileText className="w-4 h-4" />
+                    </div>
+                    <span className="text-[10px] text-slate-400 font-mono">
+                      {paper.tag}
+                    </span>
+                  </div>
+                  <h5 className={`text-xs font-bold line-clamp-1 ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
+                    {paper.title}
+                  </h5>
+                  <p className="text-[11px] text-slate-400 line-clamp-1">
+                    {paper.desc}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+        </div>
+
+        {/* RIGHT COLUMN: Pipeline, Recent Activity, Actions & Opportunity */}
+        <div className="space-y-6">
+          
+          {/* Research Pipeline Stepper Journey */}
+          <div className={`rounded-3xl border p-6 shadow-xl space-y-4 transition-colors ${
+            isDarkMode ? 'bg-[#0d1633] border-[#1b2b5a]' : 'bg-white border-slate-200 shadow-md'
+          }`}>
             <div>
-              <h3 className="text-base font-bold text-white">Research Pipeline</h3>
+              <h3 className={`text-base font-bold ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
+                Research Pipeline Workflow
+              </h3>
               <p className="text-xs text-slate-400 mt-0.5">
-                Your complete research journey, from discovery to innovation.
+                Navigate your end-to-end scientific journey, from discovery to publication.
               </p>
             </div>
 
-            {/* Stepper Flow */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-2 pt-2">
-              {PIPELINE_STEPS.map((step, idx) => (
+            {/* Stepper Grid (4x2) */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 pt-1">
+              {PIPELINE_STEPS.map((step) => (
                 <div
                   key={step.id}
                   onClick={() => onNavigate(step.id as any)}
-                  className="flex flex-col items-center text-center p-2 rounded-xl hover:bg-slate-800/40 transition-colors cursor-pointer group"
+                  className={`flex flex-col items-center text-center p-2.5 rounded-xl transition-all cursor-pointer group ${
+                    isDarkMode ? 'hover:bg-slate-800/40' : 'hover:bg-slate-100'
+                  }`}
                 >
-                  <div className={`w-10 h-10 rounded-full flex items-center justify-center ${step.color} shadow-md group-hover:scale-110 transition-transform mb-2`}>
+                  <div className={`w-10 h-10 rounded-full flex items-center justify-center ${step.color} shadow-md group-hover:scale-110 transition-transform mb-1.5`}>
                     {step.icon}
                   </div>
-                  <span className="text-xs font-bold text-white group-hover:text-blue-400 transition-colors">
+                  <span className={`text-xs font-bold transition-colors ${isDarkMode ? 'text-white group-hover:text-blue-400' : 'text-slate-900 group-hover:text-blue-600'}`}>
                     {step.name}
                   </span>
                   <span className="text-[10px] text-slate-400 leading-tight mt-0.5">
@@ -345,161 +559,105 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             </div>
           </div>
 
-          {/* Recent Papers Row */}
-          <div className="rounded-3xl bg-[#0d1633] border border-[#1b2b5a] p-6 shadow-xl space-y-4">
-            <div className="flex items-center justify-between">
-              <h3 className="text-base font-bold text-white">Recent Papers</h3>
-              <button 
-                onClick={() => onNavigate('my_research')}
-                className="text-xs font-semibold text-blue-400 hover:text-blue-300 flex items-center gap-1 cursor-pointer"
-              >
-                <span>View All</span>
-                <ArrowRight className="w-3.5 h-3.5" />
-              </button>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
-              {[
-                { title: 'Transformer Architecture...', tag: 'NLP', bg: 'from-blue-600/20 to-indigo-600/20' },
-                { title: 'Federated Learning Survey', tag: 'Machine Learning', bg: 'from-purple-600/20 to-pink-600/20' },
-                { title: 'GAN-based Image Synthesis', tag: 'Computer Vision', bg: 'from-teal-600/20 to-emerald-600/20' },
-                { title: 'Reinforcement Learning...', tag: 'Robotics', bg: 'from-amber-600/20 to-orange-600/20' }
-              ].map((paper, i) => (
-                <div 
-                  key={i}
-                  onClick={() => onNavigate('paper_analysis')}
-                  className="p-3.5 rounded-2xl bg-[#111c40] border border-[#1e2e60] hover:border-blue-500/40 transition-all cursor-pointer space-y-2"
-                >
-                  <div className={`w-8 h-8 rounded-xl bg-gradient-to-tr ${paper.bg} border border-white/10 flex items-center justify-center text-blue-300`}>
-                    <FileText className="w-4 h-4" />
-                  </div>
-                  <h5 className="text-xs font-bold text-white line-clamp-1">
-                    {paper.title}
-                  </h5>
-                  <span className="text-[10px] text-slate-400 block font-mono">
-                    {paper.tag}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </div>
-
-        </div>
-
-        {/* RIGHT COLUMN (Span 1) matching Screenshot */}
-        <div className="space-y-5">
-          
-          {/* Recent Activity */}
-          <div className="rounded-3xl bg-[#0d1633] border border-[#1b2b5a] p-6 shadow-xl space-y-4">
-            <div className="flex items-center justify-between border-b border-[#1b2b5a] pb-3">
-              <h3 className="text-base font-bold text-white">Recent Activity</h3>
-              <button 
-                onClick={() => onNavigate('my_research')}
-                className="text-xs font-semibold text-blue-400 hover:text-blue-300 flex items-center gap-1 cursor-pointer"
-              >
-                <span>View All</span>
-                <ArrowRight className="w-3.5 h-3.5" />
-              </button>
-            </div>
-
-            <div className="space-y-3.5">
-              {[
-                { title: 'Paper analyzed', desc: 'Attention Is All You Need', time: '2 hours ago', icon: <FileText className="w-3.5 h-3.5 text-blue-400" />, bg: 'bg-blue-500/15' },
-                { title: 'New gap detected', desc: 'Limitations in dataset size', time: '4 hours ago', icon: <Brain className="w-3.5 h-3.5 text-purple-400" />, bg: 'bg-purple-500/15' },
-                { title: 'Idea generated', desc: 'Real-time edge-based prediction', time: '1 day ago', icon: <Lightbulb className="w-3.5 h-3.5 text-amber-400" />, bg: 'bg-amber-500/15' },
-                { title: 'Knowledge graph updated', desc: '43 new connections', time: '1 day ago', icon: <Network className="w-3.5 h-3.5 text-teal-400" />, bg: 'bg-teal-500/15' },
-                { title: 'Research chat', desc: 'Ask a question about your paper', time: '2 days ago', icon: <MessageSquare className="w-3.5 h-3.5 text-blue-400" />, bg: 'bg-blue-500/15' }
-              ].map((act, i) => (
-                <div key={i} className="flex items-start justify-between gap-3 text-xs">
-                  <div className="flex items-start gap-2.5">
-                    <div className={`w-7 h-7 rounded-lg ${act.bg} flex items-center justify-center shrink-0 mt-0.5`}>
-                      {act.icon}
-                    </div>
-                    <div>
-                      <span className="font-bold text-white block">{act.title}</span>
-                      <span className="text-[11px] text-slate-400 block mt-0.5">{act.desc}</span>
-                    </div>
-                  </div>
-                  <span className="text-[10px] text-slate-500 font-mono shrink-0">{act.time}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Quick Actions */}
-          <div className="rounded-3xl bg-[#0d1633] border border-[#1b2b5a] p-6 shadow-xl space-y-3">
-            <h3 className="text-base font-bold text-white border-b border-[#1b2b5a] pb-3">
-              Quick Actions
-            </h3>
-
-            <div className="space-y-2">
-              <button
-                onClick={() => onNavigate('upload')}
-                className="w-full p-3 rounded-2xl bg-[#111c40] hover:bg-[#162452] border border-[#1e2e60] text-left flex items-center gap-3 transition-colors cursor-pointer"
-              >
-                <div className="w-8 h-8 rounded-xl bg-blue-600/20 text-blue-400 flex items-center justify-center">
-                  <Upload className="w-4 h-4" />
-                </div>
-                <div>
-                  <span className="text-xs font-bold text-white block">Upload a Paper</span>
-                  <span className="text-[10px] text-slate-400 block">PDF, arXiv, or DOI</span>
-                </div>
-              </button>
-
-              <button
-                onClick={() => onNavigate('discover')}
-                className="w-full p-3 rounded-2xl bg-[#111c40] hover:bg-[#162452] border border-[#1e2e60] text-left flex items-center gap-3 transition-colors cursor-pointer"
-              >
-                <div className="w-8 h-8 rounded-xl bg-purple-600/20 text-purple-400 flex items-center justify-center">
-                  <Search className="w-4 h-4" />
-                </div>
-                <div>
-                  <span className="text-xs font-bold text-white block">Search ArXiv</span>
-                  <span className="text-[10px] text-slate-400 block">2.4M+ papers indexed</span>
-                </div>
-              </button>
-
-              <button
-                onClick={() => onNavigate('research_chat')}
-                className="w-full p-3 rounded-2xl bg-[#111c40] hover:bg-[#162452] border border-[#1e2e60] text-left flex items-center gap-3 transition-colors cursor-pointer"
-              >
-                <div className="w-8 h-8 rounded-xl bg-teal-600/20 text-teal-400 flex items-center justify-center">
-                  <MessageSquare className="w-4 h-4" />
-                </div>
-                <div>
-                  <span className="text-xs font-bold text-white block">Open Research Chat</span>
-                  <span className="text-[10px] text-slate-400 block">Ask anything (RAG powered)</span>
-                </div>
-              </button>
-            </div>
-          </div>
-
-          {/* New Research Opportunity Gradient Card matching Screenshot */}
-          <div className="rounded-3xl bg-gradient-to-br from-[#1d1645] via-[#1b1c4e] to-[#0f1d47] border border-purple-500/30 p-5 shadow-xl space-y-3 relative overflow-hidden">
+          {/* Activity Feed & Quick Actions Side-by-Side Mini Grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             
-            {/* Wave glow SVG */}
-            <div className="absolute right-0 bottom-0 opacity-40 pointer-events-none">
-              <svg width="120" height="60" viewBox="0 0 120 60" fill="none">
-                <path d="M 0 50 Q 30 10, 60 40 T 120 10" stroke="#a855f7" strokeWidth="3" fill="none" />
-              </svg>
+            {/* Recent Activity */}
+            <div className={`rounded-3xl border p-5 shadow-xl space-y-3 transition-colors ${
+              isDarkMode ? 'bg-[#0d1633] border-[#1b2b5a]' : 'bg-white border-slate-200 shadow-md'
+            }`}>
+              <div className="flex items-center justify-between border-b border-slate-800/60 pb-2.5">
+                <h4 className={`text-xs font-bold uppercase tracking-wider ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
+                  Recent Activity
+                </h4>
+                <span className="text-[10px] text-blue-400 font-mono">Live</span>
+              </div>
+
+              <div className="space-y-3">
+                {[
+                  { title: 'Paper analyzed', desc: 'Attention Is All You Need', time: '2h ago', icon: <FileText className="w-3 h-3 text-blue-400" /> },
+                  { title: 'New gap detected', desc: 'Telemetry dropout vulnerability', time: '4h ago', icon: <Brain className="w-3 h-3 text-purple-400" /> },
+                  { title: 'Objectives formulated', desc: 'O1–O4 milestone work packages', time: '1d ago', icon: <Lightbulb className="w-3 h-3 text-amber-400" /> },
+                  { title: 'Knowledge graph synced', desc: '43 new topological links', time: '1d ago', icon: <Network className="w-3 h-3 text-teal-400" /> }
+                ].map((act, i) => (
+                  <div key={i} className="flex items-start justify-between gap-2 text-xs">
+                    <div className="flex items-start gap-2">
+                      <div className="w-6 h-6 rounded-lg bg-blue-500/15 flex items-center justify-center shrink-0 mt-0.5">
+                        {act.icon}
+                      </div>
+                      <div>
+                        <span className={`font-bold block text-[11px] ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>{act.title}</span>
+                        <span className="text-[10px] text-slate-400 block line-clamp-1">{act.desc}</span>
+                      </div>
+                    </div>
+                    <span className="text-[9px] text-slate-500 font-mono shrink-0">{act.time}</span>
+                  </div>
+                ))}
+              </div>
             </div>
 
-            <div className="flex items-center gap-2 text-amber-300 text-xs font-bold">
-              <Sparkles className="w-4 h-4 text-amber-300" />
-              <span>New Research Opportunity</span>
+            {/* Quick Actions & Opportunity */}
+            <div className="space-y-4">
+              <div className={`rounded-3xl border p-5 shadow-xl space-y-2.5 transition-colors ${
+                isDarkMode ? 'bg-[#0d1633] border-[#1b2b5a]' : 'bg-white border-slate-200 shadow-md'
+              }`}>
+                <h4 className={`text-xs font-bold uppercase tracking-wider border-b border-slate-800/60 pb-2 ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
+                  Quick Actions
+                </h4>
+
+                <div className="space-y-2">
+                  <button
+                    onClick={() => onNavigate('upload')}
+                    className={`w-full p-2.5 rounded-xl border text-left flex items-center gap-2.5 transition-colors cursor-pointer ${
+                      isDarkMode ? 'bg-[#111c40] border-[#1e2e60] hover:bg-[#162452]' : 'bg-slate-50 border-slate-200 hover:bg-slate-100'
+                    }`}
+                  >
+                    <Upload className="w-3.5 h-3.5 text-blue-500" />
+                    <span className={`text-xs font-bold ${isDarkMode ? 'text-white' : 'text-slate-800'}`}>Upload Paper PDF</span>
+                  </button>
+
+                  <button
+                    onClick={() => onNavigate('discover')}
+                    className={`w-full p-2.5 rounded-xl border text-left flex items-center gap-2.5 transition-colors cursor-pointer ${
+                      isDarkMode ? 'bg-[#111c40] border-[#1e2e60] hover:bg-[#162452]' : 'bg-slate-50 border-slate-200 hover:bg-slate-100'
+                    }`}
+                  >
+                    <Search className="w-3.5 h-3.5 text-purple-500" />
+                    <span className={`text-xs font-bold ${isDarkMode ? 'text-white' : 'text-slate-800'}`}>Query ArXiv (2.4M+)</span>
+                  </button>
+
+                  <button
+                    onClick={() => onNavigate('research_chat')}
+                    className={`w-full p-2.5 rounded-xl border text-left flex items-center gap-2.5 transition-colors cursor-pointer ${
+                      isDarkMode ? 'bg-[#111c40] border-[#1e2e60] hover:bg-[#162452]' : 'bg-slate-50 border-slate-200 hover:bg-slate-100'
+                    }`}
+                  >
+                    <MessageSquare className="w-3.5 h-3.5 text-teal-500" />
+                    <span className={`text-xs font-bold ${isDarkMode ? 'text-white' : 'text-slate-800'}`}>AI Copilot Studio</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Research Opportunity Banner */}
+              <div className="rounded-3xl bg-gradient-to-br from-[#1d1645] via-[#1b1c4e] to-[#0f1d47] border border-purple-500/30 p-4 shadow-xl space-y-2 text-white">
+                <div className="flex items-center gap-1.5 text-amber-300 text-xs font-bold">
+                  <Sparkles className="w-3.5 h-3.5 text-amber-300" />
+                  <span>White-Space Opportunity</span>
+                </div>
+                <p className="text-[11px] text-slate-300 leading-snug">
+                  Causal graph neural operators show 86% uncontested novelty for edge disaster telemetry.
+                </p>
+                <button
+                  onClick={() => onNavigate('research_gaps')}
+                  className="bg-blue-600 hover:bg-blue-500 text-white text-[11px] font-bold px-3 py-1.5 rounded-lg shadow-md transition-all flex items-center gap-1 cursor-pointer"
+                >
+                  <span>Inspect Gaps</span>
+                  <ArrowRight className="w-3 h-3" />
+                </button>
+              </div>
+
             </div>
 
-            <p className="text-xs text-slate-300 leading-relaxed font-medium">
-              Real-time flood prediction using edge AI shows high innovation potential.
-            </p>
-
-            <button
-              onClick={() => onNavigate('research_gaps')}
-              className="bg-[#2563eb] hover:bg-blue-600 text-white text-xs font-bold px-4 py-2 rounded-xl shadow-md transition-all flex items-center gap-1.5 cursor-pointer"
-            >
-              <span>Explore Gaps</span>
-              <ArrowRight className="w-3.5 h-3.5" />
-            </button>
           </div>
 
         </div>

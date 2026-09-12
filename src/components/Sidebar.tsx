@@ -72,12 +72,14 @@ interface SidebarProps {
   collapsed?: boolean;
   setCollapsed?: (collapsed: boolean) => void;
   onLogout: () => void;
+  isDarkMode?: boolean;
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({
   activeTab,
   setActiveTab,
   onLogout,
+  isDarkMode = true,
 }) => {
   // Helper to check active state including aliases
   const isTabActive = (tabKey: NavTab) => {
@@ -107,10 +109,12 @@ export const Sidebar: React.FC<SidebarProps> = ({
         className={`w-full flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-semibold transition-all cursor-pointer select-none ${
           active
             ? 'bg-[#2563eb] text-white shadow-md shadow-blue-600/30'
-            : 'text-slate-400 hover:text-slate-100 hover:bg-[#162244]/60'
+            : isDarkMode
+            ? 'text-slate-400 hover:text-slate-100 hover:bg-[#162244]/60'
+            : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
         }`}
       >
-        <span className={`shrink-0 ${active ? 'text-white' : 'text-slate-400'}`}>
+        <span className={`shrink-0 ${active ? 'text-white' : isDarkMode ? 'text-slate-400' : 'text-slate-500'}`}>
           {icon}
         </span>
         <span className="truncate whitespace-nowrap">{label}</span>
@@ -119,10 +123,12 @@ export const Sidebar: React.FC<SidebarProps> = ({
   };
 
   return (
-    <aside className="no-print border-r border-[#162347] bg-[#070e24] text-slate-300 flex flex-col justify-between h-screen sticky top-0 z-30 select-none w-60 shrink-0 font-sans">
+    <aside className={`no-print border-r flex flex-col justify-between h-screen sticky top-0 z-30 select-none w-60 shrink-0 font-sans transition-colors ${
+      isDarkMode ? 'border-[#162347] bg-[#070e24] text-slate-300' : 'border-slate-200 bg-white text-slate-700 shadow-xs'
+    }`}>
       
       {/* Brand Header matching Screenshot */}
-      <div className="p-4 border-b border-[#162347]">
+      <div className={`p-4 border-b ${isDarkMode ? 'border-[#162347]' : 'border-slate-200'}`}>
         <div 
           onClick={() => setActiveTab('overview')}
           className="flex items-center gap-3 cursor-pointer group"
@@ -131,7 +137,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
             <Atom className="h-5 w-5" />
           </div>
           <div className="overflow-hidden">
-            <h1 className="font-bold text-base text-white tracking-tight leading-none">
+            <h1 className={`font-bold text-base tracking-tight leading-none ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
               ResearchPilot
             </h1>
             <span className="text-[11px] text-slate-400 block mt-1 font-medium">
@@ -212,7 +218,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
       </div>
 
       {/* Bottom User Card matching Screenshot */}
-      <div className="p-3 border-t border-[#162347] flex items-center justify-between bg-[#060b1c]">
+      <div className={`p-3 border-t flex items-center justify-between transition-colors ${
+        isDarkMode ? 'border-[#162347] bg-[#060b1c]' : 'border-slate-200 bg-slate-50'
+      }`}>
         <div className="flex items-center gap-2.5 overflow-hidden">
           <img
             src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80"
@@ -220,7 +228,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
             className="w-8 h-8 rounded-full object-cover border border-indigo-500/40 shrink-0"
           />
           <div className="overflow-hidden">
-            <span className="block text-xs font-bold text-white truncate leading-tight">
+            <span className={`block text-xs font-bold truncate leading-tight ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
               Vaishnavi
             </span>
             <span className="block text-[10px] text-slate-400 truncate">

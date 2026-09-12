@@ -28,6 +28,7 @@ import { RiskReproducibilityView } from './components/views/RiskReproducibilityV
 import { ResearchRoadmapView } from './components/views/ResearchRoadmapView';
 import { ResearchPodcastView } from './components/views/ResearchPodcastView';
 import { DossierModal } from './components/DossierModal';
+import { FloatingCopilotWidget } from './components/FloatingCopilotWidget';
 import { PaperAnalysis, User, ArxivPaper } from './types';
 import { api, getStoredUser, removeAuthToken, getAuthToken } from './services/api';
 
@@ -106,10 +107,21 @@ export const App: React.FC = () => {
   const [activeTab, setActiveTab] = useState<NavTab>('overview');
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [theme, setTheme] = useState<'dark' | 'light'>(() => {
+    return (localStorage.getItem('rp_theme') as 'dark' | 'light') || 'dark';
+  });
   
   const [papers, setPapers] = useState<PaperAnalysis[]>([DEFAULT_SAMPLE_PAPER]);
   const [activePaper, setActivePaper] = useState<PaperAnalysis>(DEFAULT_SAMPLE_PAPER);
   const [isDossierOpen, setIsDossierOpen] = useState(false);
+
+  const handleToggleTheme = () => {
+    setTheme((prev) => {
+      const next = prev === 'dark' ? 'light' : 'dark';
+      localStorage.setItem('rp_theme', next);
+      return next;
+    });
+  };
 
   // Fetch paper history on user login
   useEffect(() => {
@@ -202,22 +214,31 @@ export const App: React.FC = () => {
     );
   }
 
-  return (
-    <div className="min-h-screen bg-[#070b13] text-slate-100 flex font-sans select-none overflow-x-hidden relative">
-      {/* Background Grid & Ambient Glows matching Landing Page */}
-      <div className="fixed inset-0 pointer-events-none bg-[radial-gradient(#1e293b_1px,transparent_1px)] [background-size:24px_24px] opacity-20 -z-10" />
+  const isDarkMode = theme === 'dark';
 
-      {/* Left Navy Sidebar matching Screenshot 1 & 2 */}
+  return (
+    <div className={`min-h-screen flex font-sans select-none overflow-x-hidden relative transition-colors duration-300 ${
+      isDarkMode ? 'bg-[#070b13] text-slate-100' : 'bg-slate-50 text-slate-900'
+    }`}>
+      {/* Background Grid & Ambient Glows */}
+      <div className={`fixed inset-0 pointer-events-none [background-size:24px_24px] opacity-20 -z-10 ${
+        isDarkMode ? 'bg-[radial-gradient(#1e293b_1px,transparent_1px)]' : 'bg-[radial-gradient(#cbd5e1_1px,transparent_1px)]'
+      }`} />
+
+      {/* Left Navy Sidebar */}
       <Sidebar
         activeTab={activeTab}
         setActiveTab={setActiveTab}
         collapsed={sidebarCollapsed}
         setCollapsed={setSidebarCollapsed}
         onLogout={handleLogout}
+        isDarkMode={isDarkMode}
       />
 
       {/* Main Content Pane */}
-      <div className="flex-1 flex flex-col min-w-0 bg-[#070b13]/90 relative z-10">
+      <div className={`flex-1 flex flex-col min-w-0 relative z-10 transition-colors duration-300 ${
+        isDarkMode ? 'bg-[#070b13]/90' : 'bg-slate-50/90'
+      }`}>
         
         {/* Top Header */}
         <Header
@@ -228,10 +249,12 @@ export const App: React.FC = () => {
           onActiveAiNodeClick={() => setActiveTab('upload')}
           onOpenAuth={() => setViewMode('login')}
           onOpenDossier={() => setIsDossierOpen(true)}
+          isDarkMode={isDarkMode}
+          onToggleTheme={handleToggleTheme}
         />
 
         {/* View Switcher displaying all dashboards inside content */}
-        <main className="flex-1 p-6 sm:p-8 max-w-7xl w-full mx-auto">
+        <main className="flex-1 p-4 sm:p-6 lg:p-8 max-w-[1700px] w-full mx-auto">
           
           {/* 1. WORKSPACE */}
           {(activeTab === 'overview' || activeTab === 'dashboard') && (
@@ -239,6 +262,7 @@ export const App: React.FC = () => {
               papers={papers}
               onSelectPaper={handleSelectPaper}
               onNavigate={setActiveTab}
+              isDarkMode={isDarkMode}
             />
           )}
 
@@ -355,6 +379,12 @@ export const App: React.FC = () => {
         paper={activePaper}
         isOpen={isDossierOpen}
         onClose={() => setIsDossierOpen(false)}
+      />
+
+      {/* Universal Floating AI Copilot Widget */}
+      <FloatingCopilotWidget
+        paper={activePaper}
+        onNavigate={setActiveTab}
       />
 
     </div>

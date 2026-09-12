@@ -1,5 +1,5 @@
 import React from 'react';
-import { Search, Bell } from 'lucide-react';
+import { Search, Bell, Sun, Moon } from 'lucide-react';
 import { User } from '../types';
 
 interface HeaderProps {
@@ -10,6 +10,8 @@ interface HeaderProps {
   onActiveAiNodeClick?: () => void;
   onOpenAuth: () => void;
   onOpenDossier?: () => void;
+  isDarkMode?: boolean;
+  onToggleTheme?: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -18,9 +20,15 @@ export const Header: React.FC<HeaderProps> = ({
   setSearchQuery,
   onOpenAuth,
   onOpenDossier,
+  isDarkMode = true,
+  onToggleTheme,
 }) => {
   return (
-    <header className="no-print h-16 border-b border-[#162347] bg-[#070e24]/95 backdrop-blur-xl px-6 flex items-center justify-between sticky top-0 z-20 font-sans">
+    <header className={`no-print h-16 border-b px-6 flex items-center justify-between sticky top-0 z-20 font-sans transition-colors ${
+      isDarkMode 
+        ? 'border-[#162347] bg-[#070e24]/95 backdrop-blur-xl text-slate-100' 
+        : 'border-slate-200 bg-white/95 backdrop-blur-xl text-slate-800 shadow-xs'
+    }`}>
       
       {/* Left: Search Bar */}
       <div className="flex items-center gap-4 flex-1 max-w-xl">
@@ -31,7 +39,11 @@ export const Header: React.FC<HeaderProps> = ({
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search papers, topics, methods, datasets..."
-            className="w-full rounded-xl bg-[#0e1838] border border-[#1e2d5a] pl-10 pr-4 py-2 text-xs text-slate-200 placeholder-slate-400 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/30 transition-all font-medium"
+            className={`w-full rounded-xl pl-10 pr-4 py-2 text-xs focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/30 transition-all font-medium ${
+              isDarkMode
+                ? 'bg-[#0e1838] border border-[#1e2d5a] text-slate-200 placeholder-slate-400'
+                : 'bg-slate-100 border border-slate-200 text-slate-800 placeholder-slate-500'
+            }`}
           />
         </div>
       </div>
@@ -56,13 +68,32 @@ export const Header: React.FC<HeaderProps> = ({
           <span>Llama 3 • Groq</span>
         </div>
 
+        {/* Light / Dark Mode Toggle Button */}
+        {onToggleTheme && (
+          <button
+            onClick={onToggleTheme}
+            title={isDarkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+            className={`p-2 rounded-xl transition-all flex items-center justify-center cursor-pointer ${
+              isDarkMode 
+                ? 'text-yellow-400 hover:bg-[#162347] hover:text-yellow-300' 
+                : 'text-slate-600 hover:bg-slate-200 hover:text-slate-900'
+            }`}
+          >
+            {isDarkMode ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+          </button>
+        )}
+
         {/* Notification Bell with red indicator */}
         <button 
           title="Notifications"
-          className="relative p-2 rounded-xl text-slate-400 hover:text-white hover:bg-[#162347] transition-colors"
+          className={`relative p-2 rounded-xl transition-colors ${
+            isDarkMode 
+              ? 'text-slate-400 hover:text-white hover:bg-[#162347]' 
+              : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200'
+          }`}
         >
           <Bell className="h-4 w-4" />
-          <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-rose-500 ring-2 ring-[#070e24]" />
+          <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-rose-500 ring-2 ring-slate-900" />
         </button>
 
         {/* User Avatar Circle V matching Screenshot */}

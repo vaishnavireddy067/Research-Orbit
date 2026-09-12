@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 from typing import List, Optional
+from pydantic import BaseModel
 import json
 import asyncio
 import datetime
@@ -336,6 +337,306 @@ async def delete_paper(paper_id: int, db: Session = Depends(get_db), current_use
     db.delete(paper)
     db.commit()
     return {"message": "Paper analysis deleted successfully"}
+
+class IdeaAuditRequest(BaseModel):
+    idea: str
+    domain: Optional[str] = "Computer Science / AI"
+    paper_context: Optional[str] = None
+
+class CopilotChatRequest(BaseModel):
+    message: str
+    history: Optional[List[dict]] = []
+    current_idea: Optional[str] = None
+    paper_context: Optional[str] = None
+
+@app.post("/assistant/idea-copilot/")
+async def audit_idea_copilot(req: IdeaAuditRequest):
+    """
+    Evaluates whether a research idea already exists in published literature/patterns,
+    actively guides the researcher on how to make it unique, and formulates clear research objectives.
+    """
+    if not client:
+        raise HTTPException(status_code=500, detail="Groq API Key not configured.")
+    
+    system_prompt = """
+    You are ResearchPilot Copilot, an elite scientific research advisor and peer review chair.
+    A researcher is proposing a research idea, method, or hypothesis.
+    
+    YOUR OBJECTIVE:
+    1. Check thoroughly if this idea or its underlying patterns already exist in published academic literature / state-of-the-art.
+       - If it exists, explicitly tell them: 'EXISTS_IN_LITERATURE' or 'PARTIAL_OVERLAP'. Detail the existing patterns, known paradigms, and typical citations/architectures that already solve this.
+       - If it is truly white-space, label it 'NOVEL_FRONTIER'.
+    2. Guide the researcher to make it genuinely UNIQUE:
+       - Propose 3-4 concrete differentiation angles/pivots (e.g., hybridizing with causal inference, constraint formulations, low-power edge quantization, cross-disciplinary applications, adversarial robustness).
+       - Give practical implementation hints for each pivot.
+    3. Provide CLEAR, CONCRETE RESEARCH OBJECTIVES:
+       - Primary Objective: A concise scientific statement.
+       - Sub-Objectives (O1, O2, O3, O4): Step-by-step milestones with clear deliverables and timeline weeks.
+       - Formulate a testable scientific hypothesis.
+       - Evaluation metrics and quantitative validation thresholds.
+
+    RETURN STRICTLY VALID JSON matching this exact structure:
+    {
+      "ideaTitle": "Concise formal academic title for the project",
+      "domain": "Field of research",
+      "status": "EXISTS_IN_LITERATURE" or "PARTIAL_OVERLAP" or "NOVEL_FRONTIER",
+      "statusSummary": "Honest assessment explaining whether this idea exists and what patterns are already saturated",
+      "noveltyScore": 0 to 100 (integer: low if fully existing, high if novel),
+      "saturationPercentage": 0 to 100 (integer: how heavily researched the existing pattern is),
+      "existingPatterns": [
+        {
+          "patternName": "Name of the existing pattern/paradigm",
+          "prevalence": "e.g., Highly saturated in 2020-2024 literature",
+          "description": "What researchers have already done with this pattern",
+          "representativeWorks": ["Author et al., 2022", "Benchmark Model X"],
+          "whyItSaturates": "Why simply doing this alone is no longer considered novel"
+        }
+      ],
+      "uniquenessPivots": [
+        {
+          "angle": "Catchy title for the novel twist",
+          "differentiationStrategy": "Specific architectural or mathematical change that makes it unique",
+          "expectedImpact": "What performance or theoretical leap this unlocks",
+          "noveltyGain": "e.g. +35% Novelty (Pioneering Edge)",
+          "implementationHint": "Tools or math formulations to use"
+        }
+      ],
+      "researchObjectives": {
+        "primaryObjective": "Core primary research objective",
+        "subObjectives": [
+          {
+            "code": "O1",
+            "title": "Short title",
+            "description": "Concrete task description",
+            "deliverable": "Tangible output (e.g. benchmark dataset, mathematical proof, prototype code)",
+            "milestoneWeeks": "Weeks 1-4"
+          },
+          {
+            "code": "O2",
+            "title": "Short title",
+            "description": "Concrete task description",
+            "deliverable": "Tangible output",
+            "milestoneWeeks": "Weeks 5-8"
+          },
+          {
+            "code": "O3",
+            "title": "Short title",
+            "description": "Concrete task description",
+            "deliverable": "Tangible output",
+            "milestoneWeeks": "Weeks 9-12"
+          },
+          {
+            "code": "O4",
+            "title": "Short title",
+            "description": "Concrete task description",
+            "deliverable": "Tangible output",
+            "milestoneWeeks": "Weeks 13-16"
+          }
+        ],
+        "hypothesis": "Testable falsifiable scientific hypothesis",
+        "evaluationMetrics": ["Metric 1 (Target: ...)", "Metric 2 (Target: ...)"]
+      },
+      "recommendedNextStep": "Immediate next experiment or design step to start working on this unique direction"
+    }
+    """
+
+    user_prompt = f"Evaluate this research idea: '{req.idea}'. Domain: {req.domain}."
+    if req.paper_context:
+        user_prompt += f" Active Paper Reference Context: {req.paper_context[:1500]}"
+
+    try:
+        chat_completion = client.chat.completions.create(
+            messages=[
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": user_prompt}
+            ],
+            model="llama-3.3-70b-versatile",
+            response_format={"type": "json_object"}
+        )
+        ai_result = json.loads(chat_completion.choices[0].message.content)
+        return ai_result
+    except Exception as e:
+        print(f">>> IDEA COPILOT FAILED: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Idea Copilot analysis failed: {str(e)}")
+
+@app.post("/assistant/copilot-chat/")
+async def copilot_chat(req: CopilotChatRequest):
+    """
+    Conversational research assistant guiding the user interactively on idea refinement,
+    challenging common patterns, guiding uniqueness, and structuring research steps.
+    Supports queries in English and Telugu seamlessly.
+    """
+    if not client:
+        raise HTTPException(status_code=500, detail="Groq API Key not configured.")
+    
+    system_prompt = """
+    You are ResearchPilot Copilot, an insightful, encouraging yet scientifically rigorous AI research advisor.
+    You help researchers brainstorm, refine ideas, detect existing literature patterns, pivot towards uniqueness, and establish crystal clear objectives.
+    
+    GUIDELINES:
+    - If the user asks if an idea exists: be honest. If the idea already exists, tell them clearly ('This idea already exists in literature, specifically in...'). Point out the established patterns.
+    - Always suggest concrete ways to make their idea UNIQUE (new loss functions, novel hardware adaptations, hybrid architectures, new domain datasets).
+    - Provide clear objectives whenever asked.
+    - If the user writes in Telugu or conversational Telugu-English (like 'cheppali', 'manaki', 'unai ani cheppu'), understand perfectly and respond warmly, constructively, and academically in clean bilingual/English format so the researcher has clear actionable guidance.
+    """
+
+    messages = [{"role": "system", "content": system_prompt}]
+
+    if req.current_idea:
+        messages.append({
+            "role": "system",
+            "content": f"Active Research Idea being discussed: {req.current_idea}"
+        })
+    if req.paper_context:
+        messages.append({
+            "role": "system",
+            "content": f"Active Manuscript Context: {req.paper_context[:1000]}"
+        })
+
+    for h in req.history[-6:]:
+        role = h.get("role", "user")
+        content = h.get("content", "")
+        if role in ["user", "assistant"] and content:
+            messages.append({"role": role, "content": content})
+
+    messages.append({"role": "user", "content": req.message})
+
+    try:
+        chat_completion = client.chat.completions.create(
+            messages=messages,
+            model="llama-3.3-70b-versatile",
+            temperature=0.7,
+            max_tokens=1500
+        )
+        reply = chat_completion.choices[0].message.content
+        return {"reply": reply}
+    except Exception as e:
+        print(f">>> COPILOT CHAT FAILED: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Copilot chat failed: {str(e)}")
+
+class IdeaMutatorRequest(BaseModel):
+    idea: str
+    domain: Optional[str] = "Computer Science / AI"
+    novelty_pressure: Optional[int] = 80 # 0 to 100
+    compute_constraint: Optional[str] = "Edge / Low-Power MCU"
+    mutation_focus: Optional[str] = "ALL"
+
+class RedTeamRequest(BaseModel):
+    idea: str
+    hypothesis: Optional[str] = None
+    methodology: Optional[str] = None
+
+@app.post("/assistant/idea-mutator/")
+async def mutate_research_idea(req: IdeaMutatorRequest):
+    """
+    Evolves a standard/saturated research idea into 4 distinct breakthrough offspring
+    using genetic idea mutation paradigms (neuro-symbolic, edge quantization, cross-domain, adversarial invariance).
+    """
+    if not client:
+        raise HTTPException(status_code=500, detail="Groq API Key not configured.")
+
+    system_prompt = f"""
+    You are the ResearchPilot Idea Genetic Mutator. 
+    Your goal is to apply evolutionary pressure to a researcher's raw or saturated idea and mutate it into 4 genuinely novel offspring concepts.
+    Target Novelty Pressure: {req.novelty_pressure}/100.
+    Target Hardware/Compute: {req.compute_constraint}.
+
+    For each mutation, provide:
+    1. mutationType: One of ['NEURO_SYMBOLIC', 'QUANTIZED_EDGE', 'CROSS_DOMAIN', 'ADVERSARIAL_INVARIANCE']
+    2. mutationName: Catchy paradigm name
+    3. title: Formal academic title
+    4. description: What is fundamentally changed
+    5. mathematicalTwist: Exact mathematical or algorithmic innovation
+    6. noveltyScore: Integer (75 to 98)
+    7. feasibilityScore: Integer (60 to 95)
+    8. computeCost: e.g. '< 15W MCU' or '1x RTX 4090'
+    9. differentiator: Exactly why reviewers will rate this 8/10+ at top-tier venues
+
+    Return strictly valid JSON:
+    {{
+      "mutations": [
+        {{
+          "id": "mut-1",
+          "mutationType": "NEURO_SYMBOLIC",
+          "mutationName": "Neuro-Symbolic Causal Shift",
+          "title": "...",
+          "description": "...",
+          "mathematicalTwist": "...",
+          "noveltyScore": 88,
+          "feasibilityScore": 78,
+          "computeCost": "...",
+          "differentiator": "..."
+        }},
+        ... (generate 4 mutations covering the 4 types)
+      ]
+    }}
+    """
+
+    try:
+        chat_completion = client.chat.completions.create(
+            messages=[
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": f"Evolve and mutate this research idea: '{req.idea}'. Domain: {req.domain}"}
+            ],
+            model="llama-3.3-70b-versatile",
+            response_format={"type": "json_object"}
+        )
+        return json.loads(chat_completion.choices[0].message.content)
+    except Exception as e:
+        print(f">>> IDEA MUTATOR FAILED: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Idea mutator failed: {str(e)}")
+
+@app.post("/assistant/red-team/")
+async def red_team_stress_test(req: RedTeamRequest):
+    """
+    Acts as a hyper-critical Senior Area Chair / Devil's Advocate (Reviewer #2)
+    to identify fatal methodological flaws, unstated assumptions, and generate pre-emptive defenses.
+    """
+    if not client:
+        raise HTTPException(status_code=500, detail="Groq API Key not configured.")
+
+    system_prompt = """
+    You are an ultra-rigorous Senior Area Chair at NeurIPS/ICML and Nature Reviewer.
+    Stress-test the researcher's idea, hypothesis, and proposed methodology like a relentless Devil's Advocate.
+    Find fatal flaws, hidden assumptions, and predict the exact rejection attack Reviewer #2 will write.
+    Then formulate a brilliant Pre-Emptive Defense experiment to disarm them.
+
+    Return strictly valid JSON:
+    {
+      "fatalFlaws": [
+        {
+          "title": "Catchy flaw title",
+          "severity": "CRITICAL" or "HIGH" or "MODERATE",
+          "description": "In-depth scientific breakdown of the vulnerability",
+          "reviewerQuote": "The exact scathing critique Reviewer #2 would write in the review",
+          "preemptiveDefense": "The concrete empirical counter-experiment or mathematical lemma the author must include to rebut this attack"
+        }
+      ],
+      "hiddenAssumptions": ["Assumption 1...", "Assumption 2..."],
+      "rejectionRiskScore": 0 to 100 (integer: how vulnerable it currently is to rejection),
+      "recommendedAblation": "The #1 mandatory ablation test that must be run to prove validity"
+    }
+    """
+
+    user_content = f"Stress test this research proposal: '{req.idea}'."
+    if req.hypothesis:
+        user_content += f" Hypothesis: {req.hypothesis}."
+    if req.methodology:
+        user_content += f" Methodology: {req.methodology}."
+
+    try:
+        chat_completion = client.chat.completions.create(
+            messages=[
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": user_content}
+            ],
+            model="llama-3.3-70b-versatile",
+            response_format={"type": "json_object"}
+        )
+        return json.loads(chat_completion.choices[0].message.content)
+    except Exception as e:
+        print(f">>> RED TEAM FAILED: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Red Team stress test failed: {str(e)}")
 
 if __name__ == "__main__":
     import uvicorn
