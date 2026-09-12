@@ -10,13 +10,28 @@ import {
   Bookmark,
   Calendar,
   Layers,
-  Award
+  Award,
+  Bell,
+  Radio,
+  TrendingUp,
+  CheckCircle2,
+  Tag
 } from 'lucide-react';
 import { PaperAnalysis, ArxivPaper } from '../../types';
 
 interface LiteratureDiscoveryViewProps {
   onImportPaper?: (paper: ArxivPaper) => void;
   activePaper?: PaperAnalysis | null;
+}
+
+interface AlertTopic {
+  id: string;
+  query: string;
+  domain: string;
+  frequency: string;
+  matchedCount: number;
+  active: boolean;
+  latestPaperTitle: string;
 }
 
 const INITIAL_PAPERS: ArxivPaper[] = [
@@ -87,12 +102,46 @@ const INITIAL_PAPERS: ArxivPaper[] = [
   }
 ];
 
+const INITIAL_ALERTS: AlertTopic[] = [
+  {
+    id: 'alt-1',
+    query: 'Computer Vision + Medical Histopathology Diagnostics',
+    domain: 'Healthcare AI',
+    frequency: 'Daily Digest',
+    matchedCount: 22,
+    active: true,
+    latestPaperTitle: 'Zero-Shot Foundation Models for Whole-Slide Gigapixel Pathology Screening'
+  },
+  {
+    id: 'alt-2',
+    query: 'Edge GNNs + Real-Time Flood Inundation Telemetry',
+    domain: 'Hydrology & Edge AI',
+    frequency: 'Weekly Digest',
+    matchedCount: 14,
+    active: true,
+    latestPaperTitle: 'Physics-Informed Graph Neural Operators on Low-Power LoRaWAN River Sensors'
+  },
+  {
+    id: 'alt-3',
+    query: 'Deep Survival Analysis + University Student Dropout Prevention',
+    domain: 'Educational Data Mining',
+    frequency: 'Weekly Digest',
+    matchedCount: 5,
+    active: true,
+    latestPaperTitle: 'Longitudinal LMS Clickstream Survival Ensembles for Early Semester Warning'
+  }
+];
+
 export const LiteratureDiscoveryView: React.FC<LiteratureDiscoveryViewProps> = ({
   onImportPaper
 }) => {
+  const [activeTab, setActiveTab] = useState<'search' | 'alerts' | 'trending'>('search');
   const [query, setQuery] = useState('AI-based flood prediction using IoT');
   const [activeTier, setActiveTier] = useState<string>('All');
   const [papers, setPapers] = useState<ArxivPaper[]>(INITIAL_PAPERS);
+  const [alerts, setAlerts] = useState<AlertTopic[]>(INITIAL_ALERTS);
+  const [newAlertQuery, setNewAlertQuery] = useState('');
+  const [newAlertDomain, setNewAlertDomain] = useState('Computer Science');
   const [importedIds, setImportedIds] = useState<Record<string, boolean>>({});
   const [selectedYear, setSelectedYear] = useState<string>('All');
   const [sortBy, setSortBy] = useState<'relevance' | 'citations' | 'recent'>('relevance');
@@ -113,6 +162,26 @@ export const LiteratureDiscoveryView: React.FC<LiteratureDiscoveryViewProps> = (
     if (onImportPaper) {
       onImportPaper(p);
     }
+  };
+
+  const handleAddAlert = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newAlertQuery.trim()) return;
+    const newAlt: AlertTopic = {
+      id: `alt-${Date.now()}`,
+      query: newAlertQuery,
+      domain: newAlertDomain,
+      frequency: 'Daily Digest',
+      matchedCount: Math.floor(Math.random() * 10) + 1,
+      active: true,
+      latestPaperTitle: `Recent Advances in ${newAlertQuery} (2026)`
+    };
+    setAlerts([newAlt, ...alerts]);
+    setNewAlertQuery('');
+  };
+
+  const toggleAlert = (id: string) => {
+    setAlerts(alerts.map(a => a.id === id ? { ...a, active: !a.active } : a));
   };
 
   const filteredPapers = papers.filter(p => {
@@ -143,6 +212,7 @@ export const LiteratureDiscoveryView: React.FC<LiteratureDiscoveryViewProps> = (
 
   return (
     <div className="space-y-6 font-sans text-slate-100 pb-12">
+      
       {/* Header */}
       <div className="rounded-3xl bg-[#0d1633] border border-[#1b2b5a] p-6 sm:p-7 shadow-xl flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div>
@@ -154,262 +224,235 @@ export const LiteratureDiscoveryView: React.FC<LiteratureDiscoveryViewProps> = (
             AI Literature Discovery Engine
           </h2>
           <p className="text-xs text-slate-400 mt-1">
-            Query academic preprints, classify by relevance tiers, inspect extracted datasets & methods, or synthesize similar papers.
+            Query academic preprints, monitor keyword alerts, and discover recommended research literature.
           </p>
         </div>
 
-        <button
-          onClick={() => setSimilarMode(!similarMode)}
-          className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-semibold transition-all border cursor-pointer ${
-            similarMode 
-              ? 'bg-purple-600/30 text-purple-300 border-purple-400/50 shadow-sm' 
-              : 'bg-[#121d42] text-slate-300 border-[#20326b] hover:bg-[#18285c]'
-          }`}
-        >
-          <UploadCloud className="w-4 h-4 text-purple-400" />
-          Find Papers Similar to Upload
-        </button>
+        {/* Mode Switcher Tabs */}
+        <div className="flex items-center gap-2 bg-[#090f28] p-1.5 rounded-2xl border border-[#1b2b5a]">
+          <button
+            onClick={() => setActiveTab('search')}
+            className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
+              activeTab === 'search'
+                ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30'
+                : 'text-slate-400 hover:text-white'
+            }`}
+          >
+            <Search className="w-3.5 h-3.5" />
+            <span>Search Literature</span>
+          </button>
+          <button
+            onClick={() => setActiveTab('alerts')}
+            className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
+              activeTab === 'alerts'
+                ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30'
+                : 'text-slate-400 hover:text-white'
+            }`}
+          >
+            <Bell className="w-3.5 h-3.5 text-amber-400" />
+            <span>Research Alerts ({alerts.filter(a => a.active).length})</span>
+          </button>
+          <button
+            onClick={() => setActiveTab('trending')}
+            className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
+              activeTab === 'trending'
+                ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30'
+                : 'text-slate-400 hover:text-white'
+            }`}
+          >
+            <TrendingUp className="w-3.5 h-3.5 text-emerald-400" />
+            <span>Trending</span>
+          </button>
+        </div>
       </div>
 
-      {/* Similar Upload Dropzone Drawer if active */}
-      {similarMode && (
-        <div className="bg-purple-950/40 border border-dashed border-purple-500/40 rounded-3xl p-6 text-center animate-in fade-in duration-300 shadow-xl">
-          <UploadCloud className="w-8 h-8 text-purple-400 mx-auto mb-2" />
-          <h4 className="text-sm font-bold text-white">Drop a Seed Paper (PDF / Abstract)</h4>
-          <p className="text-xs text-purple-300/80 max-w-md mx-auto mt-1 mb-4">
-            ResearchPilot extracts embedding vectors, key citation rings, and dataset signatures to automatically discover connected research clusters.
-          </p>
-          <div className="flex justify-center gap-3">
-            <button 
-              onClick={() => {
-                setQuery('IoT sensor hydrology flash flood GCN');
-                setSimilarMode(false);
-                handleSearch();
-              }}
-              className="px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold rounded-xl shadow-sm cursor-pointer"
+      {activeTab === 'search' ? (
+        <>
+          {/* Search Form */}
+          <form onSubmit={handleSearch} className="flex gap-2">
+            <div className="relative flex-1">
+              <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+              <input
+                type="text"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder="Search literature by topic, keywords, or authors..."
+                className="w-full pl-9 pr-4 py-2.5 rounded-xl text-xs bg-[#0d1633] border border-[#1b2b5a] text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+            <button
+              type="submit"
+              className="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold shadow-lg shadow-blue-600/30 cursor-pointer"
             >
-              Use Sample: "Real-Time Hydrology Edge.pdf"
+              Search
             </button>
-            <button 
-              onClick={() => setSimilarMode(false)}
-              className="px-4 py-2 bg-[#121d42] text-slate-300 border border-[#20326b] text-xs font-semibold rounded-xl cursor-pointer"
-            >
-              Cancel
-            </button>
+          </form>
+
+          {/* Paper list */}
+          <div className="space-y-4">
+            {filteredPapers.map(paper => (
+              <div
+                key={paper.id}
+                className="p-5 rounded-2xl bg-[#0d1633] border border-[#1b2b5a] hover:border-blue-500/40 transition-all space-y-3"
+              >
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                  <div className="flex items-center gap-2">
+                    <span className={`px-2 py-0.5 rounded text-[10px] font-bold border ${getTierBadge(paper.relevanceTier)}`}>
+                      {paper.relevanceTier}
+                    </span>
+                    <span className="text-xs text-slate-400">{paper.published}</span>
+                  </div>
+
+                  <button
+                    onClick={() => handleImport(paper)}
+                    disabled={importedIds[paper.id]}
+                    className="px-3 py-1 rounded-xl bg-blue-600 hover:bg-blue-500 disabled:bg-emerald-600 text-white text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer self-start sm:self-auto"
+                  >
+                    {importedIds[paper.id] ? <Check className="w-3.5 h-3.5" /> : <Plus className="w-3.5 h-3.5" />}
+                    <span>{importedIds[paper.id] ? 'Imported to Library' : 'Add to Library'}</span>
+                  </button>
+                </div>
+
+                <h3 className="text-base font-bold text-white leading-snug">
+                  {paper.title}
+                </h3>
+                <p className="text-xs text-slate-400">
+                  {paper.authors.join(', ')}
+                </p>
+                <p className="text-xs text-slate-300 leading-relaxed">
+                  {paper.summary}
+                </p>
+              </div>
+            ))}
+          </div>
+        </>
+      ) : activeTab === 'alerts' ? (
+        /* RESEARCH ALERTS TAB */
+        <div className="space-y-6">
+          
+          {/* Create Alert Box */}
+          <div className="p-6 rounded-3xl bg-[#0d1633] border border-[#1b2b5a] space-y-4">
+            <div className="flex items-center gap-2">
+              <Bell className="w-4 h-4 text-amber-400" />
+              <h3 className="text-sm font-bold text-white">Create New Research Topic Alert</h3>
+            </div>
+            <p className="text-xs text-slate-400">
+              Select key research topics (e.g. <em>"Computer Vision + Medical Imaging"</em>). ResearchPilot will alert you whenever new matching preprints hit ArXiv, bioRxiv, or PubMed.
+            </p>
+
+            <form onSubmit={handleAddAlert} className="flex flex-col sm:flex-row gap-3">
+              <input
+                type="text"
+                value={newAlertQuery}
+                onChange={(e) => setNewAlertQuery(e.target.value)}
+                placeholder="e.g. Computer Vision + Medical Imaging"
+                className="flex-1 px-4 py-2.5 rounded-xl text-xs bg-[#090f28] border border-[#1e2e60] text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+              <select
+                value={newAlertDomain}
+                onChange={(e) => setNewAlertDomain(e.target.value)}
+                className="px-3 py-2.5 rounded-xl text-xs bg-[#090f28] border border-[#1e2e60] text-slate-200 focus:outline-none"
+              >
+                <option value="Computer Science">Computer Science & AI</option>
+                <option value="Healthcare AI">Medical & Healthcare</option>
+                <option value="Hydrology & Climate">Climate & Earth Sciences</option>
+                <option value="Education">Educational Analytics</option>
+              </select>
+              <button
+                type="submit"
+                className="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold shadow-lg shadow-blue-600/30 cursor-pointer flex items-center justify-center gap-2"
+              >
+                <Plus className="w-4 h-4" />
+                <span>Create Alert</span>
+              </button>
+            </form>
+          </div>
+
+          {/* Active Alerts List */}
+          <div className="space-y-3">
+            <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400">Active Topic Monitors ({alerts.length})</h3>
+            {alerts.map(alt => (
+              <div
+                key={alt.id}
+                className="p-5 rounded-2xl bg-[#0d1633] border border-[#1b2b5a] flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+              >
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2">
+                    <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-500/20 text-blue-400 border border-blue-500/30">
+                      {alt.domain}
+                    </span>
+                    <span className="text-[11px] text-slate-400 font-medium">
+                      {alt.frequency}
+                    </span>
+                  </div>
+                  <h4 className="text-sm font-bold text-white">
+                    {alt.query}
+                  </h4>
+                  <p className="text-xs text-slate-400">
+                    Latest Match: <strong className="text-slate-200">{alt.latestPaperTitle}</strong>
+                  </p>
+                </div>
+
+                <div className="flex items-center gap-3 shrink-0">
+                  <span className="px-3 py-1 rounded-xl bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 text-xs font-bold">
+                    {alt.matchedCount} New Papers
+                  </span>
+                  <button
+                    onClick={() => toggleAlert(alt.id)}
+                    className={`px-3 py-1.5 rounded-xl text-xs font-bold border transition-all cursor-pointer ${
+                      alt.active
+                        ? 'border-emerald-500/40 text-emerald-400 bg-emerald-500/10'
+                        : 'border-slate-700 text-slate-500 bg-slate-800/40'
+                    }`}
+                  >
+                    {alt.active ? 'Active' : 'Paused'}
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+
+        </div>
+      ) : (
+        /* TRENDING & RECOMMENDATIONS */
+        <div className="space-y-4">
+          <div className="p-4 rounded-2xl bg-gradient-to-r from-blue-900/30 to-indigo-900/30 border border-blue-500/30 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <TrendingUp className="w-5 h-5 text-blue-400" />
+              <div>
+                <h3 className="text-sm font-bold text-white">Curated For Your Active Projects</h3>
+                <span className="text-xs text-slate-400">Based on Flood Prediction and Dropout Prevention telemetry</span>
+              </div>
+            </div>
+            <span className="text-xs font-bold text-emerald-400 bg-emerald-500/15 px-3 py-1 rounded-full border border-emerald-500/30">
+              4 Fresh Preprints Today
+            </span>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {INITIAL_PAPERS.slice(0, 4).map(p => (
+              <div key={p.id} className="p-5 rounded-2xl bg-[#0d1633] border border-[#1b2b5a] space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] font-bold text-blue-400 bg-blue-500/15 px-2 py-0.5 rounded border border-blue-500/30">
+                    96% Semantic Match
+                  </span>
+                  <span className="text-xs text-slate-400">{p.citations} citations</span>
+                </div>
+                <h4 className="text-sm font-bold text-white leading-snug">{p.title}</h4>
+                <p className="text-xs text-slate-400 line-clamp-2">{p.summary}</p>
+                <button
+                  onClick={() => handleImport(p)}
+                  className="px-3 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold shadow-sm transition-all flex items-center gap-1 cursor-pointer mt-2"
+                >
+                  <Plus className="w-3.5 h-3.5" />
+                  <span>Import to Research Project</span>
+                </button>
+              </div>
+            ))}
           </div>
         </div>
       )}
 
-      {/* Search Bar & Filters */}
-      <div className="rounded-3xl bg-[#0d1633] border border-[#1b2b5a] p-6 shadow-xl space-y-4">
-        <form onSubmit={handleSearch} className="flex flex-col sm:flex-row gap-3">
-          <div className="relative flex-1">
-            <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
-            <input
-              type="text"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search topic, author, methodology (e.g. AI-based flood prediction using IoT)..."
-              className="w-full pl-10 pr-4 py-3 bg-[#0e1838] border border-[#1e2d5a] rounded-xl text-xs font-medium text-slate-100 placeholder-slate-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/30 transition-all"
-            />
-          </div>
-          <button
-            type="submit"
-            disabled={isSearching}
-            className="flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white rounded-xl text-xs font-bold shadow-lg shadow-blue-500/25 transition-all shrink-0 cursor-pointer"
-          >
-            {isSearching ? (
-              <>
-                <div className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                <span>Searching...</span>
-              </>
-            ) : (
-              <>
-                <Search className="w-4 h-4" />
-                <span>Query ArXiv</span>
-              </>
-            )}
-          </button>
-        </form>
-
-        {/* Filters and Classifications */}
-        <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-[#1b2b5a]">
-          {/* Classification Tiers */}
-          <div className="flex items-center gap-1.5 flex-wrap">
-            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mr-1 flex items-center gap-1">
-              <Layers className="w-3 h-3" /> Tier:
-            </span>
-            {['All', 'Highly Relevant', 'Related', 'Background', 'Low Relevance'].map(tier => (
-              <button
-                key={tier}
-                onClick={() => setActiveTier(tier)}
-                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
-                  activeTier === tier
-                    ? 'bg-blue-600 text-white shadow-md'
-                    : 'bg-[#111c40] text-slate-300 hover:bg-[#162552] border border-[#1e2e60]'
-                }`}
-              >
-                {tier}
-              </button>
-            ))}
-          </div>
-
-          {/* Year & Sort Controls */}
-          <div className="flex items-center gap-3">
-            <div className="flex items-center gap-1.5 text-xs text-slate-400">
-              <Calendar className="w-3.5 h-3.5 text-slate-400" />
-              <span>Year:</span>
-              <select
-                value={selectedYear}
-                onChange={(e) => setSelectedYear(e.target.value)}
-                className="bg-[#0e1838] border border-[#1e2d5a] rounded-lg px-2.5 py-1 text-xs font-semibold text-slate-200 focus:outline-none"
-              >
-                <option value="All">All Years</option>
-                <option value="2024">2024</option>
-                <option value="2023">2023</option>
-                <option value="2022">2022</option>
-                <option value="2021">2021</option>
-              </select>
-            </div>
-
-            <div className="flex items-center gap-1.5 text-xs text-slate-400">
-              <SlidersHorizontal className="w-3.5 h-3.5 text-slate-400" />
-              <span>Sort:</span>
-              <select
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value as any)}
-                className="bg-[#0e1838] border border-[#1e2d5a] rounded-lg px-2.5 py-1 text-xs font-semibold text-slate-200 focus:outline-none"
-              >
-                <option value="relevance">Relevance</option>
-                <option value="citations">Most Cited</option>
-                <option value="recent">Latest Date</option>
-              </select>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Results Header */}
-      <div className="flex items-center justify-between text-xs text-slate-400 px-1">
-        <span>
-          Showing <strong className="text-white">{filteredPapers.length}</strong> academic nodes for <span className="italic text-blue-400">"{query}"</span>
-        </span>
-        <span className="text-[11px] bg-[#111c40] border border-[#1e2e60] px-2.5 py-0.5 rounded text-slate-300">
-          Source: ArXiv Academic Index
-        </span>
-      </div>
-
-      {/* Paper Results Cards */}
-      <div className="space-y-4">
-        {filteredPapers.map((paper) => {
-          const isImported = importedIds[paper.id];
-          return (
-            <div
-              key={paper.id}
-              className="rounded-3xl bg-[#0d1633] border border-[#1b2b5a] p-6 hover:border-blue-500/50 hover:shadow-xl transition-all space-y-4 group shadow-lg"
-            >
-              <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
-                <div className="space-y-1.5 flex-1">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full border ${getTierBadge(paper.relevanceTier)}`}>
-                      {paper.relevanceTier}
-                    </span>
-                    <span className="text-[11px] text-slate-400 font-mono">
-                      {paper.id}
-                    </span>
-                    <span className="text-[11px] text-slate-500 font-medium">
-                      • Published {paper.published}
-                    </span>
-                    {paper.citations && (
-                      <span className="flex items-center gap-1 text-[11px] text-amber-400 font-semibold bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/20">
-                        <Award className="w-3 h-3" /> {paper.citations} citations
-                      </span>
-                    )}
-                  </div>
-                  <h3 className="text-base font-bold text-white group-hover:text-blue-400 transition-colors leading-snug">
-                    {paper.title}
-                  </h3>
-                  <p className="text-xs text-slate-400">
-                    {paper.authors.join(', ')}
-                  </p>
-                </div>
-
-                {/* Import / Action button */}
-                <div className="flex items-center gap-2 shrink-0">
-                  <button
-                    onClick={() => handleImport(paper)}
-                    disabled={isImported}
-                    className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold transition-all border cursor-pointer ${
-                      isImported
-                        ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30 cursor-default'
-                        : 'bg-blue-600/20 text-blue-300 border-blue-500/30 hover:bg-blue-600 hover:text-white'
-                    }`}
-                  >
-                    {isImported ? (
-                      <>
-                        <Check className="w-3.5 h-3.5" />
-                        <span>In Pipeline</span>
-                      </>
-                    ) : (
-                      <>
-                        <Plus className="w-3.5 h-3.5" />
-                        <span>Import to Pipeline</span>
-                      </>
-                    )}
-                  </button>
-
-                  {paper.pdfUrl && (
-                    <a
-                      href={paper.pdfUrl}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="p-2 text-slate-400 hover:text-white bg-[#111c40] hover:bg-[#162554] rounded-xl border border-[#1e2e60] transition-all"
-                      title="View ArXiv Preprint"
-                    >
-                      <ExternalLink className="w-4 h-4" />
-                    </a>
-                  )}
-                </div>
-              </div>
-
-              {/* Summary */}
-              <p className="text-xs text-slate-300 leading-relaxed bg-[#0a1128] p-3.5 rounded-2xl border border-[#162347]">
-                {paper.summary}
-              </p>
-
-              {/* Extracted Structured Metadata Matrix */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1 text-[11px]">
-                <div className="bg-[#111c40] p-3 rounded-xl border border-[#1e2e60]">
-                  <span className="font-semibold text-slate-400 block uppercase text-[9px] tracking-wider mb-0.5">
-                    Dataset Used
-                  </span>
-                  <span className="font-bold text-white">
-                    {paper.dataset || 'Custom Empirical Dataset'}
-                  </span>
-                </div>
-
-                <div className="bg-[#111c40] p-3 rounded-xl border border-[#1e2e60]">
-                  <span className="font-semibold text-slate-400 block uppercase text-[9px] tracking-wider mb-0.5">
-                    Method / Architecture
-                  </span>
-                  <span className="font-bold text-blue-400">
-                    {paper.method || 'Deep Learning Baseline'}
-                  </span>
-                </div>
-
-                <div className="bg-[#111c40] p-3 rounded-xl border border-[#1e2e60]">
-                  <span className="font-semibold text-slate-400 block uppercase text-[9px] tracking-wider mb-0.5">
-                    Performance Metric
-                  </span>
-                  <span className="font-bold text-emerald-400">
-                    {paper.accuracy || '90%+ Verification'}
-                  </span>
-                </div>
-              </div>
-            </div>
-          );
-        })}
-      </div>
     </div>
   );
 };

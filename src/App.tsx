@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { Sidebar, NavTab } from './components/Sidebar';
+import { Sidebar, NavTab, UserRole } from './components/Sidebar';
 import { Header } from './components/Header';
 import { LandingPage } from './components/landing/LandingPage';
 import { LoginPage } from './components/views/LoginPage';
 import { DashboardView } from './components/views/DashboardView';
 import { UploadView } from './components/views/UploadView';
 import { MyPapersView } from './components/views/MyPapersView';
+import { ResearchLibraryView } from './components/views/ResearchLibraryView';
+import { PaperStudioView } from './components/views/PaperStudioView';
+import { ProfessorDashboardModal } from './components/views/ProfessorDashboardModal';
 import { GapAnalysisView } from './components/views/GapAnalysisView';
 import { WeakArgumentsView } from './components/views/WeakArgumentsView';
 import { NoveltyScoreView } from './components/views/NoveltyScoreView';
@@ -110,6 +113,8 @@ export const App: React.FC = () => {
   const [theme, setTheme] = useState<'dark' | 'light'>(() => {
     return (localStorage.getItem('rp_theme') as 'dark' | 'light') || 'dark';
   });
+  const [currentRole, setCurrentRole] = useState<UserRole>('researcher');
+  const [isProfessorDashboardOpen, setIsProfessorDashboardOpen] = useState(false);
   
   const [papers, setPapers] = useState<PaperAnalysis[]>([DEFAULT_SAMPLE_PAPER]);
   const [activePaper, setActivePaper] = useState<PaperAnalysis>(DEFAULT_SAMPLE_PAPER);
@@ -233,6 +238,12 @@ export const App: React.FC = () => {
         setCollapsed={setSidebarCollapsed}
         onLogout={handleLogout}
         isDarkMode={isDarkMode}
+        currentRole={currentRole}
+        onRoleChange={(r) => {
+          setCurrentRole(r);
+          if (r === 'professor') setIsProfessorDashboardOpen(true);
+        }}
+        onOpenProfessorDashboard={() => setIsProfessorDashboardOpen(true)}
       />
 
       {/* Main Content Pane */}
@@ -271,11 +282,17 @@ export const App: React.FC = () => {
               papers={papers}
               onSelectPaper={handleSelectPaper}
               onOpenAnalysis={() => setActiveTab('research_gaps')}
+              onNavigate={setActiveTab}
+              isDarkMode={isDarkMode}
             />
           )}
 
           {(activeTab === 'discover' || activeTab === 'discovery') && (
             <LiteratureDiscoveryView onImportPaper={handleImportArxivPaper} activePaper={activePaper} />
+          )}
+
+          {activeTab === 'library' && (
+            <ResearchLibraryView onNavigate={setActiveTab} isDarkMode={isDarkMode} />
           )}
 
           {/* 2. ANALYZE */}
@@ -297,11 +314,15 @@ export const App: React.FC = () => {
           )}
 
           {(activeTab === 'experiments' || activeTab === 'experiment_planner') && (
-            <ExperimentPlannerView />
+            <ExperimentPlannerView isDarkMode={isDarkMode} />
           )}
 
           {activeTab === 'experiment_dashboard' && (
             <ExperimentDashboardView />
+          )}
+
+          {activeTab === 'paper_studio' && (
+            <PaperStudioView paper={activePaper} isDarkMode={isDarkMode} />
           )}
 
           {activeTab === 'research_proposal' && (
@@ -379,6 +400,13 @@ export const App: React.FC = () => {
         paper={activePaper}
         isOpen={isDossierOpen}
         onClose={() => setIsDossierOpen(false)}
+      />
+
+      {/* Professor Supervision Dashboard Modal */}
+      <ProfessorDashboardModal
+        isOpen={isProfessorDashboardOpen}
+        onClose={() => setIsProfessorDashboardOpen(false)}
+        isDarkMode={isDarkMode}
       />
 
       {/* Universal Floating AI Copilot Widget */}
