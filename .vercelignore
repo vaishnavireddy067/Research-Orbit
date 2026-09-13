@@ -1,0 +1,5 @@
+requirements.txt
+*.py
+*.db
+__pycache__
+.env
