@@ -116,8 +116,8 @@ export const App: React.FC = () => {
   const [currentRole, setCurrentRole] = useState<UserRole>('researcher');
   const [isProfessorDashboardOpen, setIsProfessorDashboardOpen] = useState(false);
   
-  const [papers, setPapers] = useState<PaperAnalysis[]>([DEFAULT_SAMPLE_PAPER]);
-  const [activePaper, setActivePaper] = useState<PaperAnalysis>(DEFAULT_SAMPLE_PAPER);
+  const [papers, setPapers] = useState<PaperAnalysis[]>([]);
+  const [activePaper, setActivePaper] = useState<PaperAnalysis | null>(null);
   const [isDossierOpen, setIsDossierOpen] = useState(false);
 
   const handleToggleTheme = () => {
@@ -150,6 +150,8 @@ export const App: React.FC = () => {
   const handleLogout = () => {
     removeAuthToken();
     setCurrentUser(null);
+    setPapers([]);
+    setActivePaper(null);
     setViewMode('landing');
   };
 
@@ -288,11 +290,11 @@ export const App: React.FC = () => {
           )}
 
           {(activeTab === 'discover' || activeTab === 'discovery') && (
-            <LiteratureDiscoveryView onImportPaper={handleImportArxivPaper} activePaper={activePaper} />
+            <LiteratureDiscoveryView onImportPaper={handleImportArxivPaper} activePaper={activePaper || undefined} />
           )}
 
           {activeTab === 'library' && (
-            <ResearchLibraryView onNavigate={setActiveTab} isDarkMode={isDarkMode} />
+            <ResearchLibraryView papers={papers} onSelectPaper={handleSelectPaper} onNavigate={setActiveTab} isDarkMode={isDarkMode} />
           )}
 
           {/* 2. ANALYZE */}
@@ -305,7 +307,7 @@ export const App: React.FC = () => {
           )}
 
           {(activeTab === 'research_gaps' || activeTab === 'gap_analysis') && (
-            <GapAnalysisView paper={activePaper} />
+            <GapAnalysisView paper={activePaper} onNavigate={setActiveTab} isDarkMode={isDarkMode} />
           )}
 
           {/* 3. BUILD */}
@@ -322,7 +324,7 @@ export const App: React.FC = () => {
           )}
 
           {activeTab === 'paper_studio' && (
-            <PaperStudioView paper={activePaper} isDarkMode={isDarkMode} />
+            <PaperStudioView paper={activePaper} onNavigate={setActiveTab} isDarkMode={isDarkMode} />
           )}
 
           {activeTab === 'research_proposal' && (
@@ -352,7 +354,7 @@ export const App: React.FC = () => {
           )}
 
           {(activeTab === 'research_chat' || activeTab === 'ai_assistant') && (
-            <AiAssistantView paper={activePaper} />
+            <AiAssistantView paper={activePaper || undefined} />
           )}
 
           {(activeTab === 'audio_brief' || activeTab === 'podcast') && (
@@ -364,27 +366,27 @@ export const App: React.FC = () => {
           )}
 
           {activeTab === 'weak_arguments' && (
-            <WeakArgumentsView paper={activePaper} />
+            <WeakArgumentsView paper={activePaper} onNavigate={setActiveTab} isDarkMode={isDarkMode} />
           )}
 
           {activeTab === 'novelty_score' && (
-            <NoveltyScoreView paper={activePaper} />
+            <NoveltyScoreView paper={activePaper} onNavigate={setActiveTab} isDarkMode={isDarkMode} />
           )}
 
           {activeTab === 'ai_detection' && (
-            <AiDetectionView paper={activePaper} />
+            <AiDetectionView paper={activePaper || undefined} />
           )}
 
           {activeTab === 'improvements' && (
-            <ImprovementsView paper={activePaper} />
+            <ImprovementsView paper={activePaper} onNavigate={setActiveTab} isDarkMode={isDarkMode} />
           )}
 
           {activeTab === 'idea_expansion' && (
-            <IdeaExpansionView paper={activePaper} />
+            <IdeaExpansionView paper={activePaper} onNavigate={setActiveTab} isDarkMode={isDarkMode} />
           )}
 
           {activeTab === 'insights' && (
-            <InsightsView paper={activePaper} />
+            <InsightsView paper={activePaper || undefined} />
           )}
 
           {activeTab === 'settings' && (

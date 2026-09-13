@@ -27,10 +27,13 @@ import {
 } from 'lucide-react';
 import { PaperAnalysis } from '../types';
 import { api } from '../services/api';
+import { EmptyWorkspaceState } from './EmptyWorkspaceState';
+import { NavTab } from './Sidebar';
 
 interface LivePaperStudioProps {
   paper?: PaperAnalysis | null;
   isDarkMode?: boolean;
+  onNavigate?: (tab: NavTab) => void;
 }
 
 interface PaperSection {
@@ -38,99 +41,26 @@ interface PaperSection {
   name: string;
   shortName: string;
   wordTarget: number;
-  placeholder: string;
   academicGuide: string;
   content: string;
   groundingStatus: 'VERIFIED' | 'NEEDS_VERIFICATION' | 'UNSUPPORTED';
 }
 
-const getGroundedSections = (title: string, summary?: string): PaperSection[] => {
-  const isNeuralSynthesizer = title.toLowerCase().includes('neural synthesizer') || title.toLowerCase().includes('latent');
+const getGroundedSections = (paper?: PaperAnalysis | null): PaperSection[] => {
+  if (!paper) return [];
 
-  if (isNeuralSynthesizer) {
-    return [
-      {
-        id: 'abstract',
-        name: 'Abstract & Key Contributions',
-        shortName: 'Abstract',
-        wordTarget: 250,
-        academicGuide: 'Summarize the overarching problem, core architectural thesis, quantitative benchmark leap, and broad theoretical/practical implications.',
-        placeholder: 'Write your abstract here or click "AI Auto-Draft Section"...',
-        groundingStatus: 'VERIFIED',
-        content: `High-dimensional latent representation spaces in modern transformer architectures frequently suffer from manifold collapse and quadratic attention projection overhead. In this paper, we present Neural Synthesizer, a geometric deep learning framework that introduces recursive node calibration across Riemannian latent manifolds. By enforcing intrinsic geodesic distance invariants during backpropagation, our calibration mechanism dynamically stabilizes latent clustering without requiring empirical post-hoc normalization. Extensive empirical evaluations across transformer benchmark clusters demonstrate that our framework achieves a 4x improvement in computational throughput while attaining 28.4 BLEU on English-to-German translation benchmarks, establishing a rigorous geometric foundation for high-throughput latent inference.`
-      },
-      {
-        id: 'intro',
-        name: '1. Introduction & Problem Statement',
-        shortName: '1. Introduction',
-        wordTarget: 600,
-        academicGuide: 'Introduce the real-world motivation, why existing legacy approaches fall short, and list 3-4 bulleted concrete contributions of your research.',
-        placeholder: 'Introduce your research domain and specific problem statement...',
-        groundingStatus: 'VERIFIED',
-        content: `Existing recurrence-based neural networks and multi-head attention layers struggle with long-range linguistic dependencies and parallel hardware saturation. While scaling parameter counts expands expressive capacity, quadratic memory growth during matrix self-attention creates severe inference latency bottlenecks in production environments.\n\nFurthermore, unconstrained embedding projections across deep layers lead to geometric representation drift, where semantic representations gradually lose topological neighborhood coherence.\n\nTo resolve these fundamental challenges, this paper presents three core contributions:\n• We formulate Recursive Node Calibration, projecting latent representations onto calibrated manifold sub-spaces.\n• We prove that intrinsic geodesic distance constraints prevent representation collapse during continuous gradient updates.\n• We demonstrate empirical validation achieving 4x throughput acceleration on enterprise transformer GPU clusters.`
-      },
-      {
-        id: 'literature',
-        name: '2. Related Work & Research Gaps',
-        shortName: '2. Related Work',
-        wordTarget: 500,
-        academicGuide: 'Categorize existing literature into 2-3 methodological paradigms, highlight their boundaries, and articulate your exact research white-space.',
-        placeholder: 'Review existing literature and state your research gap...',
-        groundingStatus: 'NEEDS_VERIFICATION',
-        content: `Prior literature in deep representation learning can be categorized into two paradigms:\n\n1. Fixed Euclidean Attention Mechanisms: Vaswani et al. (2017) formalized scaled dot-product self-attention. While effective across sequence transduction, standard attention treats latent dimensions as flat Euclidean spaces, disregarding hyperbolic or manifold structures inherent in semantic hierarchies.\n\n2. Geometric & Manifold Embeddings: Nickel & Kiela introduced Poincaré hyperbolic embeddings for tree-like symbolic knowledge graphs. However, integrating continuous manifold projections directly into backpropagation without gradient instability has remained an open challenge.\n\nNeural Synthesizer addresses this gap by coupling recursive node calibration with dynamically stabilized latent manifold projections.`
-      },
-      {
-        id: 'methodology',
-        name: '3. Proposed Methodology & Architecture',
-        shortName: '3. Methodology',
-        wordTarget: 800,
-        academicGuide: 'Provide the mathematical formulation, network architecture diagram flow, loss function definition, and proof of algorithmic convergence.',
-        placeholder: 'Detail your proposed mathematical model and algorithmic steps...',
-        groundingStatus: 'VERIFIED',
-        content: `Let $\\mathcal{M}$ denote the latent Riemannian manifold equipped with metric tensor $g_{ij}$. For a latent representation vector $z_k \\in \\mathbb{R}^d$, the recursive calibration operator $\\mathcal{C}(z_k)$ is defined as:\n$$\\mathcal{C}(z_k^{(l+1)}) = \\exp_{z_k^{(l)}} \\left( -\\eta \\nabla_{\\mathcal{M}} \\mathcal{L}_{geom}(z_k^{(l)}) + \\sum_{j \\in \\mathcal{N}(k)} \\beta_{kj} \\log_{z_k^{(l)}}(z_j^{(l)}) \\right)$$\nwhere $\\log$ and $\\exp$ represent the Riemannian logarithmic and exponential maps preserving local geodesic distance invariants.\n\nBy executing parallel calibration across tensor dimensions via TensorRT kernels, our architecture eliminates quadratic memory allocations during cross-sequence attention aggregation.`
-      },
-      {
-        id: 'experiments',
-        name: '4. Experimental Setup & Datasets',
-        shortName: '4. Experiments',
-        wordTarget: 500,
-        academicGuide: 'Describe datasets used, hardware testbeds, baseline models compared against, and specific evaluation metrics.',
-        placeholder: 'Detail your datasets, hardware configuration, and evaluation metrics...',
-        groundingStatus: 'VERIFIED',
-        content: `4.1 Benchmark Datasets:\nEvaluations were conducted across two standardized machine learning benchmarks:\n• WMT 2014 English-to-German & English-to-French: 4.5 million sentence pairs for continuous sequence translation evaluation.\n• Latent Manifold Cluster Corpora: 1.2M document tokens evaluating geometric distance preservation.\n\n4.2 Baseline Models:\nWe benchmark against: (1) Standard Transformer Base, (2) Reformer with Locality Sensitive Hashing, (3) Linformer Linear Attention, and (4) Hyperbolic Neural Operators.\n\n4.3 Metrics:\nTranslation accuracy is measured via BLEU score, perplexity, and inference throughput (tokens/sec).`
-      },
-      {
-        id: 'results',
-        name: '5. Empirical Results & Discussion',
-        shortName: '5. Results',
-        wordTarget: 600,
-        academicGuide: 'Present comparative benchmark tables, ablation studies proving module contributions, and stress-test performance curves.',
-        placeholder: 'Present your findings, ablation results, and comparative analysis...',
-        groundingStatus: 'NEEDS_VERIFICATION',
-        content: `Table 1 presents comparative throughput and accuracy benchmarks on WMT 2014 English-to-German:\n• Standard Transformer Base: 27.3 BLEU, 1,420 tokens/sec.\n• Linformer: 26.8 BLEU, 2,850 tokens/sec.\n• Neural Synthesizer (Ours): 28.4 BLEU, 5,680 tokens/sec (4.0x throughput leap).\n\nAblation analysis shows that removing the recursive geodesic constraint leads to latent manifold collapse within 12,000 training iterations, verifying the theoretical necessity of our calibration operator.`
-      },
-      {
-        id: 'conclusion',
-        name: '6. Conclusion, Limitations & Future Scope',
-        shortName: '6. Conclusion',
-        wordTarget: 300,
-        academicGuide: 'Summarize key findings, state honest technical limitations, and outline actionable future research directions.',
-        placeholder: 'Summarize your contributions, acknowledge limitations, and detail next steps...',
-        groundingStatus: 'VERIFIED',
-        content: `In this paper, we introduced Neural Synthesizer, uniting recursive node calibration with latent manifold representations to achieve 4x inference throughput without sacrificing translation fidelity. Limitations include memory footprint during initialization of high-dimensional Riemannian curvature tensors. Future work will investigate quantization of metric tensors for deployment on edge micro-architectures.`
-      }
-    ];
-  }
+  const title = paper.title || 'Untitled Manuscript';
+  const summary = paper.summary || '';
+  const breakdown = paper.extendedAnalysis?.structuredBreakdown;
+  const risks = paper.risks || [];
 
-  // Generic fallback grounded in paper summary
   return [
     {
       id: 'abstract',
       name: 'Abstract & Key Contributions',
       shortName: 'Abstract',
       wordTarget: 250,
-      academicGuide: 'Summarize overarching problem, core thesis, benchmark results, and broader impact.',
-      placeholder: 'Write your abstract...',
+      academicGuide: 'Summarize the overarching problem, core architectural thesis, quantitative benchmark leap, and broad theoretical/practical implications.',
       groundingStatus: 'VERIFIED',
       content: summary || `This study investigates foundational principles and empirical methodologies for ${title}. We demonstrate significant performance improvements over baseline architectures while addressing key computational bottlenecks.`
     },
@@ -139,60 +69,61 @@ const getGroundedSections = (title: string, summary?: string): PaperSection[] =>
       name: '1. Introduction & Problem Statement',
       shortName: '1. Introduction',
       wordTarget: 600,
-      academicGuide: 'Real-world motivation and concrete research contributions.',
-      placeholder: 'Introduce problem...',
+      academicGuide: 'Introduce the real-world motivation, why existing legacy approaches fall short, and list 3-4 bulleted concrete contributions of your research.',
       groundingStatus: 'VERIFIED',
-      content: `Addressing the technical and computational challenges of ${title} is critical for contemporary scientific progress. Legacy approaches face fundamental trade-offs between precision and computational feasibility.`
+      content: breakdown?.problemStatement 
+        ? `Problem Statement & Context:\n${breakdown.problemStatement}\n\nAddressing the computational and domain bottlenecks of ${title} is critical for state-of-the-art research progression.`
+        : `Addressing the technical and computational challenges of ${title} is critical for contemporary scientific progress. Legacy approaches face fundamental trade-offs between precision and computational feasibility.`
     },
     {
       id: 'literature',
       name: '2. Related Work & Research Gaps',
       shortName: '2. Related Work',
       wordTarget: 500,
-      academicGuide: 'Categorize prior literature and specify research gaps.',
-      placeholder: 'Review literature...',
+      academicGuide: 'Categorize existing literature into 2-3 methodological paradigms, highlight their boundaries, and articulate your exact research white-space.',
       groundingStatus: 'NEEDS_VERIFICATION',
-      content: `Extensive prior studies have examined baseline representations, yet significant gaps remain in handling real-world distribution drift and edge efficiency.`
+      content: risks.length > 0
+        ? `Identified Academic & Methodological Gaps in Prior Literature:\n` + risks.map((r, i) => `• Gap ${i + 1}: ${r}`).join('\n')
+        : `Prior literature has examined baseline representations, yet significant gaps remain in handling real-world distribution drift and edge efficiency for ${title}.`
     },
     {
       id: 'methodology',
-      name: '3. Proposed Methodology',
+      name: '3. Proposed Methodology & Architecture',
       shortName: '3. Methodology',
       wordTarget: 800,
-      academicGuide: 'Formulation, algorithmic flow, and objective functions.',
-      placeholder: 'Detail methodology...',
+      academicGuide: 'Provide the mathematical formulation, network architecture diagram flow, loss function definition, and proof of algorithmic convergence.',
       groundingStatus: 'VERIFIED',
-      content: `We formulate an end-to-end framework optimizing both empirical accuracy and computational constraints through mathematically rigorous objective functions.`
+      content: breakdown?.methodology || paper.implementation || `We formulate an end-to-end framework optimizing both empirical accuracy and computational constraints through mathematically rigorous objective functions tailored to ${title}.`
     },
     {
       id: 'experiments',
-      name: '4. Experimental Setup',
+      name: '4. Experimental Setup & Datasets',
       shortName: '4. Experiments',
       wordTarget: 500,
-      academicGuide: 'Datasets, hardware testbeds, and baseline models.',
-      placeholder: 'Detail experimental setup...',
+      academicGuide: 'Describe datasets used, hardware testbeds, baseline models compared against, and specific evaluation metrics.',
       groundingStatus: 'VERIFIED',
-      content: `Evaluation is carried out across standardized academic benchmarks, comparing against established state-of-the-art baselines under rigorous reproducibility protocols.`
+      content: breakdown?.datasetUsed 
+        ? `Datasets & Benchmarks:\n${breakdown.datasetUsed}\n\nEvaluation is conducted across standardized benchmark sets comparing against established state-of-the-art baselines.`
+        : `Evaluation is carried out across standardized academic benchmarks, comparing against established state-of-the-art baselines under rigorous reproducibility protocols.`
     },
     {
       id: 'results',
-      name: '5. Empirical Results',
+      name: '5. Empirical Results & Discussion',
       shortName: '5. Results',
       wordTarget: 600,
-      academicGuide: 'Benchmark tables, ablation tests, and statistical significance.',
-      placeholder: 'Present results...',
-      groundingStatus: 'NEEDS_VERIFICATION',
-      content: `Empirical evaluations confirm our proposed method achieves superior benchmark outcomes, with statistical ablation tests corroborating each architectural component.`
+      academicGuide: 'Present comparative benchmark tables, ablation studies proving module contributions, and stress-test performance curves.',
+      groundingStatus: 'VERIFIED',
+      content: breakdown?.results || `Empirical evaluation results indicate measurable improvements over standard baseline methods across both accuracy and computational efficiency.`
     },
     {
       id: 'conclusion',
-      name: '6. Conclusion & Future Work',
+      name: '6. Conclusion, Limitations & Future Scope',
       shortName: '6. Conclusion',
       wordTarget: 300,
-      academicGuide: 'Summary, acknowledged limitations, and future directions.',
-      placeholder: 'Conclude findings...',
+      academicGuide: 'Summarize key findings, state honest technical limitations, and outline actionable future research directions.',
       groundingStatus: 'VERIFIED',
-      content: `We have presented a robust methodology for ${title}. Future extensions will focus on cross-domain generalization and edge quantization.`
+      content: (breakdown?.conclusion ? `${breakdown.conclusion}\n\n` : '') +
+        (breakdown?.limitations ? `Limitations & Future Scope:\n${breakdown.limitations}` : `We have presented a robust methodology for ${title}. Future extensions will focus on cross-domain generalization and edge quantization.`)
     }
   ];
 };
@@ -200,12 +131,24 @@ const getGroundedSections = (title: string, summary?: string): PaperSection[] =>
 export const LivePaperStudio: React.FC<LivePaperStudioProps> = ({
   paper,
   isDarkMode = true,
+  onNavigate,
 }) => {
-  const currentTitle = paper?.title || 'Neural Synthesizer: Recursive Node Calibration in Latent Manifolds';
+  if (!paper) {
+    return (
+      <EmptyWorkspaceState
+        title="Interactive Manuscript Studio • No Active Document"
+        description="Select a paper from your library or upload a research PDF / import from arXiv to begin drafting, grounding, and synthesizing manuscript sections with AI."
+        onNavigate={onNavigate}
+        isDarkMode={isDarkMode}
+      />
+    );
+  }
+
+  const currentTitle = paper.title || 'Untitled Research Manuscript';
   const [paperTitle, setPaperTitle] = useState(currentTitle);
-  const [authors, setAuthors] = useState(paper?.authors || 'Vaswani, Rivera et al., Autonomous Research Lab');
+  const [authors, setAuthors] = useState(paper.authors || 'Lead Researcher et al.');
   const [targetVenue, setTargetVenue] = useState('IEEE Transactions / NeurIPS');
-  const [sections, setSections] = useState<PaperSection[]>(() => getGroundedSections(currentTitle, paper?.summary));
+  const [sections, setSections] = useState<PaperSection[]>(() => getGroundedSections(paper));
   const [activeSectionId, setActiveSectionId] = useState('abstract');
   const [isDrafting, setIsDrafting] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -217,9 +160,9 @@ export const LivePaperStudio: React.FC<LivePaperStudioProps> = ({
     if (paper?.title) {
       setPaperTitle(paper.title);
       if (paper.authors) setAuthors(paper.authors);
-      setSections(getGroundedSections(paper.title, paper.summary));
+      setSections(getGroundedSections(paper));
     }
-  }, [paper?.title, paper?.summary]);
+  }, [paper]);
 
   const activeSection = sections.find((s) => s.id === activeSectionId) || sections[0];
 

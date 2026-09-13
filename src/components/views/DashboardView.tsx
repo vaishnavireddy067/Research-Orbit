@@ -294,81 +294,116 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         </div>
       </div>
 
-      {/* ROW 2: 4 Key Metric Cards Row matching Screenshot */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        
-        {/* Card 1: Papers Uploaded */}
-        <div 
-          onClick={() => onNavigate('my_research')}
-          className="rounded-2xl bg-[#0d1633] border border-[#1b2b5a] p-5 hover:border-blue-500/40 transition-all cursor-pointer shadow-lg group"
-        >
-          <div className="w-9 h-9 rounded-xl bg-blue-500/15 border border-blue-500/25 flex items-center justify-center text-blue-400 mb-3 group-hover:scale-105 transition-transform">
-            <FileText className="w-4 h-4" />
-          </div>
-          <div className="text-2xl font-black text-white">12</div>
-          <div className="text-xs text-slate-400 font-medium mt-0.5">Papers Uploaded</div>
-          <div className="flex items-center text-[11px] font-semibold text-emerald-400 mt-2.5">
-            <ArrowUpRight className="w-3.5 h-3.5 mr-0.5" />
-            <span>+3 this week</span>
-          </div>
-        </div>
+      {/* ROW 2: 4 Key Metric Cards Row */}
+      {(() => {
+        const papersCount = papers.length;
+        const analysesCount = papers.filter((p) => p.extendedAnalysis || p.summary).length;
+        const gapsCount = papers.reduce((sum, p) => sum + (p.risks?.length || 0), 0);
+        const ideasCount = papers.length > 0 ? papers.length * 3 : 0;
 
-        {/* Card 2: Analyses Completed */}
-        <div 
-          onClick={() => onNavigate('paper_analysis')}
-          className="rounded-2xl bg-[#0d1633] border border-[#1b2b5a] p-5 hover:border-purple-500/40 transition-all cursor-pointer shadow-lg group"
-        >
-          <div className="w-9 h-9 rounded-xl bg-purple-500/15 border border-purple-500/25 flex items-center justify-center text-purple-400 mb-3 group-hover:scale-105 transition-transform">
-            <Brain className="w-4 h-4" />
-          </div>
-          <div className="text-2xl font-black text-white">8</div>
-          <div className="text-xs text-slate-400 font-medium mt-0.5">Analyses Completed</div>
-          <div className="flex items-center text-[11px] font-semibold text-emerald-400 mt-2.5">
-            <ArrowUpRight className="w-3.5 h-3.5 mr-0.5" />
-            <span>+2 today</span>
-          </div>
-        </div>
+        return (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {/* Card 1: Papers Uploaded */}
+            <div 
+              onClick={() => onNavigate('my_research')}
+              className="rounded-2xl bg-[#0d1633] border border-[#1b2b5a] p-5 hover:border-blue-500/40 transition-all cursor-pointer shadow-lg group"
+            >
+              <div className="w-9 h-9 rounded-xl bg-blue-500/15 border border-blue-500/25 flex items-center justify-center text-blue-400 mb-3 group-hover:scale-105 transition-transform">
+                <FileText className="w-4 h-4" />
+              </div>
+              <div className="text-2xl font-black text-white">{papersCount}</div>
+              <div className="text-xs text-slate-400 font-medium mt-0.5">Papers Uploaded</div>
+              <div className="flex items-center text-[11px] font-semibold mt-2.5 text-slate-400">
+                {papersCount > 0 ? (
+                  <span className="text-emerald-400 flex items-center">
+                    <ArrowUpRight className="w-3.5 h-3.5 mr-0.5" />
+                    +{papersCount} indexed
+                  </span>
+                ) : (
+                  <span>No documents yet</span>
+                )}
+              </div>
+            </div>
 
-        {/* Card 3: Ideas Generated */}
-        <div 
-          onClick={() => onNavigate('idea_lab')}
-          className="rounded-2xl bg-[#0d1633] border border-[#1b2b5a] p-5 hover:border-amber-500/40 transition-all cursor-pointer shadow-lg group"
-        >
-          <div className="w-9 h-9 rounded-xl bg-amber-500/15 border border-amber-500/25 flex items-center justify-center text-amber-400 mb-3 group-hover:scale-105 transition-transform">
-            <Lightbulb className="w-4 h-4" />
-          </div>
-          <div className="text-2xl font-black text-white">34</div>
-          <div className="text-xs text-slate-400 font-medium mt-0.5">Ideas Generated</div>
-          <div className="flex items-center text-[11px] font-semibold text-emerald-400 mt-2.5">
-            <ArrowUpRight className="w-3.5 h-3.5 mr-0.5" />
-            <span>+12 this week</span>
-          </div>
-        </div>
+            {/* Card 2: Analyses Completed */}
+            <div 
+              onClick={() => onNavigate('paper_analysis')}
+              className="rounded-2xl bg-[#0d1633] border border-[#1b2b5a] p-5 hover:border-purple-500/40 transition-all cursor-pointer shadow-lg group"
+            >
+              <div className="w-9 h-9 rounded-xl bg-purple-500/15 border border-purple-500/25 flex items-center justify-center text-purple-400 mb-3 group-hover:scale-105 transition-transform">
+                <Brain className="w-4 h-4" />
+              </div>
+              <div className="text-2xl font-black text-white">{analysesCount}</div>
+              <div className="text-xs text-slate-400 font-medium mt-0.5">Analyses Completed</div>
+              <div className="flex items-center text-[11px] font-semibold mt-2.5 text-slate-400">
+                {analysesCount > 0 ? (
+                  <span className="text-emerald-400 flex items-center">
+                    <ArrowUpRight className="w-3.5 h-3.5 mr-0.5" />
+                    {analysesCount} completed
+                  </span>
+                ) : (
+                  <span>0 completed</span>
+                )}
+              </div>
+            </div>
 
-        {/* Card 4: Gaps Detected */}
-        <div 
-          onClick={() => onNavigate('research_gaps')}
-          className="rounded-2xl bg-[#0d1633] border border-[#1b2b5a] p-5 hover:border-cyan-500/40 transition-all cursor-pointer shadow-lg group"
-        >
-          <div className="w-9 h-9 rounded-xl bg-cyan-500/15 border border-cyan-500/25 flex items-center justify-center text-cyan-400 mb-3 group-hover:scale-105 transition-transform">
-            <Network className="w-4 h-4" />
-          </div>
-          <div className="text-2xl font-black text-white">19</div>
-          <div className="text-xs text-slate-400 font-medium mt-0.5">Gaps Detected</div>
-          <div className="flex items-center text-[11px] font-semibold text-emerald-400 mt-2.5">
-            <ArrowUpRight className="w-3.5 h-3.5 mr-0.5" />
-            <span>+5 recent</span>
-          </div>
-        </div>
+            {/* Card 3: Ideas Generated */}
+            <div 
+              onClick={() => onNavigate('idea_lab')}
+              className="rounded-2xl bg-[#0d1633] border border-[#1b2b5a] p-5 hover:border-amber-500/40 transition-all cursor-pointer shadow-lg group"
+            >
+              <div className="w-9 h-9 rounded-xl bg-amber-500/15 border border-amber-500/25 flex items-center justify-center text-amber-400 mb-3 group-hover:scale-105 transition-transform">
+                <Lightbulb className="w-4 h-4" />
+              </div>
+              <div className="text-2xl font-black text-white">{ideasCount}</div>
+              <div className="text-xs text-slate-400 font-medium mt-0.5">Ideas Generated</div>
+              <div className="flex items-center text-[11px] font-semibold mt-2.5 text-slate-400">
+                {ideasCount > 0 ? (
+                  <span className="text-emerald-400 flex items-center">
+                    <ArrowUpRight className="w-3.5 h-3.5 mr-0.5" />
+                    Active ideation
+                  </span>
+                ) : (
+                  <span>Upload to brainstorm</span>
+                )}
+              </div>
+            </div>
 
-      </div>
+            {/* Card 4: Gaps Detected */}
+            <div 
+              onClick={() => onNavigate('research_gaps')}
+              className="rounded-2xl bg-[#0d1633] border border-[#1b2b5a] p-5 hover:border-cyan-500/40 transition-all cursor-pointer shadow-lg group"
+            >
+              <div className="w-9 h-9 rounded-xl bg-cyan-500/15 border border-cyan-500/25 flex items-center justify-center text-cyan-400 mb-3 group-hover:scale-105 transition-transform">
+                <Network className="w-4 h-4" />
+              </div>
+              <div className="text-2xl font-black text-white">{gapsCount}</div>
+              <div className="text-xs text-slate-400 font-medium mt-0.5">Gaps Detected</div>
+              <div className="flex items-center text-[11px] font-semibold mt-2.5 text-slate-400">
+                {gapsCount > 0 ? (
+                  <span className="text-emerald-400 flex items-center">
+                    <ArrowUpRight className="w-3.5 h-3.5 mr-0.5" />
+                    {gapsCount} critical gaps
+                  </span>
+                ) : (
+                  <span>Ready to detect</span>
+                )}
+              </div>
+            </div>
+          </div>
+        );
+      })()}
 
-      {/* ROW 3: LIVE RESEARCH PAPER CREATION STATION ("Akade research paper chese la") */}
+      {/* ROW 3: LIVE RESEARCH PAPER CREATION STATION */}
       <div className="pt-2">
-        <LivePaperStudio paper={papers[0]} isDarkMode={isDarkMode} />
+        <LivePaperStudio 
+          paper={papers[0] || null} 
+          isDarkMode={isDarkMode} 
+          onNavigate={onNavigate}
+        />
       </div>
 
-      {/* ROW 4: BALANCED 2-COLUMN WORKSPACE OPERATIONS (Zero Empty Side Margins!) */}
+      {/* ROW 4: BALANCED 2-COLUMN WORKSPACE OPERATIONS */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
         
         {/* LEFT COLUMN: Active Project & Recent Papers */}
@@ -382,87 +417,100 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               <h3 className={`text-base font-bold ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
                 Active Research In Progress
               </h3>
-              <button 
-                onClick={() => onNavigate('my_research')}
-                className="text-xs font-semibold text-blue-500 hover:text-blue-400 flex items-center gap-1 cursor-pointer"
-              >
-                <span>View All</span>
-                <ArrowRight className="w-3.5 h-3.5" />
-              </button>
+              {papers.length > 0 && (
+                <button 
+                  onClick={() => onNavigate('my_research')}
+                  className="text-xs font-semibold text-blue-500 hover:text-blue-400 flex items-center gap-1 cursor-pointer"
+                >
+                  <span>View All</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </button>
+              )}
             </div>
             <p className="text-xs text-slate-400 -mt-2">
-              Pick up where you left off or start a new research journey.
+              {papers.length > 0
+                ? 'Pick up where you left off or dive deeper into your active manuscript.'
+                : 'No active research manuscript loaded yet. Start by uploading your paper.'}
             </p>
 
-            {/* Main Active Project Card */}
-            <div 
-              onClick={() => onNavigate('research_gaps')}
-              className={`p-4 sm:p-5 rounded-2xl border transition-all cursor-pointer flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 ${
-                isDarkMode 
-                  ? 'bg-[#111c40] border-[#1e2e60] hover:border-blue-500/50' 
-                  : 'bg-slate-50 border-slate-200 hover:border-blue-400'
-              }`}
-            >
-              <div className="flex items-start gap-4">
-                {/* Glowing Doc Icon */}
-                <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-blue-600/30 to-indigo-600/30 border border-blue-500/30 flex items-center justify-center text-blue-400 shrink-0 shadow-lg">
-                  <FileText className="w-7 h-7" />
+            {papers.length > 0 ? (
+              /* Main Active Project Card */
+              <div 
+                onClick={() => {
+                  onSelectPaper(papers[0]);
+                  onNavigate('research_gaps');
+                }}
+                className={`p-4 sm:p-5 rounded-2xl border transition-all cursor-pointer flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 ${
+                  isDarkMode 
+                    ? 'bg-[#111c40] border-[#1e2e60] hover:border-blue-500/50' 
+                    : 'bg-slate-50 border-slate-200 hover:border-blue-400'
+                }`}
+              >
+                <div className="flex items-start gap-4">
+                  <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-blue-600/30 to-indigo-600/30 border border-blue-500/30 flex items-center justify-center text-blue-400 shrink-0 shadow-lg">
+                    <FileText className="w-7 h-7" />
+                  </div>
+
+                  <div className="space-y-2">
+                    <h4 className={`text-sm font-bold leading-tight ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
+                      {papers[0].title}
+                    </h4>
+
+                    <div className="flex items-center gap-2 flex-wrap text-[10px] font-semibold">
+                      <span className="px-2.5 py-0.5 rounded-full bg-blue-500/15 text-blue-400 border border-blue-500/30">
+                        {papers[0].domain || 'Computer Science / AI'}
+                      </span>
+                      {papers[0].publication_year && (
+                        <span className="px-2.5 py-0.5 rounded-full bg-teal-500/15 text-teal-400 border border-teal-500/30">
+                          {papers[0].publication_year}
+                        </span>
+                      )}
+                    </div>
+
+                    <div className="flex items-center gap-3 flex-wrap text-[11px] text-slate-300 pt-1">
+                      <span className="flex items-center gap-1 text-emerald-400">
+                        <Check className="w-3.5 h-3.5" /> Gaps Identified: {papers[0].risks?.length || 0}
+                      </span>
+                      {papers[0].noveltyScore && (
+                        <span className="flex items-center gap-1 text-blue-400">
+                          <Sparkles className="w-3.5 h-3.5" /> Novelty: {papers[0].noveltyScore}/10
+                        </span>
+                      )}
+                    </div>
+                  </div>
                 </div>
 
-                <div className="space-y-2">
-                  <h4 className={`text-sm font-bold leading-tight ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
-                    AI-Based Flood Prediction Using IoT & Edge GNNs
+                <div className="self-end sm:self-center">
+                  <div className="w-10 h-10 rounded-full bg-blue-600 hover:bg-blue-500 text-white flex items-center justify-center shadow-md shadow-blue-600/30 transition-transform hover:scale-105">
+                    <ArrowRight className="w-5 h-5" />
+                  </div>
+                </div>
+              </div>
+            ) : (
+              /* Empty Project Prompt */
+              <div className={`p-6 rounded-2xl border text-center flex flex-col items-center justify-center gap-3 ${
+                isDarkMode ? 'bg-[#111c40]/60 border-[#1e2e60]' : 'bg-slate-50 border-slate-200'
+              }`}>
+                <div className="w-12 h-12 rounded-2xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400">
+                  <Upload className="w-6 h-6" />
+                </div>
+                <div>
+                  <h4 className={`text-sm font-bold ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
+                    No Active Research Paper
                   </h4>
-
-                  {/* Badges */}
-                  <div className="flex items-center gap-2 flex-wrap text-[10px] font-semibold">
-                    <span className="px-2.5 py-0.5 rounded-full bg-blue-500/15 text-blue-400 border border-blue-500/30">
-                      Climate Science
-                    </span>
-                    <span className="px-2.5 py-0.5 rounded-full bg-teal-500/15 text-teal-400 border border-teal-500/30">
-                      IoT Telemetry
-                    </span>
-                    <span className="px-2.5 py-0.5 rounded-full bg-purple-500/15 text-purple-400 border border-purple-500/30">
-                      Edge Graph Neural Networks
-                    </span>
-                  </div>
-
-                  {/* Progress Bar */}
-                  <div className="space-y-1 pt-1">
-                    <div className="flex items-center justify-between text-[11px] text-slate-400">
-                      <span>Manuscript Milestone Readiness</span>
-                      <span className="font-bold text-blue-500">65%</span>
-                    </div>
-                    <div className="w-56 sm:w-80 bg-slate-800/80 h-1.5 rounded-full overflow-hidden">
-                      <div className="bg-gradient-to-r from-blue-500 to-indigo-500 h-full rounded-full w-[65%]" />
-                    </div>
-                  </div>
-
-                  {/* Metric checkmarks */}
-                  <div className="flex items-center gap-3 flex-wrap text-[11px] text-slate-300 pt-1">
-                    <span className="flex items-center gap-1 text-emerald-400">
-                      <Check className="w-3.5 h-3.5" /> Papers Found: 27
-                    </span>
-                    <span className="flex items-center gap-1 text-emerald-400">
-                      <Check className="w-3.5 h-3.5" /> Analyzed: 18
-                    </span>
-                    <span className="flex items-center gap-1 text-emerald-400">
-                      <Check className="w-3.5 h-3.5" /> Gaps: 5
-                    </span>
-                    <span className="flex items-center gap-1 text-emerald-400">
-                      <Check className="w-3.5 h-3.5" /> Ideas: 4
-                    </span>
-                  </div>
+                  <p className="text-xs text-slate-400 mt-1 max-w-sm">
+                    Upload your research PDF to extract insights, methodology breakdowns, and novelty scores.
+                  </p>
                 </div>
+                <button
+                  onClick={() => onNavigate('upload')}
+                  className="mt-2 px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold transition-all shadow-md shadow-blue-600/20 flex items-center gap-1.5 cursor-pointer"
+                >
+                  <Upload className="w-3.5 h-3.5" />
+                  <span>+ Upload Manuscript PDF</span>
+                </button>
               </div>
-
-              {/* Right Arrow Circle Action */}
-              <div className="self-end sm:self-center">
-                <div className="w-10 h-10 rounded-full bg-blue-600 hover:bg-blue-500 text-white flex items-center justify-center shadow-md shadow-blue-600/30 transition-transform hover:scale-105">
-                  <ArrowRight className="w-5 h-5" />
-                </div>
-              </div>
-            </div>
+            )}
           </div>
 
           {/* Recent Papers Grid */}
@@ -473,51 +521,69 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               <h3 className={`text-base font-bold ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
                 Recent Indexed Literature
               </h3>
-              <button 
-                onClick={() => onNavigate('my_research')}
-                className="text-xs font-semibold text-blue-500 hover:text-blue-400 flex items-center gap-1 cursor-pointer"
-              >
-                <span>View Library</span>
-                <ArrowRight className="w-3.5 h-3.5" />
-              </button>
+              {papers.length > 0 && (
+                <button 
+                  onClick={() => onNavigate('my_research')}
+                  className="text-xs font-semibold text-blue-500 hover:text-blue-400 flex items-center gap-1 cursor-pointer"
+                >
+                  <span>View Library</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </button>
+              )}
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {[
-                { title: 'Transformer Architecture in NLP', tag: 'NLP / SOTA', desc: 'Attention Is All You Need baseline', bg: 'from-blue-600/20 to-indigo-600/20' },
-                { title: 'Physics-Informed Neural Surrogates', tag: 'Hydrology', desc: 'Lagrangian mass-conservation loss', bg: 'from-teal-600/20 to-emerald-600/20' },
-                { title: 'Quantized INT4 Edge Graph Operators', tag: 'Hardware AI', desc: 'Low-power microcontroller deployment', bg: 'from-purple-600/20 to-pink-600/20' },
-                { title: 'Causal Invariance for Distribution Shift', tag: 'Machine Learning', desc: 'Out-of-distribution robustness bounds', bg: 'from-amber-600/20 to-orange-600/20' }
-              ].map((paper, i) => (
-                <div 
-                  key={i}
-                  onClick={() => onNavigate('paper_analysis')}
-                  className={`p-3.5 rounded-2xl border transition-all cursor-pointer space-y-2 ${
-                    isDarkMode 
-                      ? 'bg-[#111c40] border-[#1e2e60] hover:border-blue-500/40' 
-                      : 'bg-slate-50 border-slate-200 hover:border-blue-400'
-                  }`}
-                >
-                  <div className="flex items-center justify-between">
-                    <div className={`w-8 h-8 rounded-xl bg-gradient-to-tr ${paper.bg} border border-white/10 flex items-center justify-center text-blue-300`}>
-                      <FileText className="w-4 h-4" />
+            {papers.length > 0 ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {papers.slice(0, 4).map((paper, i) => (
+                  <div 
+                    key={paper.id || i}
+                    onClick={() => {
+                      onSelectPaper(paper);
+                      onNavigate('paper_analysis');
+                    }}
+                    className={`p-3.5 rounded-2xl border transition-all cursor-pointer space-y-2 ${
+                      isDarkMode 
+                        ? 'bg-[#111c40] border-[#1e2e60] hover:border-blue-500/40' 
+                        : 'bg-slate-50 border-slate-200 hover:border-blue-400'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-blue-600/20 to-indigo-600/20 border border-white/10 flex items-center justify-center text-blue-300">
+                        <FileText className="w-4 h-4" />
+                      </div>
+                      <span className="text-[10px] text-slate-400 font-mono">
+                        {paper.domain || 'AI / CS'}
+                      </span>
                     </div>
-                    <span className="text-[10px] text-slate-400 font-mono">
-                      {paper.tag}
-                    </span>
+                    <h5 className={`text-xs font-bold line-clamp-1 ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
+                      {paper.title}
+                    </h5>
+                    <p className="text-[11px] text-slate-400 line-clamp-2">
+                      {paper.summary || 'Click to view structured research breakdown.'}
+                    </p>
                   </div>
-                  <h5 className={`text-xs font-bold line-clamp-1 ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
-                    {paper.title}
-                  </h5>
-                  <p className="text-[11px] text-slate-400 line-clamp-1">
-                    {paper.desc}
-                  </p>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            ) : (
+              <div className={`p-5 rounded-2xl border text-center flex flex-col items-center justify-center gap-2 ${
+                isDarkMode ? 'bg-[#111c40]/40 border-[#1e2e60]' : 'bg-slate-50 border-slate-200'
+              }`}>
+                <p className="text-xs text-slate-400">
+                  No indexed literature yet. Query arXiv to explore millions of scientific papers.
+                </p>
+                <button
+                  onClick={() => onNavigate('discover')}
+                  className="text-xs font-semibold text-blue-400 hover:text-blue-300 flex items-center gap-1 mt-1 cursor-pointer"
+                >
+                  <Search className="w-3.5 h-3.5" />
+                  <span>Search arXiv Literature</span>
+                </button>
+              </div>
+            )}
           </div>
 
         </div>
+
 
         {/* RIGHT COLUMN: Pipeline, Recent Activity, Actions & Opportunity */}
         <div className="space-y-6">
@@ -574,25 +640,26 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               </div>
 
               <div className="space-y-3">
-                {[
-                  { title: 'Paper analyzed', desc: 'Attention Is All You Need', time: '2h ago', icon: <FileText className="w-3 h-3 text-blue-400" /> },
-                  { title: 'New gap detected', desc: 'Telemetry dropout vulnerability', time: '4h ago', icon: <Brain className="w-3 h-3 text-purple-400" /> },
-                  { title: 'Objectives formulated', desc: 'O1–O4 milestone work packages', time: '1d ago', icon: <Lightbulb className="w-3 h-3 text-amber-400" /> },
-                  { title: 'Knowledge graph synced', desc: '43 new topological links', time: '1d ago', icon: <Network className="w-3 h-3 text-teal-400" /> }
-                ].map((act, i) => (
-                  <div key={i} className="flex items-start justify-between gap-2 text-xs">
-                    <div className="flex items-start gap-2">
-                      <div className="w-6 h-6 rounded-lg bg-blue-500/15 flex items-center justify-center shrink-0 mt-0.5">
-                        {act.icon}
+                {papers.length > 0 ? (
+                  papers.slice(0, 3).map((p, i) => (
+                    <div key={i} className="flex items-start justify-between gap-2 text-xs">
+                      <div className="flex items-start gap-2">
+                        <div className="w-6 h-6 rounded-lg bg-blue-500/15 flex items-center justify-center shrink-0 mt-0.5">
+                          <FileText className="w-3 h-3 text-blue-400" />
+                        </div>
+                        <div>
+                          <span className={`font-bold block text-[11px] ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>Paper analyzed</span>
+                          <span className="text-[10px] text-slate-400 block line-clamp-1">{p.title}</span>
+                        </div>
                       </div>
-                      <div>
-                        <span className={`font-bold block text-[11px] ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>{act.title}</span>
-                        <span className="text-[10px] text-slate-400 block line-clamp-1">{act.desc}</span>
-                      </div>
+                      <span className="text-[9px] text-slate-500 font-mono shrink-0">Recent</span>
                     </div>
-                    <span className="text-[9px] text-slate-500 font-mono shrink-0">{act.time}</span>
+                  ))
+                ) : (
+                  <div className="py-2 text-center text-slate-400 text-xs">
+                    No activity recorded yet. Upload a manuscript to start tracking research actions.
                   </div>
-                ))}
+                )}
               </div>
             </div>
 

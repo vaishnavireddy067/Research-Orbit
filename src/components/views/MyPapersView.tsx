@@ -47,72 +47,36 @@ interface ProjectWorkspace {
   milestones: { title: string; date: string; completed: boolean }[];
   comments: { user: string; text: string; time: string; avatar: string }[];
 }
-
-const SAMPLE_PROJECTS: ProjectWorkspace[] = [
-  {
-    id: 'proj-flood',
-    name: 'Real-Time IoT Flood Prediction with Edge GNNs',
-    domain: 'Hydrology & Edge AI',
-    lead: 'Ananya Sharma (Ph.D. Student)',
-    supervisor: 'Prof. Vaishnavi Reddy (Advisor)',
-    completion: 65,
-    deadline: 'April 30, 2026',
-    summary: 'Developing sub-hour catchment flood forecast models deployable on ultra-low power ESP32/ARM Cortex microcontrollers via topological graph message passing.',
+const buildProjectsFromPapers = (papers: PaperAnalysis[]): ProjectWorkspace[] => {
+  if (!papers || papers.length === 0) return [];
+  return papers.map((p, idx) => ({
+    id: `proj-${p.id || idx}`,
+    name: p.title,
+    domain: p.domain || 'Computer Science / AI',
+    lead: p.authors || 'Lead Author',
+    supervisor: 'Self-Directed Research',
+    completion: p.extendedAnalysis ? 80 : 50,
+    deadline: 'Active Pipeline',
+    summary: p.summary || 'Active manuscript under investigation.',
     pipeline: {
-      papers: { count: 27, status: 'DONE' },
-      litReview: { count: 1, status: 'DONE' },
-      gaps: { count: 5, status: 'DONE' },
-      proposal: { count: 1, status: 'DONE' },
-      experiments: { count: 12, status: 'IN_PROGRESS' },
-      finalPaper: { progress: 65, status: 'IN_PROGRESS' }
+      papers: { count: 1, status: 'DONE' },
+      litReview: { count: p.risks?.length || 0, status: p.risks?.length ? 'DONE' : 'IN_PROGRESS' },
+      gaps: { count: p.risks?.length || 0, status: p.risks?.length ? 'DONE' : 'IN_PROGRESS' },
+      proposal: { count: 1, status: 'IN_PROGRESS' },
+      experiments: { count: 1, status: 'PENDING' },
+      finalPaper: { progress: p.extendedAnalysis ? 80 : 35, status: 'IN_PROGRESS' }
     },
     team: [
-      { name: 'Prof. Vaishnavi Reddy', role: 'Principal Investigator', avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80' },
-      { name: 'Ananya Sharma', role: 'Lead Ph.D. Researcher', avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&auto=format&fit=crop&q=80' },
-      { name: 'Rahul Varma', role: 'Hardware Edge Engineer', avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&auto=format&fit=crop&q=80' },
+      { name: p.authors?.split(',')[0] || 'Lead Researcher', role: 'Primary Author', avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80' }
     ],
     milestones: [
-      { title: 'Sensor telemetry topology mapping', date: 'Feb 15', completed: true },
-      { title: 'CAMELS / NOAA baseline benchmark', date: 'Mar 1', completed: true },
-      { title: 'Hardware quantization (< 450mW)', date: 'Mar 25', completed: false },
-      { title: 'IEEE Transactions manuscript camera-ready', date: 'Apr 30', completed: false },
+      { title: 'Manuscript uploaded & ingested', date: 'Ingested', completed: true },
+      { title: 'AI gap extraction & novelty scoring', date: 'Analyzed', completed: !!p.noveltyScore },
+      { title: 'Live manuscript section synthesis', date: 'Next', completed: false }
     ],
-    comments: [
-      { user: 'Prof. Vaishnavi Reddy', text: 'Section 4.2 needs an ablation showing mass conservation loss vs standard MSE loss.', time: '2 hours ago', avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80' },
-      { user: 'Ananya Sharma', text: 'Running the ablation on the Texas FlashFlood split now. Will update Paper Studio methodology section.', time: '45 mins ago', avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&auto=format&fit=crop&q=80' },
-    ]
-  },
-  {
-    id: 'proj-dropout',
-    name: 'AI-Based Student Dropout Risk Prediction',
-    domain: 'Educational Data Mining',
-    lead: 'Rahul Varma (M.Tech Thesis)',
-    supervisor: 'Prof. Vaishnavi Reddy (Advisor)',
-    completion: 45,
-    deadline: 'May 15, 2026',
-    summary: 'Using longitudinal LMS engagement telemetry and deep survival neural networks to identify at-risk university students 4 weeks before examination dropouts.',
-    pipeline: {
-      papers: { count: 18, status: 'DONE' },
-      litReview: { count: 1, status: 'DONE' },
-      gaps: { count: 3, status: 'DONE' },
-      proposal: { count: 1, status: 'DONE' },
-      experiments: { count: 4, status: 'IN_PROGRESS' },
-      finalPaper: { progress: 30, status: 'PENDING' }
-    },
-    team: [
-      { name: 'Prof. Vaishnavi Reddy', role: 'Principal Investigator', avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80' },
-      { name: 'Rahul Varma', role: 'Student Researcher', avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&auto=format&fit=crop&q=80' },
-    ],
-    milestones: [
-      { title: 'De-identified LMS data pipeline', date: 'Feb 10', completed: true },
-      { title: 'Multi-task survival baseline validation', date: 'Mar 15', completed: false },
-      { title: 'Student intervention dashboard pilot', date: 'Apr 20', completed: false },
-    ],
-    comments: [
-      { user: 'Prof. Vaishnavi Reddy', text: 'Make sure demographic bias checks are included in your risk metrics.', time: '1 day ago', avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80' }
-    ]
-  }
-];
+    comments: []
+  }));
+};
 
 interface MyPapersViewProps {
   papers: PaperAnalysis[];
@@ -128,9 +92,42 @@ export const MyPapersView: React.FC<MyPapersViewProps> = ({
   onNavigate,
   isDarkMode = true,
 }) => {
-  const [projects, setProjects] = useState<ProjectWorkspace[]>(SAMPLE_PROJECTS);
-  const [selectedProjectId, setSelectedProjectId] = useState<string>('proj-flood');
+  const [projects, setProjects] = useState<ProjectWorkspace[]>(() => buildProjectsFromPapers(papers));
+  const [selectedProjectId, setSelectedProjectId] = useState<string>(() => projects[0]?.id || '');
   const [newComment, setNewComment] = useState('');
+
+  React.useEffect(() => {
+    const built = buildProjectsFromPapers(papers);
+    setProjects(built);
+    if (built.length > 0 && (!selectedProjectId || !built.some(b => b.id === selectedProjectId))) {
+      setSelectedProjectId(built[0].id);
+    }
+  }, [papers]);
+
+  if (papers.length === 0) {
+    return (
+      <div className="space-y-6 pb-12">
+        <div className="flex items-center gap-2.5">
+          <FolderGit2 className="w-8 h-8 text-blue-500" />
+          <div>
+            <h1 className={`text-2xl font-black tracking-tight ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
+              My Research Projects
+            </h1>
+            <p className="text-xs text-slate-400 mt-0.5">
+              Connect your end-to-end research lifecycle from initial papers to camera-ready manuscript writing.
+            </p>
+          </div>
+        </div>
+
+        <EmptyWorkspaceState
+          title="No Active Research Projects Yet"
+          description="You haven't uploaded or linked any research manuscripts yet. Upload your research manuscript (PDF) or search arXiv to initiate a project pipeline."
+          onNavigate={onNavigate}
+          isDarkMode={isDarkMode}
+        />
+      </div>
+    );
+  }
 
   const activeProject = projects.find(p => p.id === selectedProjectId) || projects[0];
 

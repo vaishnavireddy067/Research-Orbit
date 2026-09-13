@@ -144,11 +144,38 @@ interface ResearchLibraryViewProps {
   isDarkMode?: boolean;
 }
 
+const mapToLibraryPapers = (items?: PaperAnalysis[]): LibraryPaper[] => {
+  if (!items || items.length === 0) return [];
+  return items.map((p, idx) => ({
+    id: p.id || idx + 1,
+    title: p.title,
+    authors: p.authors || 'Lead Author et al.',
+    venue: p.domain || 'Academic Research',
+    year: p.publication_year || p.year || '2024',
+    category: p.domain || 'Computer Science',
+    tags: p.risks && p.risks.length > 0 ? p.risks.slice(0, 3) : ['Research', 'AI'],
+    isFavorite: false,
+    isRead: true,
+    collection: 'Default Workspace',
+    readingProgress: 100,
+    notesCount: 0,
+    citationsCount: 0,
+    dateAdded: 'Recently',
+    abstractSnippet: p.summary || 'Uploaded manuscript under active research analysis.'
+  }));
+};
+
 export const ResearchLibraryView: React.FC<ResearchLibraryViewProps> = ({
+  papers = [],
   onNavigate,
   isDarkMode = true,
 }) => {
-  const [papersList, setPapersList] = useState<LibraryPaper[]>(INITIAL_LIBRARY_PAPERS);
+  const [papersList, setPapersList] = useState<LibraryPaper[]>(() => mapToLibraryPapers(papers));
+
+  // Sync with incoming workspace papers
+  React.useEffect(() => {
+    setPapersList(mapToLibraryPapers(papers));
+  }, [papers]);
   const [activeFilter, setActiveFilter] = useState<'all' | 'saved' | 'favorites' | 'reading_list' | 'collections'>('all');
   const [selectedCollection, setSelectedCollection] = useState<string>('ALL');
   const [searchQuery, setSearchQuery] = useState('');
