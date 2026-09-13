@@ -1,5 +1,5 @@
 import React from 'react';
-import { Search, AlertCircle, CheckCircle2, ShieldAlert } from 'lucide-react';
+import { Search, AlertCircle, CheckCircle2, ShieldAlert, ArrowRight, GitMerge } from 'lucide-react';
 import { PaperAnalysis } from '../../types';
 import { EmptyWorkspaceState } from '../EmptyWorkspaceState';
 import { NavTab } from '../Sidebar';
@@ -146,6 +146,22 @@ export const GapAnalysisView: React.FC<GapAnalysisViewProps> = ({
             </div>
           )}
         </div>
+      </div>
+
+      {/* Next Step Guide */}
+      <div className="mt-4 flex items-center justify-between p-4 rounded-2xl bg-gradient-to-r from-violet-50 to-purple-50 border border-violet-200">
+        <div>
+          <p className="text-xs font-black text-violet-800">Next Step in Your Research Journey</p>
+          <p className="text-[11px] text-violet-600 mt-0.5">You've identified the gaps. Now evolve this research into new directions.</p>
+        </div>
+        <button
+          onClick={() => onNavigate?.('research_evolution')}
+          className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-violet-600 to-purple-600 text-white text-xs font-black shadow-lg shadow-violet-500/30 hover:from-violet-500 hover:to-purple-500 transition-all shrink-0"
+        >
+          <GitMerge className="w-3.5 h-3.5" />
+          <span>Research Evolution ⭐</span>
+          <ArrowRight className="w-3.5 h-3.5" />
+        </button>
       </div>
     </div>
   );

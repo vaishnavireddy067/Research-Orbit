@@ -26,6 +26,7 @@ import {
 import { PaperAnalysis } from '../../types';
 import { api } from '../../services/api';
 import { EmptyWorkspaceState } from '../EmptyWorkspaceState';
+import { PreSubmissionAudit } from '../PreSubmissionAudit';
 
 type SectionKey = 
   | 'title' 
@@ -173,6 +174,7 @@ export const PaperStudioView: React.FC<PaperStudioViewProps> = ({
 
   const [sections, setSections] = useState<PaperSection[]>(() => getGroundedPaperSections(paper));
   const [activeSectionKey, setActiveSectionKey] = useState<SectionKey>('abstract');
+  const [studioTab, setStudioTab] = useState<'write' | 'audit'>('write');
   const [citationFormat, setCitationFormat] = useState<'IEEE' | 'APA' | 'BibTeX'>('IEEE');
   const [isGenerating, setIsGenerating] = useState(false);
   const [copiedNotification, setCopiedNotification] = useState<string | null>(null);
@@ -330,38 +332,72 @@ Rules: Ground claims in ${sections[0].content}. Do NOT invent unrelated sensor m
             </p>
           </div>
 
-          {/* Export Actions */}
-          <div className="flex items-center gap-2 flex-wrap">
+          {/* Tabs: Write / Pre-Submission Audit */}
+          <div className="flex items-center gap-1 flex-wrap">
             <button
-              onClick={() => handleExportManuscript('md')}
-              className={`px-3.5 py-2.5 rounded-xl text-xs font-bold border transition-all cursor-pointer flex items-center gap-1.5 ${
-                isDarkMode 
-                  ? 'border-[#22356b] bg-[#111a3d] text-slate-200 hover:bg-[#162350]' 
+              onClick={() => setStudioTab('write')}
+              className={`px-4 py-2 rounded-xl text-xs font-bold border transition-all cursor-pointer flex items-center gap-1.5 ${
+                studioTab === 'write'
+                  ? isDarkMode
+                    ? 'bg-blue-600 text-white border-blue-600 shadow-lg shadow-blue-600/20'
+                    : 'bg-blue-600 text-white border-blue-600'
+                  : isDarkMode
+                  ? 'border-[#22356b] bg-[#111a3d] text-slate-300 hover:bg-[#162350]'
                   : 'border-slate-300 bg-white text-slate-700 hover:bg-slate-50'
               }`}
             >
-              <Download className="w-3.5 h-3.5 text-blue-400" />
-              <span>Markdown (.md)</span>
+              <FileText className="w-3.5 h-3.5" />
+              <span>Write Manuscript</span>
             </button>
             <button
-              onClick={() => handleExportManuscript('tex')}
-              className={`px-3.5 py-2.5 rounded-xl text-xs font-bold border transition-all cursor-pointer flex items-center gap-1.5 ${
-                isDarkMode 
-                  ? 'border-[#22356b] bg-[#111a3d] text-indigo-300 hover:bg-[#162350]' 
-                  : 'border-slate-300 bg-white text-indigo-600 hover:bg-indigo-50'
+              onClick={() => setStudioTab('audit')}
+              className={`px-4 py-2 rounded-xl text-xs font-bold border transition-all cursor-pointer flex items-center gap-1.5 ${
+                studioTab === 'audit'
+                  ? 'bg-gradient-to-r from-rose-600 to-orange-500 text-white border-rose-600 shadow-lg shadow-rose-600/20'
+                  : isDarkMode
+                  ? 'border-[#22356b] bg-[#111a3d] text-rose-300 hover:bg-[#162350]'
+                  : 'border-slate-300 bg-white text-rose-600 hover:bg-rose-50'
               }`}
             >
-              <Code className="w-3.5 h-3.5" />
-              <span>LaTeX (.tex)</span>
-            </button>
-            <button
-              onClick={() => handleExportManuscript('txt')}
-              className="px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold shadow-lg shadow-blue-600/30 flex items-center gap-2 transition-all cursor-pointer"
-            >
-              <Download className="w-4 h-4" />
-              <span>Export Manuscript</span>
+              <ShieldCheck className="w-3.5 h-3.5" />
+              <span>🚀 Pre-Submission Audit</span>
             </button>
           </div>
+
+          {/* Export Actions (write tab only) */}
+          {studioTab === 'write' && (
+            <div className="flex items-center gap-2 flex-wrap">
+              <button
+                onClick={() => handleExportManuscript('md')}
+                className={`px-3.5 py-2.5 rounded-xl text-xs font-bold border transition-all cursor-pointer flex items-center gap-1.5 ${
+                  isDarkMode 
+                    ? 'border-[#22356b] bg-[#111a3d] text-slate-200 hover:bg-[#162350]' 
+                    : 'border-slate-300 bg-white text-slate-700 hover:bg-slate-50'
+                }`}
+              >
+                <Download className="w-3.5 h-3.5 text-blue-400" />
+                <span>Markdown (.md)</span>
+              </button>
+              <button
+                onClick={() => handleExportManuscript('tex')}
+                className={`px-3.5 py-2.5 rounded-xl text-xs font-bold border transition-all cursor-pointer flex items-center gap-1.5 ${
+                  isDarkMode 
+                    ? 'border-[#22356b] bg-[#111a3d] text-indigo-300 hover:bg-[#162350]' 
+                    : 'border-slate-300 bg-white text-indigo-600 hover:bg-indigo-50'
+                }`}
+              >
+                <Code className="w-3.5 h-3.5" />
+                <span>LaTeX (.tex)</span>
+              </button>
+              <button
+                onClick={() => handleExportManuscript('txt')}
+                className="px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold shadow-lg shadow-blue-600/30 flex items-center gap-2 transition-all cursor-pointer"
+              >
+                <Download className="w-4 h-4" />
+                <span>Export Manuscript</span>
+              </button>
+            </div>
+          )}
         </div>
 
         {/* Global Manuscript Progress Meter */}
@@ -414,7 +450,16 @@ Rules: Ground claims in ${sections[0].content}. Do NOT invent unrelated sensor m
         </div>
       )}
 
-      {/* Main Studio Workbench Grid */}
+      {/* Main Studio Workbench Grid — or Audit Panel */}
+      {studioTab === 'audit' ? (
+        <PreSubmissionAudit
+          paper={paper}
+          sections={sections}
+          isDarkMode={isDarkMode}
+          onDownload={handleExportManuscript}
+        />
+      ) : (
+      <>
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         
         {/* LEFT COLUMN: Section Selector Tree (3 cols) */}
@@ -722,6 +767,8 @@ Rules: Ground claims in ${sections[0].content}. Do NOT invent unrelated sensor m
             </div>
           </div>
         </div>
+      )}
+      </>
       )}
 
     </div>

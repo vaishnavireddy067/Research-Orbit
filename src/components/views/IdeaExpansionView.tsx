@@ -211,6 +211,30 @@ export const IdeaExpansionView: React.FC<IdeaExpansionViewProps> = ({
           );
         })}
       </div>
+
+      {/* Next Step Guide */}
+      <div className="flex items-center justify-between p-4 rounded-2xl bg-gradient-to-r from-emerald-50 to-teal-50 border border-emerald-200">
+        <div>
+          <p className="text-xs font-black text-emerald-800">Next Step in Your Research Journey</p>
+          <p className="text-[11px] text-emerald-600 mt-0.5">Pick a direction and plan your experiments to validate it.</p>
+        </div>
+        <div className="flex items-center gap-2 shrink-0">
+          <button
+            onClick={() => onNavigate?.('experiments')}
+            className="flex items-center gap-2 px-3 py-2 rounded-xl bg-emerald-600 text-white text-xs font-black shadow-lg shadow-emerald-500/30 hover:bg-emerald-500 transition-all"
+          >
+            <span>Plan Experiments</span>
+            <ArrowRight className="w-3.5 h-3.5" />
+          </button>
+          <button
+            onClick={() => onNavigate?.('paper_studio')}
+            className="flex items-center gap-2 px-3 py-2 rounded-xl bg-gradient-to-r from-rose-600 to-orange-500 text-white text-xs font-black shadow-lg shadow-rose-500/30 hover:from-rose-500 hover:to-orange-400 transition-all"
+          >
+            <span>🚀 Write Paper</span>
+            <ArrowRight className="w-3.5 h-3.5" />
+          </button>
+        </div>
+      </div>
     </div>
   );
 };

@@ -167,129 +167,179 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
       </div>
 
-      {/* ROW 1.5: AI Research Copilot Command Deck */}
-      <div className="rounded-3xl bg-[#0b1329] border border-[#1e293b] p-6 shadow-xl relative overflow-hidden space-y-4">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 border-b border-slate-800/80 pb-3">
-          <div className="flex items-center gap-2.5">
-            <div className="h-8 w-8 rounded-xl bg-gradient-to-tr from-blue-600 to-purple-600 flex items-center justify-center text-white shadow-md shadow-blue-600/30">
-              <Bot className="w-4 h-4" />
-            </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <h3 className="text-sm font-bold text-white">
-                  AI Research Copilot • Ideation & Uniqueness Hub
-                </h3>
-                <span className="bg-blue-500/10 text-blue-300 border border-blue-500/20 px-2 py-0.5 rounded-full text-[10px] font-mono">
-                  Active
-                </span>
-              </div>
-              <p className="text-[11px] text-slate-400">
-                Audit if your idea exists in literature, mutate it into an uncontested direction, or stress-test your hypothesis.
-              </p>
-            </div>
+      {/* 5-STEP RESEARCH JOURNEY MAP — Core Workflow */}
+      <div className={`rounded-3xl border p-6 sm:p-8 shadow-xl transition-colors ${
+        isDarkMode ? 'bg-[#070e24] border-[#1b2b5a]' : 'bg-white border-slate-200 shadow-md'
+      }`}>
+        <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
+          <div>
+            <h2 className={`text-lg font-black tracking-tight ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
+              Your Research Journey
+            </h2>
+            <p className={`text-xs mt-0.5 ${isDarkMode ? 'text-slate-400' : 'text-slate-500'}`}>
+              End-to-end workflow: from reading a paper to publishing your own research.
+            </p>
           </div>
-
-          <button
-            onClick={() => onNavigate('research_chat')}
-            className="flex items-center gap-1 text-xs text-blue-400 hover:text-blue-300 font-semibold cursor-pointer"
-          >
-            <span>Open AI Assistant Studio</span>
-            <ChevronRight className="w-4 h-4" />
-          </button>
+          {papers.length === 0 && (
+            <button
+              onClick={() => onNavigate('paper_analysis')}
+              className="flex items-center gap-2 px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold shadow-lg shadow-blue-600/30 transition-all"
+            >
+              <Upload className="w-3.5 h-3.5" />
+              Start — Upload Paper
+            </button>
+          )}
         </div>
 
-        {/* Quick Idea Audit Bar */}
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            onNavigate('research_chat');
-          }}
-          className="flex items-center gap-2 bg-[#060b19] border border-slate-800 rounded-xl p-1.5 pl-3.5 shadow-sm"
-        >
-          <Zap className="w-4 h-4 text-yellow-400 shrink-0" />
-          <input
-            type="text"
-            value={dashboardIdea}
-            onChange={(e) => setDashboardIdea(e.target.value)}
-            placeholder="Type a research idea to check if it exists in literature (e.g., Causal Graph neural operator for flood forecasting)..."
-            className="w-full bg-transparent text-xs text-slate-200 placeholder-slate-500 focus:outline-none"
-          />
-          <button
-            type="submit"
-            className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white px-4 py-2 rounded-lg text-xs font-bold transition-all shrink-0 flex items-center gap-1 shadow-md shadow-blue-600/20 cursor-pointer"
-          >
-            <span>Audit Novelty</span>
-            <ArrowRight className="w-3.5 h-3.5" />
-          </button>
-        </form>
-
-        {/* 4 Feature Launchpad Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 pt-1">
+        <div className="grid grid-cols-1 sm:grid-cols-5 gap-3">
+          {/* Step 1 */}
           <div
-            onClick={() => onNavigate('research_chat')}
-            className="p-3.5 rounded-xl bg-[#060b19] border border-slate-800 hover:border-purple-500/50 transition-all cursor-pointer group flex items-start gap-3"
+            onClick={() => onNavigate('discover')}
+            className={`relative rounded-2xl border p-4 cursor-pointer group transition-all hover:scale-[1.02] ${
+              isDarkMode
+                ? 'bg-[#0d1633] border-[#1b2b5a] hover:border-blue-500/60'
+                : 'bg-blue-50 border-blue-100 hover:border-blue-300'
+            }`}
           >
-            <div className="p-2 rounded-lg bg-purple-500/10 text-purple-400 group-hover:scale-110 transition-transform">
-              <Dna className="w-4 h-4" />
+            <div className="flex items-center gap-2 mb-3">
+              <div className="w-7 h-7 rounded-lg bg-blue-600 flex items-center justify-center text-white text-[10px] font-black shrink-0">01</div>
+              <span className={`text-[10px] font-bold uppercase tracking-wider ${isDarkMode ? 'text-blue-400' : 'text-blue-600'}`}>Discover</span>
             </div>
-            <div>
-              <div className="text-xs font-bold text-white group-hover:text-purple-300 transition-colors">
-                Genetic Mutator Lab
-              </div>
-              <p className="text-[11px] text-slate-400 mt-0.5">
-                Mutate saturated ideas into 4 novel offspring paradigms.
-              </p>
+            <div className={`w-9 h-9 rounded-xl bg-blue-500/15 flex items-center justify-center text-blue-500 mb-2`}>
+              <Search className="w-4 h-4" />
+            </div>
+            <p className={`text-xs font-bold mb-1 ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>Find Papers</p>
+            <p className={`text-[11px] leading-snug ${isDarkMode ? 'text-slate-400' : 'text-slate-500'}`}>
+              Search real indexed papers by topic, author, or method.
+            </p>
+            <div className={`mt-3 text-[10px] font-bold flex items-center gap-1 ${isDarkMode ? 'text-blue-400' : 'text-blue-600'} opacity-0 group-hover:opacity-100 transition-opacity`}>
+              Open <ArrowRight className="w-3 h-3" />
             </div>
           </div>
 
+          {/* Arrow */}
+          <div className="hidden sm:flex items-center justify-center text-slate-600">
+            <ChevronRight className="w-5 h-5" />
+          </div>
+
+          {/* Step 2 */}
           <div
-            onClick={() => onNavigate('research_chat')}
-            className="p-3.5 rounded-xl bg-[#060b19] border border-slate-800 hover:border-cyan-500/50 transition-all cursor-pointer group flex items-start gap-3"
+            onClick={() => onNavigate('paper_analysis')}
+            className={`relative rounded-2xl border p-4 cursor-pointer group transition-all hover:scale-[1.02] ${
+              papers.length > 0
+                ? isDarkMode
+                  ? 'bg-[#111c40] border-emerald-500/30 hover:border-emerald-500/60 ring-1 ring-emerald-500/20'
+                  : 'bg-emerald-50 border-emerald-200 hover:border-emerald-400'
+                : isDarkMode
+                ? 'bg-[#0d1633] border-[#1b2b5a] hover:border-indigo-500/60'
+                : 'bg-indigo-50 border-indigo-100 hover:border-indigo-300'
+            }`}
           >
-            <div className="p-2 rounded-lg bg-cyan-500/10 text-cyan-400 group-hover:scale-110 transition-transform">
-              <Radar className="w-4 h-4" />
-            </div>
-            <div>
-              <div className="text-xs font-bold text-white group-hover:text-cyan-300 transition-colors">
-                White-Space Radar
+            {papers.length === 0 && (
+              <div className="absolute -top-2 -right-2 bg-blue-600 text-white text-[9px] font-black px-2 py-0.5 rounded-full animate-pulse">
+                START HERE
               </div>
-              <p className="text-[11px] text-slate-400 mt-0.5">
-                2D visual landscape of literature collision clusters.
-              </p>
+            )}
+            <div className="flex items-center gap-2 mb-3">
+              <div className="w-7 h-7 rounded-lg bg-indigo-600 flex items-center justify-center text-white text-[10px] font-black shrink-0">02</div>
+              <span className={`text-[10px] font-bold uppercase tracking-wider ${isDarkMode ? 'text-indigo-400' : 'text-indigo-600'}`}>Analyze</span>
+            </div>
+            <div className="w-9 h-9 rounded-xl bg-indigo-500/15 flex items-center justify-center text-indigo-500 mb-2">
+              <Brain className="w-4 h-4" />
+            </div>
+            <p className={`text-xs font-bold mb-1 ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>Deep Analysis</p>
+            <p className={`text-[11px] leading-snug ${isDarkMode ? 'text-slate-400' : 'text-slate-500'}`}>
+              Upload PDF → AI extracts problem, method, gaps, & limitations.
+            </p>
+            {papers.length > 0 && (
+              <div className={`mt-2 text-[10px] font-bold text-emerald-400 flex items-center gap-1`}>
+                <CheckCircle2 className="w-3 h-3" /> {papers.length} paper{papers.length > 1 ? 's' : ''} analyzed
+              </div>
+            )}
+          </div>
+
+          {/* Step 3 — CORE */}
+          <div
+            onClick={() => onNavigate('research_evolution')}
+            className={`relative rounded-2xl border p-4 cursor-pointer group transition-all hover:scale-[1.02] ${
+              isDarkMode
+                ? 'bg-gradient-to-br from-[#1a0a30] to-[#0f1225] border-violet-500/40 hover:border-violet-500/70'
+                : 'bg-gradient-to-br from-violet-50 to-purple-50 border-violet-200 hover:border-violet-400'
+            }`}
+          >
+            <div className="absolute -top-2.5 left-1/2 -translate-x-1/2">
+              <span className="bg-gradient-to-r from-violet-600 to-purple-600 text-white text-[9px] font-black px-3 py-0.5 rounded-full shadow-md shadow-violet-500/40">
+                ⭐ CORE FEATURE
+              </span>
+            </div>
+            <div className="flex items-center gap-2 mb-3 mt-1">
+              <div className="w-7 h-7 rounded-lg bg-violet-600 flex items-center justify-center text-white text-[10px] font-black shrink-0">03</div>
+              <span className={`text-[10px] font-bold uppercase tracking-wider ${isDarkMode ? 'text-violet-400' : 'text-violet-600'}`}>Evolve</span>
+            </div>
+            <div className="w-9 h-9 rounded-xl bg-violet-500/15 flex items-center justify-center text-violet-500 mb-2">
+              <GitMerge className="w-4 h-4" />
+            </div>
+            <p className={`text-xs font-bold mb-1 ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>Research Evolution</p>
+            <p className={`text-[11px] leading-snug ${isDarkMode ? 'text-slate-400' : 'text-slate-500'}`}>
+              Find gaps → generate 3 novel research directions → pick best.
+            </p>
+            <div className={`mt-3 text-[10px] font-bold flex items-center gap-1 ${isDarkMode ? 'text-violet-400' : 'text-violet-600'} opacity-0 group-hover:opacity-100 transition-opacity`}>
+              Evolve Now <ArrowRight className="w-3 h-3" />
             </div>
           </div>
 
+          {/* Step 4 */}
           <div
-            onClick={() => onNavigate('research_chat')}
-            className="p-3.5 rounded-xl bg-[#060b19] border border-slate-800 hover:border-rose-500/50 transition-all cursor-pointer group flex items-start gap-3"
+            onClick={() => onNavigate('paper_studio')}
+            className={`relative rounded-2xl border p-4 cursor-pointer group transition-all hover:scale-[1.02] ${
+              isDarkMode
+                ? 'bg-[#0d1633] border-[#1b2b5a] hover:border-emerald-500/60'
+                : 'bg-emerald-50 border-emerald-100 hover:border-emerald-300'
+            }`}
           >
-            <div className="p-2 rounded-lg bg-rose-500/10 text-rose-400 group-hover:scale-110 transition-transform">
-              <ShieldAlert className="w-4 h-4" />
+            <div className="flex items-center gap-2 mb-3">
+              <div className="w-7 h-7 rounded-lg bg-emerald-600 flex items-center justify-center text-white text-[10px] font-black shrink-0">04</div>
+              <span className={`text-[10px] font-bold uppercase tracking-wider ${isDarkMode ? 'text-emerald-400' : 'text-emerald-600'}`}>Build</span>
             </div>
-            <div>
-              <div className="text-xs font-bold text-white group-hover:text-rose-300 transition-colors">
-                Devil's Advocate
-              </div>
-              <p className="text-[11px] text-slate-400 mt-0.5">
-                Stress-test hypothesis against Reviewer #2 traps.
-              </p>
+            <div className="w-9 h-9 rounded-xl bg-emerald-500/15 flex items-center justify-center text-emerald-500 mb-2">
+              <FileText className="w-4 h-4" />
+            </div>
+            <p className={`text-xs font-bold mb-1 ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>Write Paper</p>
+            <p className={`text-[11px] leading-snug ${isDarkMode ? 'text-slate-400' : 'text-slate-500'}`}>
+              Proposal → full manuscript with AI drafting + citation tools.
+            </p>
+            <div className={`mt-3 text-[10px] font-bold flex items-center gap-1 ${isDarkMode ? 'text-emerald-400' : 'text-emerald-600'} opacity-0 group-hover:opacity-100 transition-opacity`}>
+              Open Studio <ArrowRight className="w-3 h-3" />
             </div>
           </div>
 
+          {/* Step 5 — SECOND USP */}
           <div
-            onClick={() => onNavigate('research_chat')}
-            className="p-3.5 rounded-xl bg-[#060b19] border border-slate-800 hover:border-emerald-500/50 transition-all cursor-pointer group flex items-start gap-3"
+            onClick={() => onNavigate('paper_studio')}
+            className={`relative rounded-2xl border p-4 cursor-pointer group transition-all hover:scale-[1.02] ${
+              isDarkMode
+                ? 'bg-gradient-to-br from-[#1a1010] to-[#120f1a] border-rose-500/40 hover:border-rose-500/70'
+                : 'bg-gradient-to-br from-rose-50 to-orange-50 border-rose-200 hover:border-rose-400'
+            }`}
           >
-            <div className="p-2 rounded-lg bg-emerald-500/10 text-emerald-400 group-hover:scale-110 transition-transform">
-              <FileCode2 className="w-4 h-4" />
+            <div className="absolute -top-2.5 left-1/2 -translate-x-1/2">
+              <span className="bg-gradient-to-r from-rose-600 to-orange-500 text-white text-[9px] font-black px-3 py-0.5 rounded-full shadow-md shadow-rose-500/40">
+                ⭐ FINAL STEP
+              </span>
             </div>
-            <div>
-              <div className="text-xs font-bold text-white group-hover:text-emerald-300 transition-colors">
-                LaTeX & Code Scaffolding
-              </div>
-              <p className="text-[11px] text-slate-400 mt-0.5">
-                1-click Overleaf abstract, PyTorch loss, & O1-O4 objectives.
-              </p>
+            <div className="flex items-center gap-2 mb-3 mt-1">
+              <div className="w-7 h-7 rounded-lg bg-rose-600 flex items-center justify-center text-white text-[10px] font-black shrink-0">05</div>
+              <span className={`text-[10px] font-bold uppercase tracking-wider ${isDarkMode ? 'text-rose-400' : 'text-rose-600'}`}>Submit</span>
+            </div>
+            <div className="w-9 h-9 rounded-xl bg-rose-500/15 flex items-center justify-center text-rose-500 mb-2">
+              <ShieldCheck className="w-4 h-4" />
+            </div>
+            <p className={`text-xs font-bold mb-1 ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>Pre-Submission Audit</p>
+            <p className={`text-[11px] leading-snug ${isDarkMode ? 'text-slate-400' : 'text-slate-500'}`}>
+              AI reviews, fixes errors, checks citations → Download final PDF.
+            </p>
+            <div className={`mt-3 text-[10px] font-bold flex items-center gap-1 ${isDarkMode ? 'text-rose-400' : 'text-rose-600'} opacity-0 group-hover:opacity-100 transition-opacity`}>
+              Run Audit <ArrowRight className="w-3 h-3" />
             </div>
           </div>
         </div>

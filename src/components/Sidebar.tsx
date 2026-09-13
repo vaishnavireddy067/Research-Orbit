@@ -193,7 +193,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
         {/* 1. WORKSPACE */}
         <div>
           <div className="px-3 pb-2 text-[10px] font-bold tracking-wider uppercase text-slate-500">
-            WORKSPACE
+            01 · WORKSPACE
           </div>
           <div className="space-y-0.5">
             {renderNavBtn('overview', 'Overview', <Home className="h-4 w-4" />)}
@@ -206,7 +206,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
         {/* 2. ANALYZE */}
         <div>
           <div className="px-3 pb-2 text-[10px] font-bold tracking-wider uppercase text-slate-500">
-            ANALYZE
+            02 · ANALYZE
           </div>
           <div className="space-y-0.5">
             {renderNavBtn('paper_analysis', 'Paper Analysis', <Brain className="h-4 w-4" />)}
@@ -220,7 +220,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
         {/* 3. BUILD */}
         <div>
           <div className="px-3 pb-2 text-[10px] font-bold tracking-wider uppercase text-slate-500">
-            BUILD
+            03 · BUILD
           </div>
           <div className="space-y-0.5">
             {renderNavBtn('idea_lab', 'Idea Lab', <Rocket className="h-4 w-4" />)}
@@ -233,7 +233,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
         {/* 4. VALIDATE */}
         <div>
           <div className="px-3 pb-2 text-[10px] font-bold tracking-wider uppercase text-slate-500">
-            VALIDATE
+            04 · VALIDATE
           </div>
           <div className="space-y-0.5">
             {renderNavBtn('peer_review', 'Peer Review', <UserCheck className="h-4 w-4" />)}
@@ -245,12 +245,14 @@ export const Sidebar: React.FC<SidebarProps> = ({
         {/* 5. INSIGHTS */}
         <div>
           <div className="px-3 pb-2 text-[10px] font-bold tracking-wider uppercase text-slate-500">
-            INSIGHTS
+            05 · INSIGHTS
           </div>
           <div className="space-y-0.5">
             {renderNavBtn('trends', 'Trends', <TrendingUp className="h-4 w-4" />)}
             {renderNavBtn('research_chat', 'Research Chat', <MessageSquare className="h-4 w-4" />)}
-            {renderNavBtn('audio_brief', 'Audio Brief', <Headphones className="h-4 w-4" />)}
+            <div className="opacity-50">
+              {renderNavBtn('audio_brief', 'Audio Brief', <Headphones className="h-4 w-4" />)}
+            </div>
           </div>
         </div>
 
