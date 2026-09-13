@@ -176,7 +176,7 @@ export const AiAssistantView: React.FC<AiAssistantViewProps> = ({ paper }) => {
   const [ideaInput, setIdeaInput] = useState('');
   const [domainInput, setDomainInput] = useState('Computer Science / AI');
   const [isAuditing, setIsAuditing] = useState(false);
-  const [auditResult, setAuditResult] = useState<ResearchIdeaAudit>(DEFAULT_SAMPLE_AUDIT);
+  const [auditResult, setAuditResult] = useState<ResearchIdeaAudit | null>(null);
   const [copiedObjectives, setCopiedObjectives] = useState(false);
 
   // Mutator Lab State
@@ -191,7 +191,7 @@ export const AiAssistantView: React.FC<AiAssistantViewProps> = ({ paper }) => {
   const [redTeamCritique, setRedTeamCritique] = useState<RedTeamCritique | null>(null);
 
   // LaTeX & Code State
-  const [latexBundle, setLatexBundle] = useState<LaTeXExportBundle>(() => api.generateLaTeXBundle(DEFAULT_SAMPLE_AUDIT));
+  const [latexBundle, setLatexBundle] = useState<LaTeXExportBundle | null>(null);
   const [activeCodeTab, setActiveCodeTab] = useState<'abstract' | 'objectives' | 'pytorch' | 'grant'>('abstract');
   const [copiedCode, setCopiedCode] = useState(false);
 
@@ -222,7 +222,9 @@ How can I partner with you today? You can test an idea or ask in English or Telu
 
   // Sync LaTeX bundle when audit changes
   useEffect(() => {
-    setLatexBundle(api.generateLaTeXBundle(auditResult));
+    if (auditResult) {
+      setLatexBundle(api.generateLaTeXBundle(auditResult));
+    }
   }, [auditResult]);
 
   // Handle Idea Audit
@@ -579,10 +581,11 @@ ${auditResult.recommendedNextStep}
           </div>
 
           {/* Audit Results Dashboard */}
-          <div className="space-y-6">
-            
-            {/* Status & Novelty Meter Header Card */}
-            <div className={`p-5 sm:p-6 rounded-2xl border transition-all ${
+          {auditResult ? (
+            <div className="space-y-6">
+              
+              {/* Status & Novelty Meter Header Card */}
+              <div className={`p-5 sm:p-6 rounded-2xl border transition-all ${
               auditResult.status === 'EXISTS_IN_LITERATURE'
                 ? 'bg-rose-950/20 border-rose-900/60 shadow-lg shadow-rose-950/20'
                 : auditResult.status === 'PARTIAL_OVERLAP'
@@ -885,12 +888,25 @@ ${auditResult.recommendedNextStep}
                   </button>
                 </div>
               </div>
-
             </div>
-
           </div>
-        </div>
-      )}
+        ) : (
+          <div className="p-8 sm:p-12 rounded-3xl bg-[#0b1329] border border-[#1e293b] text-center space-y-4 shadow-xl">
+            <div className="w-14 h-14 rounded-2xl bg-blue-500/10 border border-blue-500/20 text-blue-400 flex items-center justify-center mx-auto shadow-lg shadow-blue-500/10">
+              <Compass className="w-7 h-7" />
+            </div>
+            <div className="max-w-md mx-auto">
+              <h3 className="text-base font-bold text-white">
+                No Research Idea Audited Yet
+              </h3>
+              <p className="text-xs text-slate-400 mt-1 leading-relaxed">
+                Enter your research hypothesis in the box above or click one of the quick test presets (e.g. <em>LSTM for Stock Prediction</em> or <em>Edge Flood Forecasting</em>) to run an AI audit of literature saturation, novelty, and structured objectives.
+              </p>
+            </div>
+          </div>
+        )}
+      </div>
+    )}
 
       {/* TAB 2: IDEA GENETIC MUTATOR LAB */}
       {activeMode === 'mutator' && (

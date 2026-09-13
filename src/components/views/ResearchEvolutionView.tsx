@@ -17,9 +17,7 @@ import {
   Search, 
   ShieldCheck, 
   Zap, 
-  Share2, 
   TrendingUp, 
-  BookmarkCheck, 
   ChevronRight,
   Split,
   Eye,
@@ -30,7 +28,13 @@ import {
   BarChart3,
   Flame,
   ArrowUpRight,
-  BookOpen
+  BookOpen,
+  Boxes,
+  Crosshair,
+  UserCheck,
+  EyeOff,
+  Scale,
+  Target
 } from 'lucide-react';
 import { PaperAnalysis } from '../../types';
 import { EmptyWorkspaceState } from '../EmptyWorkspaceState';
@@ -46,6 +50,13 @@ interface ResearchEvolutionViewProps {
 
 type EvolutionTab = 
   | 'overview' 
+  | 'what_if'
+  | 'contradictions'
+  | 'blind_spots'
+  | 'lego'
+  | 'opportunity_radar'
+  | 'become_reviewer'
+  | 'future_work'
   | 'uniqueness' 
   | 'improvements' 
   | 'extensions' 
@@ -80,10 +91,17 @@ export const ResearchEvolutionView: React.FC<ResearchEvolutionViewProps> = ({
   const [selectedExtension, setSelectedExtension] = useState<string>('ext-a');
   const [copiedNotice, setCopiedNotice] = useState<string | null>(null);
 
-  // Cross-paper synthesis selection state
-  const [synthesisPaperA, setSynthesisPaperA] = useState<number>(paper?.id || 1);
-  const [synthesisPaperB, setSynthesisPaperB] = useState<number>(allPapers[1]?.id || (paper?.id || 1));
-  const [synthesisPaperC, setSynthesisPaperC] = useState<number>(allPapers[2]?.id || (paper?.id || 1));
+  // 🧪 What-If Simulator State
+  const [whatIfChange, setWhatIfChange] = useState<string>('transformer_to_mamba');
+
+  // 🧩 Research Lego State
+  const [legoDataset, setLegoDataset] = useState<string>('multilingual_clinical');
+  const [legoArchitecture, setLegoArchitecture] = useState<string>('mamba_cross_attention');
+  const [legoEvaluation, setLegoEvaluation] = useState<string>('adversarial_calibration');
+
+  // 🧑‍🔬 "Become Reviewer" State
+  const [reviewerAnswers, setReviewerAnswers] = useState<Record<string, string>>({});
+  const [hasSubmittedReview, setHasSubmittedReview] = useState(false);
 
   // If no paper is loaded
   if (!paper) {
@@ -103,14 +121,14 @@ export const ResearchEvolutionView: React.FC<ResearchEvolutionViewProps> = ({
               </span>
             </div>
             <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-              Don't just analyze what a paper says — evolve it into the next generation of academic discovery.
+              Don't just analyze what a paper says — discover what to research next.
             </p>
           </div>
         </div>
 
         <EmptyWorkspaceState
           title="No Manuscript Loaded for Evolution"
-          description="Select a paper from your Library or discover recent 2024–2026 preprints on arXiv to unlock explainable uniqueness scoring, 5 structured extension paths, cross-paper synthesis, and execution roadmaps."
+          description="Select a paper from your Library or discover recent 2024–2026 preprints on arXiv to unlock explainable uniqueness scoring, 'What-If' simulation, contradiction detection, research lego, and execution roadmaps."
           onNavigate={onNavigate}
           isDarkMode={isDarkMode}
         />
@@ -168,7 +186,7 @@ export const ResearchEvolutionView: React.FC<ResearchEvolutionViewProps> = ({
     {
       id: 'ext-d',
       category: 'Explainability & Trust Rigor',
-      tag: 'Explainability & Mechanistic Interpretability',
+      tag: 'Explainability & Trust',
       title: 'Mechanistic Feature Attribution via Layer-Wise Perturbation',
       originalApproach: 'Black-box latent representations with opaque decision boundaries.',
       proposedExtension: 'Integrate integrated gradients + sparse autoencoder feature extraction for interpretable attention circuits.',
@@ -202,19 +220,19 @@ export const ResearchEvolutionView: React.FC<ResearchEvolutionViewProps> = ({
     setTimeout(() => setCopiedNotice(null), 3000);
   };
 
-  const handleLaunchPaperStudio = (ext: ExtensionPath) => {
+  const handleLaunchPaperStudio = (ext: Partial<ExtensionPath>) => {
     if (onSelectPaperForStudio) {
       onSelectPaperForStudio({
         ...paper,
-        title: ext.title,
-        summary: `Evolved research manuscript addressing limitations of ${paperTitle}. ${ext.proposedExtension} Expected benefit: ${ext.expectedOutcome}`,
+        title: ext.title || `Evolved Study: ${paperTitle}`,
+        summary: `Evolved research manuscript addressing limitations of ${paperTitle}. ${ext.proposedExtension || ''} Expected outcome: ${ext.expectedOutcome || ''}`,
         domain: paperDomain,
         extendedAnalysis: {
           ...paper.extendedAnalysis,
           structuredBreakdown: {
-            problemStatement: `Prior work in ${paperTitle} suffered from: ${ext.originalApproach}. Our proposed research formulates: ${ext.proposedExtension}`,
-            methodology: ext.whyItMatters,
-            results: ext.expectedOutcome,
+            problemStatement: `Prior work in ${paperTitle} suffered from: ${ext.originalApproach || 'Unaddressed scalability and dataset constraints'}. Our proposed research formulates: ${ext.proposedExtension || ''}`,
+            methodology: ext.whyItMatters || '',
+            results: ext.expectedOutcome || '',
           }
         }
       });
@@ -242,18 +260,18 @@ export const ResearchEvolutionView: React.FC<ResearchEvolutionViewProps> = ({
               </span>
               <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
                 <Sparkles className="w-3 h-3" />
-                <span>Next-Gen Ideation Pipeline</span>
+                <span>Next-Gen Research Differentiator</span>
               </span>
               <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-amber-500/10 text-amber-400 border border-amber-500/20">
-                🟡 Academically Responsible Evaluation
+                🟡 Academically Grounded
               </span>
             </div>
 
             <h1 className={`text-2xl sm:text-3xl font-black tracking-tight ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
-              Evolve Research Beyond the Summary
+              What is the Smartest Next Research Move?
             </h1>
             <p className="text-sm text-slate-400 mt-1 max-w-2xl leading-relaxed">
-              <strong className="text-slate-200">Research-Orbit doesn't just tell you what a paper says. It helps you decide what to do next.</strong> We identify empirical white spaces, unpack explainable uniqueness, and map out 5 executable extension pathways.
+              <strong className="text-slate-200">Given existing research, Research-Orbit decides what to do next.</strong> Simulate "What If" changes, detect literature contradictions, unearth blind spots, assemble Research Lego, and map actionable execution roadmaps.
             </p>
 
             <div className="mt-4 flex items-center gap-2 text-xs text-slate-400">
@@ -271,73 +289,29 @@ export const ResearchEvolutionView: React.FC<ResearchEvolutionViewProps> = ({
               className="px-5 py-3 rounded-2xl bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white text-xs font-bold shadow-xl shadow-indigo-600/30 flex items-center justify-center gap-2 transition-all cursor-pointer group"
             >
               <FileCode2 className="w-4 h-4 transition-transform group-hover:scale-110" />
-              <span>Draft Evolved Paper in Studio</span>
+              <span>Draft in Live Paper Studio</span>
               <ArrowUpRight className="w-4 h-4" />
             </button>
           </div>
         </div>
-
-        {/* The Complete Research Evolution Journey Stepper */}
-        <div className="mt-8 pt-6 border-t border-slate-700/30">
-          <div className="text-[11px] font-extrabold uppercase tracking-wider text-slate-400 mb-3 flex items-center justify-between">
-            <span>Autonomous Evolution Journey</span>
-            <span className="text-indigo-400 font-semibold">9 Scientific Phases</span>
-          </div>
-
-          <div className="grid grid-cols-3 sm:grid-cols-5 lg:grid-cols-9 gap-2">
-            {[
-              { num: '01', title: 'Discover', desc: 'Recent Literature', icon: Search, tab: 'overview' },
-              { num: '02', title: 'Understand', desc: 'Deconstruct Paper', icon: BookOpen, tab: 'overview' },
-              { num: '03', title: 'Evaluate', desc: 'Explain Uniqueness', icon: Award, tab: 'uniqueness' },
-              { num: '04', title: 'Find Gaps', desc: 'Missing Benchmarks', icon: AlertTriangle, tab: 'improvements' },
-              { num: '05', title: 'Evolve', desc: '5 Extension Paths', icon: GitMerge, tab: 'extensions' },
-              { num: '06', title: 'Cross-Synthesize', desc: 'Paper A + B + C', icon: Split, tab: 'cross_synthesis' },
-              { num: '07', title: 'Feasibility', desc: '6-Week Roadmap', icon: Calendar, tab: 'roadmap' },
-              { num: '08', title: 'Compare', desc: 'Original vs Proposed', icon: BarChart3, tab: 'comparison' },
-              { num: '09', title: 'Hypothesis', desc: 'Gap → RQ → Hyp', icon: Lightbulb, tab: 'hypothesis' },
-            ].map((step, idx) => {
-              const StepIcon = step.icon;
-              const isActive = activeSubTab === step.tab;
-              return (
-                <button
-                  key={idx}
-                  onClick={() => setActiveSubTab(step.tab as EvolutionTab)}
-                  className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer flex flex-col justify-between ${
-                    isActive
-                      ? 'bg-indigo-600/20 border-indigo-500/60 shadow-lg shadow-indigo-600/10'
-                      : isDarkMode
-                      ? 'bg-[#101838]/50 border-slate-800/80 hover:bg-[#152048] hover:border-slate-700'
-                      : 'bg-white/80 border-slate-200 hover:bg-slate-50'
-                  }`}
-                >
-                  <div className="flex items-center justify-between mb-1.5">
-                    <span className="text-[10px] font-black text-slate-500 font-mono">{step.num}</span>
-                    <StepIcon className={`w-3 h-3 ${isActive ? 'text-indigo-400' : 'text-slate-500'}`} />
-                  </div>
-                  <div>
-                    <span className={`text-[11px] font-bold block truncate ${isActive ? 'text-white' : isDarkMode ? 'text-slate-300' : 'text-slate-800'}`}>
-                      {step.title}
-                    </span>
-                    <span className="text-[9px] text-slate-400 block truncate">{step.desc}</span>
-                  </div>
-                </button>
-              );
-            })}
-          </div>
-        </div>
       </div>
 
-      {/* Evolution Sub-Tabs Navigation Bar */}
-      <div className="flex items-center gap-1.5 overflow-x-auto pb-1 border-b border-slate-800">
+      {/* Evolution Specialized Navigation Bar */}
+      <div className="flex items-center gap-1.5 overflow-x-auto pb-1 border-b border-slate-800 scrollbar-none">
         {[
-          { id: 'overview', label: 'Evolution Overview', icon: Compass },
-          { id: 'uniqueness', label: 'Explainable Uniqueness', icon: Award, badge: 'Explainable 78%' },
-          { id: 'improvements', label: 'What to Improve', icon: Sliders },
-          { id: 'extensions', label: '5 Extension Paths', icon: GitMerge, badge: '5 Paths' },
-          { id: 'cross_synthesis', label: 'Cross-Paper Synthesis', icon: Split, badge: 'A+B+C' },
-          { id: 'roadmap', label: '6-Week Feasibility Plan', icon: Calendar },
+          { id: 'overview', label: 'Evolution Journey', icon: Compass },
+          { id: 'what_if', label: 'What-If Simulator', icon: Cpu, badge: 'HOT' },
+          { id: 'contradictions', label: 'Contradiction Detector', icon: Scale, badge: 'Rigor' },
+          { id: 'blind_spots', label: 'Blind Spot Detector', icon: EyeOff },
+          { id: 'lego', label: 'Research Lego', icon: Boxes, badge: 'Visual' },
+          { id: 'opportunity_radar', label: 'Opportunity Radar', icon: Crosshair },
+          { id: 'become_reviewer', label: 'Become Reviewer #2', icon: UserCheck },
+          { id: 'future_work', label: 'Future Work ➔ Project', icon: Lightbulb },
+          { id: 'uniqueness', label: 'Explainable Uniqueness', icon: Award },
+          { id: 'extensions', label: '5 Extension Paths', icon: GitMerge },
+          { id: 'cross_synthesis', label: 'Cross-Paper Synthesis', icon: Split },
+          { id: 'roadmap', label: '6-Week Roadmap', icon: Calendar },
           { id: 'comparison', label: 'Original vs Proposed', icon: BarChart3 },
-          { id: 'hypothesis', label: 'Gap → RQ → Hypothesis', icon: Lightbulb },
         ].map((t) => {
           const TabIcon = t.icon;
           const isCurrent = activeSubTab === t.id;
@@ -356,8 +330,8 @@ export const ResearchEvolutionView: React.FC<ResearchEvolutionViewProps> = ({
               <TabIcon className="w-3.5 h-3.5" />
               <span>{t.label}</span>
               {t.badge && (
-                <span className={`px-1.5 py-0.2 rounded text-[9px] font-extrabold ${
-                  isCurrent ? 'bg-white/20 text-white' : 'bg-indigo-500/15 text-indigo-400'
+                <span className={`px-1.5 py-0.2 rounded text-[9px] font-black uppercase tracking-wider ${
+                  isCurrent ? 'bg-white/20 text-white' : 'bg-rose-500/20 text-rose-400 border border-rose-500/30'
                 }`}>
                   {t.badge}
                 </span>
@@ -367,7 +341,7 @@ export const ResearchEvolutionView: React.FC<ResearchEvolutionViewProps> = ({
         })}
       </div>
 
-      {/* Copy Notification */}
+      {/* Copy Notice Toast */}
       {copiedNotice && (
         <div className="fixed bottom-6 right-6 z-50 px-4 py-2 rounded-xl bg-emerald-600 text-white text-xs font-bold shadow-2xl flex items-center gap-2 animate-bounce">
           <Check className="w-4 h-4" />
@@ -378,7 +352,6 @@ export const ResearchEvolutionView: React.FC<ResearchEvolutionViewProps> = ({
       {/* TAB 1: OVERVIEW */}
       {activeSubTab === 'overview' && (
         <div className="space-y-6">
-          {/* Main 3 Summary Pillars */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className={`p-6 rounded-2xl border ${isDarkMode ? 'bg-[#0f1738] border-[#1d2b5c]' : 'bg-white border-slate-200 shadow-sm'}`}>
               <div className="flex items-center gap-2 text-indigo-400 mb-2">
@@ -398,13 +371,13 @@ export const ResearchEvolutionView: React.FC<ResearchEvolutionViewProps> = ({
             <div className={`p-6 rounded-2xl border ${isDarkMode ? 'bg-[#0f1738] border-[#1d2b5c]' : 'bg-white border-slate-200 shadow-sm'}`}>
               <div className="flex items-center gap-2 text-rose-400 mb-2">
                 <AlertTriangle className="w-4 h-4" />
-                <span className="text-xs font-bold uppercase tracking-wider">Unresolved White Spaces</span>
+                <span className="text-xs font-bold uppercase tracking-wider">Unaddressed Gaps in Literature</span>
               </div>
-              <h3 className={`text-base font-bold ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>3 Unaddressed Bottlenecks</h3>
+              <h3 className={`text-base font-bold ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>3 Unresolved White Spaces</h3>
               <ul className="mt-2 space-y-2 text-xs text-slate-400">
                 <li className="flex items-start gap-1.5">
                   <span className="text-rose-400 font-bold">•</span>
-                  <span>Missing multilingual and low-resource dialect evaluation splits.</span>
+                  <span>Missing multilingual low-resource dialect stress testing.</span>
                 </li>
                 <li className="flex items-start gap-1.5">
                   <span className="text-rose-400 font-bold">•</span>
@@ -412,15 +385,15 @@ export const ResearchEvolutionView: React.FC<ResearchEvolutionViewProps> = ({
                 </li>
                 <li className="flex items-start gap-1.5">
                   <span className="text-rose-400 font-bold">•</span>
-                  <span>Zero on-device edge feasibility profiles (server-bound).</span>
+                  <span>Zero on-device edge deployment feasibility profiles.</span>
                 </li>
               </ul>
               <div className="mt-4 pt-4 border-t border-slate-700/30">
                 <button
-                  onClick={() => setActiveSubTab('improvements')}
+                  onClick={() => setActiveSubTab('blind_spots')}
                   className="text-xs font-bold text-rose-400 hover:text-rose-300 flex items-center gap-1 cursor-pointer"
                 >
-                  <span>Inspect all gaps & improvements</span>
+                  <span>Inspect all blind spots</span>
                   <ArrowRight className="w-3.5 h-3.5" />
                 </button>
               </div>
@@ -429,7 +402,7 @@ export const ResearchEvolutionView: React.FC<ResearchEvolutionViewProps> = ({
             <div className={`p-6 rounded-2xl border ${isDarkMode ? 'bg-[#0f1738] border-[#1d2b5c]' : 'bg-white border-slate-200 shadow-sm'}`}>
               <div className="flex items-center gap-2 text-emerald-400 mb-2">
                 <Sparkles className="w-4 h-4" />
-                <span className="text-xs font-bold uppercase tracking-wider">Recommended Next Evolution</span>
+                <span className="text-xs font-bold uppercase tracking-wider">Smartest Next Move</span>
               </div>
               <h3 className={`text-base font-bold ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
                 {activeExtensionData.title}
@@ -440,32 +413,601 @@ export const ResearchEvolutionView: React.FC<ResearchEvolutionViewProps> = ({
               <div className="mt-4 pt-4 border-t border-slate-700/30 flex items-center justify-between">
                 <span className="text-xs text-emerald-400 font-bold">Research Value: ⭐⭐⭐⭐⭐</span>
                 <button
-                  onClick={() => setActiveSubTab('extensions')}
+                  onClick={() => setActiveSubTab('what_if')}
                   className="text-xs font-bold text-indigo-400 hover:text-indigo-300 flex items-center gap-1 cursor-pointer"
                 >
-                  <span>Explore 5 paths</span>
+                  <span>Simulate "What If"</span>
                   <ArrowRight className="w-3.5 h-3.5" />
                 </button>
               </div>
             </div>
           </div>
+        </div>
+      )}
 
-          {/* Quick Academic Caution Banner */}
-          <div className="p-4 rounded-2xl border border-amber-500/30 bg-amber-500/10 flex items-start gap-3">
-            <AlertTriangle className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" />
+      {/* TAB 2: 🧪 "WHAT IF?" RESEARCH SIMULATOR */}
+      {activeSubTab === 'what_if' && (
+        <div className="space-y-6">
+          <div className="flex items-center justify-between">
             <div>
-              <span className="text-xs font-bold text-amber-300 block">
-                Academically Responsible Novelty Statement:
-              </span>
-              <p className="text-xs text-amber-200/80 mt-0.5 leading-relaxed">
-                Research-Orbit never recklessly claims an evolved idea is "100% globally novel". Instead, we provide verified literature distances against 2.4M+ manuscripts and flag potential overlaps with IEEE, ACM, and ArXiv publications.
+              <div className="flex items-center gap-2">
+                <Cpu className="w-5 h-5 text-indigo-400" />
+                <h2 className={`text-xl font-bold ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
+                  "What If?" Research Simulator
+                </h2>
+              </div>
+              <p className="text-xs text-slate-400 mt-0.5">
+                Simulate methodological hypotheses before spending GPU hours. Generates realistic scientific trade-offs:
               </p>
+            </div>
+          </div>
+
+          <div className={`p-6 sm:p-8 rounded-3xl border ${isDarkMode ? 'bg-[#0f1738] border-[#1d2b5c]' : 'bg-white border-slate-200 shadow-sm'}`}>
+            <span className="text-xs font-bold uppercase tracking-wider text-indigo-400 block mb-2">
+              Select or Formulate a "What If" Hypothesis:
+            </span>
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-6">
+              {[
+                { id: 'transformer_to_mamba', label: 'What if I replace Dense Attention with Mamba State-Space?' },
+                { id: 'reduce_dataset', label: 'What if I reduce training dataset size by 75% (Few-Shot)?' },
+                { id: 'quantize_int4', label: 'What if I apply 4-bit INT4 AWQ quantization for Edge NPU?' },
+              ].map((hyp) => (
+                <button
+                  key={hyp.id}
+                  onClick={() => setWhatIfChange(hyp.id)}
+                  className={`p-3.5 rounded-2xl border text-left text-xs font-bold transition-all cursor-pointer ${
+                    whatIfChange === hyp.id
+                      ? 'bg-indigo-600 text-white border-indigo-500 shadow-lg shadow-indigo-600/30'
+                      : isDarkMode
+                      ? 'bg-[#0a102b] border-slate-800 text-slate-300 hover:border-slate-700'
+                      : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100'
+                  }`}
+                >
+                  {hyp.label}
+                </button>
+              ))}
+            </div>
+
+            {/* Simulated Trade-Off Results Matrix */}
+            <div className="space-y-4">
+              <span className="text-xs font-bold text-slate-300 uppercase tracking-wider block">
+                Simulated Scientific Trade-Offs:
+              </span>
+
+              <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
+                {[
+                  { metric: 'Accuracy / F1', change: whatIfChange === 'reduce_dataset' ? '↓ -4.2%' : '↑ +3.8%', trend: whatIfChange === 'reduce_dataset' ? 'down' : 'up', note: 'Higher on long sequence context' },
+                  { metric: 'Compute VRAM', change: whatIfChange === 'quantize_int4' ? '↓ -68%' : whatIfChange === 'transformer_to_mamba' ? '↓ -44%' : '↑ +15%', trend: 'down', note: 'Linear memory footprint' },
+                  { metric: 'Inference Speed', change: whatIfChange === 'quantize_int4' ? '↑ 4.2x' : '↑ 3.1x', trend: 'up', note: 'Sub-15ms latency achievable' },
+                  { metric: 'Interpretability', change: '↓ Degraded', trend: 'down', note: 'Recurrent states harder to isolate' },
+                  { metric: 'Data Need', change: whatIfChange === 'reduce_dataset' ? '↓ Minimal' : '↑ High', trend: whatIfChange === 'reduce_dataset' ? 'up' : 'down', note: 'Requires pretraining tokens' },
+                ].map((item, idx) => (
+                  <div key={idx} className="p-4 rounded-2xl bg-slate-900/60 border border-slate-800">
+                    <span className="text-[10px] text-slate-400 font-bold block uppercase">{item.metric}</span>
+                    <span className={`text-xl font-black block mt-1 ${item.trend === 'up' ? 'text-emerald-400' : 'text-amber-400'}`}>
+                      {item.change}
+                    </span>
+                    <span className="text-[10px] text-slate-500 mt-1 block">{item.note}</span>
+                  </div>
+                ))}
+              </div>
+
+              {/* Falsifiable Hypothesis Statement */}
+              <div className="mt-6 p-4 rounded-2xl bg-indigo-950/40 border border-indigo-800/40 space-y-2">
+                <span className="text-[10px] font-black uppercase text-indigo-300 tracking-wider">
+                  Generated Falsifiable Scientific Hypothesis:
+                </span>
+                <p className="text-xs text-indigo-100 leading-relaxed font-medium">
+                  "If {paperTitle} is modified by replacing quadratic attention with selective state-space projections, inference throughput will scale linearly $O(N)$ with an estimated 3.1x speedup, while downstream accuracy degradation will remain under 0.8% on standard benchmark distributions."
+                </p>
+                <div className="pt-2 flex justify-end">
+                  <button
+                    onClick={() => handleLaunchPaperStudio({
+                      title: `Empirical Trade-Off Study: Evaluating State-Space Hybridization on ${paperTitle}`,
+                      proposedExtension: 'Simulated hypothesis validating linear scaling and sub-15ms throughput.'
+                    })}
+                    className="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow-md"
+                  >
+                    <FileCode2 className="w-3.5 h-3.5" />
+                    <span>Send Hypothesis to Paper Studio</span>
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
         </div>
       )}
 
-      {/* TAB 2: EXPLAINABLE UNIQUENESS */}
+      {/* TAB 3: 🧠 CONTRADICTION DETECTOR */}
+      {activeSubTab === 'contradictions' && (
+        <div className="space-y-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <div className="flex items-center gap-2">
+                <Scale className="w-5 h-5 text-rose-400" />
+                <h2 className={`text-xl font-bold ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
+                  Research Contradiction Detector
+                </h2>
+              </div>
+              <p className="text-xs text-slate-400 mt-0.5">
+                Detects conflicting empirical findings across published literature and turns disagreements into high-value research questions:
+              </p>
+            </div>
+          </div>
+
+          <div className={`p-6 sm:p-8 rounded-3xl border space-y-6 ${isDarkMode ? 'bg-[#0f1738] border-[#1d2b5c]' : 'bg-white border-slate-200 shadow-sm'}`}>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              
+              {/* Claim A */}
+              <div className="p-5 rounded-2xl bg-emerald-950/20 border border-emerald-800/40 space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] font-black uppercase tracking-wider text-emerald-400">Published Paper A (NeurIPS 2024)</span>
+                  <span className="text-xs font-mono font-bold text-emerald-300">Accuracy: 94.2%</span>
+                </div>
+                <h4 className="text-sm font-bold text-white">"State-Space Mamba achieves superior perplexity and 4x speedup over Transformers."</h4>
+                <p className="text-xs text-slate-400 leading-relaxed">
+                  Evaluated on multi-hour streaming datasets, claiming strict mathematical dominance over traditional quadratic attention blocks.
+                </p>
+              </div>
+
+              {/* Claim B */}
+              <div className="p-5 rounded-2xl bg-rose-950/20 border border-rose-800/40 space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] font-black uppercase tracking-wider text-rose-400">Published Paper B (ICLR 2024)</span>
+                  <span className="text-xs font-mono font-bold text-rose-300">Accuracy: 81.7%</span>
+                </div>
+                <h4 className="text-sm font-bold text-white">"State-Space Models fail catastrophically on in-context associative recall tasks."</h4>
+                <p className="text-xs text-slate-400 leading-relaxed">
+                  Argues that recurrent state compression loses critical fine-grained token associations over extended sequence lengths.
+                </p>
+              </div>
+            </div>
+
+            {/* Why they contradict */}
+            <div className="p-4 rounded-2xl bg-slate-900/60 border border-slate-800 space-y-3">
+              <span className="text-xs font-bold text-amber-300 uppercase tracking-wider block">
+                Why These Findings Contradict:
+              </span>
+              <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-slate-300">
+                <li className="flex items-center gap-2">
+                  <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
+                  <span><strong>Different Task Nature:</strong> Synthetic associative recall vs. natural language modeling.</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
+                  <span><strong>Context Length:</strong> Paper A tested on 8k; Paper B stressed to 64k tokens.</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
+                  <span><strong>Evaluation Metric:</strong> Perplexity vs. Exact String Match accuracy.</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
+                  <span><strong>Hidden State Size:</strong> Divergent state expansion ratios ($d_{state} = 16$ vs $64$).</span>
+                </li>
+              </ul>
+            </div>
+
+            {/* Actionable Research Opportunity */}
+            <div className="p-5 rounded-2xl bg-gradient-to-r from-purple-950/60 to-indigo-950/60 border border-purple-500/40 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div>
+                <span className="text-[10px] font-black uppercase text-purple-300 tracking-wider">
+                  High-Impact Research Opportunity:
+                </span>
+                <h3 className="text-sm font-bold text-white mt-1">
+                  Determine the exact pareto-boundary under which State-Space compression outperforms attention.
+                </h3>
+              </div>
+              <button
+                onClick={() => handleLaunchPaperStudio({
+                  title: 'Resolving the Associative Recall Bottleneck in State-Space Language Models',
+                  proposedExtension: 'Formulates empirical conditions reconciling the contradiction between NeurIPS 2024 and ICLR 2024 findings.'
+                })}
+                className="px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold flex items-center gap-1.5 cursor-pointer shrink-0"
+              >
+                <span>Draft Reconciliation Paper</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* TAB 4: 🕳️ BLIND SPOT DETECTOR */}
+      {activeSubTab === 'blind_spots' && (
+        <div className="space-y-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <div className="flex items-center gap-2">
+                <EyeOff className="w-5 h-5 text-amber-400" />
+                <h2 className={`text-xl font-bold ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
+                  Literature Blind Spot Detector
+                </h2>
+              </div>
+              <p className="text-xs text-slate-400 mt-0.5">
+                Instead of asking "What gap exists?", we systematically audit what published papers <strong>completely neglected</strong>:
+              </p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {/* Dataset Blind Spots */}
+            <div className={`p-6 rounded-2xl border ${isDarkMode ? 'bg-[#0f1738] border-[#1d2b5c]' : 'bg-white border-slate-200'}`}>
+              <span className="text-xs font-black uppercase tracking-wider text-blue-400 block mb-3">
+                1. Dataset Blind Spots
+              </span>
+              <div className="space-y-3 text-xs text-slate-300">
+                <div className="p-3 rounded-xl bg-slate-900/60 border border-slate-800">
+                  <strong className="text-rose-400 block">Demographic & Regional Bias:</strong>
+                  <span>94% of benchmark papers test exclusively on North American / Western European data corpora.</span>
+                </div>
+                <div className="p-3 rounded-xl bg-slate-900/60 border border-slate-800">
+                  <strong className="text-rose-400 block">Zero Telemetry Dropout Testing:</strong>
+                  <span>Existing papers assume 100% reliable sensor uptime, omitting real-world storm outages.</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Methodological Blind Spots */}
+            <div className={`p-6 rounded-2xl border ${isDarkMode ? 'bg-[#0f1738] border-[#1d2b5c]' : 'bg-white border-slate-200'}`}>
+              <span className="text-xs font-black uppercase tracking-wider text-purple-400 block mb-3">
+                2. Methodological Blind Spots
+              </span>
+              <div className="space-y-3 text-xs text-slate-300">
+                <div className="p-3 rounded-xl bg-slate-900/60 border border-slate-800">
+                  <strong className="text-rose-400 block">Missing Recent Baselines:</strong>
+                  <span>Only compared against 2017 baseline architectures (LSTM/ResNet), omitting recent SOTA models.</span>
+                </div>
+                <div className="p-3 rounded-xl bg-slate-900/60 border border-slate-800">
+                  <strong className="text-rose-400 block">Unenforced Physical Invariants:</strong>
+                  <span>Network allows non-physical mass-gain surges during missing sensor interpolation.</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Evaluation Blind Spots */}
+            <div className={`p-6 rounded-2xl border ${isDarkMode ? 'bg-[#0f1738] border-[#1d2b5c]' : 'bg-white border-slate-200'}`}>
+              <span className="text-xs font-black uppercase tracking-wider text-emerald-400 block mb-3">
+                3. Evaluation Blind Spots
+              </span>
+              <div className="space-y-3 text-xs text-slate-300">
+                <div className="p-3 rounded-xl bg-slate-900/60 border border-slate-800">
+                  <strong className="text-rose-400 block">No Calibration Curves (ECE):</strong>
+                  <span>High raw accuracy masking severe overconfidence in out-of-distribution scenarios.</span>
+                </div>
+                <div className="p-3 rounded-xl bg-slate-900/60 border border-slate-800">
+                  <strong className="text-rose-400 block">Thermal Throttling Latency:</strong>
+                  <span>Throughput measured only on chilled H100 servers, not on edge hardware in ambient heat.</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* TAB 5: 🧩 RESEARCH LEGO WORKBENCH */}
+      {activeSubTab === 'lego' && (
+        <div className="space-y-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <div className="flex items-center gap-2">
+                <Boxes className="w-5 h-5 text-indigo-400" />
+                <h2 className={`text-xl font-bold ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
+                  Research Lego: Recombinant Scientific Workbench
+                </h2>
+              </div>
+              <p className="text-xs text-slate-400 mt-0.5">
+                Break papers into modular building blocks. Combine Dataset + Architecture + Evaluation to forge a brand new design:
+              </p>
+            </div>
+          </div>
+
+          <div className={`p-6 sm:p-8 rounded-3xl border ${isDarkMode ? 'bg-[#0f1738] border-[#1d2b5c]' : 'bg-white border-slate-200 shadow-sm'}`}>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              
+              {/* Lego Block 1: Dataset */}
+              <div className="p-5 rounded-2xl bg-blue-950/30 border border-blue-800/40 space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-black text-blue-400 uppercase tracking-wider">🧱 Dataset Block</span>
+                  <Database className="w-4 h-4 text-blue-400" />
+                </div>
+                <select
+                  value={legoDataset}
+                  onChange={(e) => setLegoDataset(e.target.value)}
+                  className="w-full p-2.5 rounded-xl bg-[#060b19] border border-slate-800 text-xs text-white"
+                >
+                  <option value="multilingual_clinical">Multilingual Clinical IoT Telemetry (50k)</option>
+                  <option value="noaa_flashflood">NOAA Global Stream Gauges & Radar (671 Basins)</option>
+                  <option value="synthetic_adversarial">Synthetic Adversarial Perturbation Benchmark</option>
+                </select>
+                <span className="text-[11px] text-slate-400 block">Ensures zero-shot cross-domain generalizability.</span>
+              </div>
+
+              {/* Lego Block 2: Architecture */}
+              <div className="p-5 rounded-2xl bg-purple-950/30 border border-purple-800/40 space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-black text-purple-400 uppercase tracking-wider">🧱 Model Architecture</span>
+                  <Cpu className="w-4 h-4 text-purple-400" />
+                </div>
+                <select
+                  value={legoArchitecture}
+                  onChange={(e) => setLegoArchitecture(e.target.value)}
+                  className="w-full p-2.5 rounded-xl bg-[#060b19] border border-slate-800 text-xs text-white"
+                >
+                  <option value="mamba_cross_attention">Hybrid Mamba State-Space + Sparse Attention</option>
+                  <option value="physics_pinn_operator">Physics-Informed Conservation Operator (PINO)</option>
+                  <option value="int4_edge_quantized">INT4 Dynamic Magnitude Pruned NPU Engine</option>
+                </select>
+                <span className="text-[11px] text-slate-400 block">Provides linear-time scaling with strict physical invariants.</span>
+              </div>
+
+              {/* Lego Block 3: Evaluation */}
+              <div className="p-5 rounded-2xl bg-emerald-950/30 border border-emerald-800/40 space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-black text-emerald-400 uppercase tracking-wider">🧱 Evaluation Protocol</span>
+                  <Activity className="w-4 h-4 text-emerald-400" />
+                </div>
+                <select
+                  value={legoEvaluation}
+                  onChange={(e) => setLegoEvaluation(e.target.value)}
+                  className="w-full p-2.5 rounded-xl bg-[#060b19] border border-slate-800 text-xs text-white"
+                >
+                  <option value="adversarial_calibration">Expected Calibration Error (ECE) + Noise Stress</option>
+                  <option value="thermal_edge_profiling">Thermal Throttling Latency & Energy Profiling</option>
+                  <option value="ablation_pareto">Multi-Seed Pareto Frontier Robustness Testing</option>
+                </select>
+                <span className="text-[11px] text-slate-400 block">Guarantees bulletproof validation against Reviewer #2.</span>
+              </div>
+            </div>
+
+            {/* Assembled Design Evaluation */}
+            <div className="mt-8 pt-6 border-t border-slate-700/30 grid grid-cols-1 sm:grid-cols-4 gap-4">
+              <div className="p-4 rounded-xl bg-slate-900/60 border border-slate-800">
+                <span className="text-[10px] text-slate-400 uppercase font-bold block">Compatibility Score</span>
+                <span className="text-xl font-black text-emerald-400 mt-1 block">88% (High)</span>
+              </div>
+              <div className="p-4 rounded-xl bg-slate-900/60 border border-slate-800">
+                <span className="text-[10px] text-slate-400 uppercase font-bold block">Estimated Novelty</span>
+                <span className="text-xl font-black text-blue-400 mt-1 block">84% (Uncontested)</span>
+              </div>
+              <div className="p-4 rounded-xl bg-slate-900/60 border border-slate-800">
+                <span className="text-[10px] text-slate-400 uppercase font-bold block">Student Feasibility</span>
+                <span className="text-xl font-black text-amber-400 mt-1 block">76% (PyTorch Ready)</span>
+              </div>
+              <div className="flex items-center justify-center">
+                <button
+                  onClick={() => handleLaunchPaperStudio({
+                    title: `Recombinant Architecture: ${legoArchitecture} on ${legoDataset}`,
+                    proposedExtension: `Assembled from modular Research Lego combining ${legoDataset}, ${legoArchitecture}, and ${legoEvaluation}.`
+                  })}
+                  className="w-full py-3 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white text-xs font-bold flex items-center justify-center gap-1.5 cursor-pointer shadow-lg shadow-blue-600/30"
+                >
+                  <FileCode2 className="w-4 h-4" />
+                  <span>Draft Assembled Paper</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* TAB 6: 🎯 OPPORTUNITY RADAR & DECISION NAVIGATOR */}
+      {activeSubTab === 'opportunity_radar' && (
+        <div className="space-y-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <div className="flex items-center gap-2">
+                <Crosshair className="w-5 h-5 text-indigo-400" />
+                <h2 className={`text-xl font-bold ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
+                  Research Opportunity Radar & Decision Navigator
+                </h2>
+              </div>
+              <p className="text-xs text-slate-400 mt-0.5">
+                Compare multiple research pathways to select the optimal balance of Novelty, Difficulty, and Publication Impact:
+              </p>
+            </div>
+          </div>
+
+          <div className={`p-6 sm:p-8 rounded-3xl border ${isDarkMode ? 'bg-[#0f1738] border-[#1d2b5c]' : 'bg-white border-slate-200 shadow-sm'}`}>
+            <table className="w-full text-xs text-left">
+              <thead>
+                <tr className="border-b border-slate-800 text-slate-400 text-[11px] uppercase tracking-wider">
+                  <th className="py-3 px-4 font-bold">Research Pathway</th>
+                  <th className="py-3 px-4 font-bold text-center">Novelty</th>
+                  <th className="py-3 px-4 font-bold text-center">Difficulty</th>
+                  <th className="py-3 px-4 font-bold text-center text-emerald-400">Impact</th>
+                  <th className="py-3 px-4 font-bold text-center">Est. Time</th>
+                  <th className="py-3 px-4 font-bold text-right">Action</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-800/60">
+                {[
+                  { name: 'Model Architecture Improvement', novelty: 78, diff: '⭐⭐⭐⭐☆ (High)', impact: 86, time: '8 Weeks', best: false },
+                  { name: 'Curate Novel Multimodal Dataset', novelty: 91, diff: '⭐⭐⭐⭐☆ (High)', impact: 94, time: '12 Weeks', best: false },
+                  { name: 'Cross-Domain Healthcare Transfer', novelty: 84, diff: '⭐⭐⭐☆☆ (Med)', impact: 88, time: '6 Weeks', best: true },
+                  { name: 'Mechanistic Explainability (SHAP)', novelty: 72, diff: '⭐⭐⭐☆☆ (Med)', impact: 80, time: '4 Weeks', best: false },
+                  { name: 'INT4 Edge Efficiency & Quantization', novelty: 81, diff: '⭐⭐⭐☆☆ (Med)', impact: 90, time: '5 Weeks', best: false },
+                ].map((row, idx) => (
+                  <tr key={idx} className="hover:bg-slate-900/30 transition-colors">
+                    <td className="py-3.5 px-4 font-bold text-slate-200 flex items-center gap-2">
+                      <span>{row.name}</span>
+                      {row.best && (
+                        <span className="px-2 py-0.5 rounded text-[9px] font-black bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                          🏆 Best Goldilocks Fit
+                        </span>
+                      )}
+                    </td>
+                    <td className="py-3.5 px-4 text-center font-bold text-blue-400">{row.novelty}%</td>
+                    <td className="py-3.5 px-4 text-center text-slate-300">{row.diff}</td>
+                    <td className="py-3.5 px-4 text-center font-bold text-emerald-400">{row.impact}%</td>
+                    <td className="py-3.5 px-4 text-center font-mono text-slate-400">{row.time}</td>
+                    <td className="py-3.5 px-4 text-right">
+                      <button
+                        onClick={() => handleLaunchPaperStudio({
+                          title: `${row.name}: Extending ${paperTitle}`,
+                          proposedExtension: `Action plan targeting ${row.name} with ${row.time} timeline.`
+                        })}
+                        className="px-3 py-1 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-[11px] font-bold cursor-pointer"
+                      >
+                        Select
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {/* TAB 7: 🧑‍🔬 "BECOME THE REVIEWER" MODE */}
+      {activeSubTab === 'become_reviewer' && (
+        <div className="space-y-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <div className="flex items-center gap-2">
+                <UserCheck className="w-5 h-5 text-indigo-400" />
+                <h2 className={`text-xl font-bold ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
+                  "Become the Reviewer" Interactive Training Lab
+                </h2>
+              </div>
+              <p className="text-xs text-slate-400 mt-0.5">
+                Instead of AI reviewing the paper, you act as <strong>Reviewer #2</strong>. Learn to evaluate methodology and compare against ground-truth rubric:
+              </p>
+            </div>
+          </div>
+
+          <div className={`p-6 sm:p-8 rounded-3xl border space-y-6 ${isDarkMode ? 'bg-[#0f1738] border-[#1d2b5c]' : 'bg-white border-slate-200 shadow-sm'}`}>
+            {[
+              { id: 'q1', text: '1. Is the baseline comparison against recent 2023–2024 state-of-the-art models sufficient?' },
+              { id: 'q2', text: '2. Does the empirical data adequately prove the author\'s claims of linear scalability?' },
+              { id: 'q3', text: '3. Is the dataset diversity sufficient to guarantee robustness across regional dialects?' },
+            ].map((q) => (
+              <div key={q.id} className="p-4 rounded-2xl bg-slate-900/60 border border-slate-800 space-y-2.5">
+                <h4 className="text-xs font-bold text-slate-200">{q.text}</h4>
+                <div className="flex items-center gap-2">
+                  {['Strong', 'Acceptable', 'Weak / Missing Evidence'].map((opt) => (
+                    <button
+                      key={opt}
+                      onClick={() => setReviewerAnswers({ ...reviewerAnswers, [q.id]: opt })}
+                      className={`px-3 py-1.5 rounded-xl text-xs font-semibold border transition-all cursor-pointer ${
+                        reviewerAnswers[q.id] === opt
+                          ? 'bg-indigo-600 border-indigo-500 text-white'
+                          : 'border-slate-800 bg-slate-950 text-slate-400 hover:text-white'
+                      }`}
+                    >
+                      {opt}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            ))}
+
+            <div className="pt-2 flex justify-between items-center">
+              <span className="text-xs text-slate-400">Complete the evaluation to generate your Reviewer #2 report.</span>
+              <button
+                onClick={() => setHasSubmittedReview(true)}
+                className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-xs font-bold shadow-lg cursor-pointer"
+              >
+                Submit My Peer Review
+              </button>
+            </div>
+
+            {hasSubmittedReview && (
+              <div className="p-5 rounded-2xl bg-emerald-950/30 border border-emerald-800/40 space-y-3">
+                <span className="text-xs font-bold text-emerald-400 uppercase tracking-wider block">
+                  Peer Review Verdict & Expert Comparison:
+                </span>
+                <p className="text-xs text-slate-300 leading-relaxed">
+                  <strong>Ground Truth Comparison:</strong> Your assessment aligns with our autonomous referee! The paper's primary vulnerability is indeed <em>Weak Baseline Comparisons</em> and <em>Overclaiming Linear Scaling without Profiling Adversarial Edge Drift</em>.
+                </p>
+                <div className="grid grid-cols-4 gap-3 text-center text-xs pt-2">
+                  <div className="p-2.5 rounded-xl bg-slate-900">
+                    <span className="text-slate-400 block text-[10px]">Methodology</span>
+                    <span className="font-bold text-emerald-400">7.2 / 10</span>
+                  </div>
+                  <div className="p-2.5 rounded-xl bg-slate-900">
+                    <span className="text-slate-400 block text-[10px]">Novelty</span>
+                    <span className="font-bold text-blue-400">8.1 / 10</span>
+                  </div>
+                  <div className="p-2.5 rounded-xl bg-slate-900">
+                    <span className="text-slate-400 block text-[10px]">Evidence</span>
+                    <span className="font-bold text-amber-400">6.4 / 10</span>
+                  </div>
+                  <div className="p-2.5 rounded-xl bg-slate-900">
+                    <span className="text-slate-400 block text-[10px]">Reproducibility</span>
+                    <span className="font-bold text-purple-400">5.8 / 10</span>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* TAB 8: 🔭 FUTURE WORK ➔ RESEARCH PROJECT */}
+      {activeSubTab === 'future_work' && (
+        <div className="space-y-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <div className="flex items-center gap-2">
+                <Lightbulb className="w-5 h-5 text-amber-400" />
+                <h2 className={`text-xl font-bold ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
+                  Future Work ➔ Research Project Generator
+                </h2>
+              </div>
+              <p className="text-xs text-slate-400 mt-0.5">
+                Automatically extracts the author's open questions from the conclusion and formalizes them into an executable proposal:
+              </p>
+            </div>
+          </div>
+
+          <div className={`p-6 sm:p-8 rounded-3xl border space-y-6 ${isDarkMode ? 'bg-[#0f1738] border-[#1d2b5c]' : 'bg-white border-slate-200 shadow-sm'}`}>
+            <div className="p-4 rounded-2xl bg-slate-900/60 border border-slate-800 space-y-2">
+              <span className="text-[10px] font-black uppercase text-amber-400 tracking-wider">
+                Extracted Author Future Work Clauses:
+              </span>
+              <ul className="space-y-1.5 text-xs text-slate-300">
+                <li className="flex items-start gap-2">
+                  <span className="text-amber-400">•</span>
+                  <span>"Future research should explore extending recursive calibration to resource-constrained low-power mobile devices."</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-amber-400">•</span>
+                  <span>"Validating across non-English, multilingual low-resource dialect splits remains an uninvestigated horizon."</span>
+                </li>
+              </ul>
+            </div>
+
+            <div className="p-5 rounded-2xl bg-indigo-950/40 border border-indigo-800/40 space-y-3">
+              <span className="text-xs font-bold text-indigo-300 uppercase tracking-wider block">
+                Synthesized Executable Research Proposal:
+              </span>
+              <h3 className="text-base font-black text-white">
+                Low-Power Multilingual Calibration: Turning Author Future Work into a Camera-Ready Study
+              </h3>
+              <p className="text-xs text-slate-300 leading-relaxed">
+                Adopting the exact unresolved challenges outlined by the authors, this project formulates on-device INT4 quantization combined with low-resource multilingual benchmark splits, closing the primary gap identified in the manuscript.
+              </p>
+              <div className="pt-2 flex justify-end">
+                <button
+                  onClick={() => handleLaunchPaperStudio({
+                    title: 'Low-Power Multilingual Calibration: Resolving Author-Identified Future Work Limits',
+                    proposedExtension: 'Derived directly from author-suggested future work clauses in the concluding section.'
+                  })}
+                  className="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow-md"
+                >
+                  <FileCode2 className="w-3.5 h-3.5" />
+                  <span>Export to Paper Studio</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* TAB 9: EXPLAINABLE UNIQUENESS */}
       {activeSubTab === 'uniqueness' && (
         <div className="space-y-6">
           <div className={`p-6 rounded-3xl border ${isDarkMode ? 'bg-[#0f1738] border-[#1d2b5c]' : 'bg-white border-slate-200 shadow-sm'}`}>
@@ -488,7 +1030,6 @@ export const ResearchEvolutionView: React.FC<ResearchEvolutionViewProps> = ({
               </div>
             </div>
 
-            {/* 5 Dimensional Scoring Matrix */}
             <div className="grid grid-cols-1 sm:grid-cols-5 gap-4 mt-6">
               {[
                 { label: 'Problem Novelty', score: 82, desc: 'Tackles unaddressed edge cases', color: 'from-blue-500 to-indigo-500' },
@@ -509,199 +1050,11 @@ export const ResearchEvolutionView: React.FC<ResearchEvolutionViewProps> = ({
                 </div>
               ))}
             </div>
-
-            {/* Qualitative Explainable Evidence */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6 pt-6 border-t border-slate-700/30">
-              <div className="space-y-3">
-                <span className="text-xs font-bold text-emerald-400 uppercase tracking-wider flex items-center gap-1.5">
-                  <CheckCircle2 className="w-4 h-4" />
-                  <span>Validated Novelty Drivers (Why it is unique)</span>
-                </span>
-                <div className="space-y-2">
-                  {[
-                    'Uses an evaluation corpus rarely examined together in high-throughput transformer pipelines.',
-                    'Successfully combines recursive manifold projections with low-rank adaptation layers.',
-                    'Directly resolves a reproducibility bottleneck documented across 8 prominent baseline papers.',
-                    'Empirical ablation verifies that node calibration accounts for 71% of total throughput gain.',
-                  ].map((text, i) => (
-                    <div key={i} className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-xs text-emerald-300 flex items-start gap-2">
-                      <Check className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
-                      <span>{text}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div className="space-y-3">
-                <span className="text-xs font-bold text-amber-400 uppercase tracking-wider flex items-center gap-1.5">
-                  <AlertTriangle className="w-4 h-4" />
-                  <span>Literature Overlaps & Cautionary Signals</span>
-                </span>
-                <div className="space-y-2">
-                  {[
-                    'Core backpropagation loss function is structurally similar to 23 published papers in IEEE Transactions.',
-                    'Evaluation protocol follows standard academic benchmarking with minimal stress-testing for adversarial inputs.',
-                    'Literature distance indicates strong convergence with recent 2024 ArXiv preprints in the same category.',
-                  ].map((text, i) => (
-                    <div key={i} className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/20 text-xs text-amber-300 flex items-start gap-2">
-                      <AlertTriangle className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
-                      <span>{text}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
           </div>
         </div>
       )}
 
-      {/* TAB 3: WHAT TO IMPROVE */}
-      {activeSubTab === 'improvements' && (
-        <div className="space-y-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <h2 className={`text-xl font-bold ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
-                Concrete Improvement Opportunities
-              </h2>
-              <p className="text-xs text-slate-400 mt-0.5">
-                Every published paper has actionable limitations. Here is what can be improved across Data, Model, and Hardware.
-              </p>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Dataset Opportunity */}
-            <div className={`p-6 rounded-2xl border ${isDarkMode ? 'bg-[#0f1738] border-[#1d2b5c]' : 'bg-white border-slate-200'}`}>
-              <div className="flex items-center justify-between mb-4">
-                <span className="text-xs font-extrabold uppercase tracking-wider text-blue-400 flex items-center gap-1.5">
-                  <Database className="w-4 h-4" />
-                  <span>1. Dataset & Representation</span>
-                </span>
-                <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-blue-500/15 text-blue-400 border border-blue-500/30">
-                  Impact: High
-                </span>
-              </div>
-
-              <div className="space-y-3 text-xs">
-                <div>
-                  <span className="text-slate-500 font-bold block">Current State:</span>
-                  <p className="text-slate-300 font-medium">Single-domain curated dataset (8,000 standard clean samples).</p>
-                </div>
-                <div>
-                  <span className="text-rose-400 font-bold block">Limitation:</span>
-                  <p className="text-slate-400">Low demographic diversity; vulnerable to real-world out-of-distribution drift.</p>
-                </div>
-                <div className="p-3 rounded-xl bg-blue-500/10 border border-blue-500/20">
-                  <span className="text-blue-300 font-bold block">Suggested Evolution:</span>
-                  <p className="text-blue-200/90 mt-0.5">Augment with multilingual benchmark splits and noisy edge-sensor captures.</p>
-                </div>
-                <div className="pt-2 flex items-center justify-between text-[11px] text-slate-400">
-                  <span>Difficulty: ⭐⭐☆☆☆</span>
-                  <span>Research Value: ⭐⭐⭐⭐☆</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Model Architecture Opportunity */}
-            <div className={`p-6 rounded-2xl border ${isDarkMode ? 'bg-[#0f1738] border-[#1d2b5c]' : 'bg-white border-slate-200'}`}>
-              <div className="flex items-center justify-between mb-4">
-                <span className="text-xs font-extrabold uppercase tracking-wider text-purple-400 flex items-center gap-1.5">
-                  <Cpu className="w-4 h-4" />
-                  <span>2. Model Architecture & Computation</span>
-                </span>
-                <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-purple-500/15 text-purple-400 border border-purple-500/30">
-                  High Publication Value
-                </span>
-              </div>
-
-              <div className="space-y-3 text-xs">
-                <div>
-                  <span className="text-slate-500 font-bold block">Current State:</span>
-                  <p className="text-slate-300 font-medium">Standard baseline CNN / dense transformer self-attention.</p>
-                </div>
-                <div>
-                  <span className="text-rose-400 font-bold block">Limitation:</span>
-                  <p className="text-slate-400">Quadratic memory growth $O(N^2)$; fails on contexts greater than 4,096 tokens.</p>
-                </div>
-                <div className="p-3 rounded-xl bg-purple-500/10 border border-purple-500/20">
-                  <span className="text-purple-300 font-bold block">Suggested Evolution:</span>
-                  <p className="text-purple-200/90 mt-0.5">Hybridize with selective state-space layers (Mamba) for linear-time scaling.</p>
-                </div>
-                <div className="pt-2 flex items-center justify-between text-[11px] text-slate-400">
-                  <span>Difficulty: ⭐⭐⭐⭐☆</span>
-                  <span>Research Value: ⭐⭐⭐⭐⭐</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Evaluation Opportunity */}
-            <div className={`p-6 rounded-2xl border ${isDarkMode ? 'bg-[#0f1738] border-[#1d2b5c]' : 'bg-white border-slate-200'}`}>
-              <div className="flex items-center justify-between mb-4">
-                <span className="text-xs font-extrabold uppercase tracking-wider text-emerald-400 flex items-center gap-1.5">
-                  <Activity className="w-4 h-4" />
-                  <span>3. Evaluation Protocol & Rigor</span>
-                </span>
-                <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
-                  Reviewer #2 Proof
-                </span>
-              </div>
-
-              <div className="space-y-3 text-xs">
-                <div>
-                  <span className="text-slate-500 font-bold block">Current State:</span>
-                  <p className="text-slate-300 font-medium">Evaluates only Top-1 accuracy on standard held-out split.</p>
-                </div>
-                <div>
-                  <span className="text-rose-400 font-bold block">Limitation:</span>
-                  <p className="text-slate-400">Zero evaluation of adversarial robustness, calibration error (ECE), or latency.</p>
-                </div>
-                <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20">
-                  <span className="text-emerald-300 font-bold block">Suggested Evolution:</span>
-                  <p className="text-emerald-200/90 mt-0.5">Add expected calibration error (ECE) curves, F1-macro, and latency profiling under memory throttling.</p>
-                </div>
-                <div className="pt-2 flex items-center justify-between text-[11px] text-slate-400">
-                  <span>Difficulty: ⭐⭐☆☆☆</span>
-                  <span>Research Value: ⭐⭐⭐⭐☆</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Practical Deployment Opportunity */}
-            <div className={`p-6 rounded-2xl border ${isDarkMode ? 'bg-[#0f1738] border-[#1d2b5c]' : 'bg-white border-slate-200'}`}>
-              <div className="flex items-center justify-between mb-4">
-                <span className="text-xs font-extrabold uppercase tracking-wider text-amber-400 flex items-center gap-1.5">
-                  <Zap className="w-4 h-4" />
-                  <span>4. Real-World Edge Deployment</span>
-                </span>
-                <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/15 text-amber-400 border border-amber-500/30">
-                  Industry Commercial Value
-                </span>
-              </div>
-
-              <div className="space-y-3 text-xs">
-                <div>
-                  <span className="text-slate-500 font-bold block">Current State:</span>
-                  <p className="text-slate-300 font-medium">Heavy PyTorch weights requiring 24GB VRAM GPU instance.</p>
-                </div>
-                <div>
-                  <span className="text-rose-400 font-bold block">Limitation:</span>
-                  <p className="text-slate-400">Cannot be deployed in clinical edge environments or mobile devices.</p>
-                </div>
-                <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/20">
-                  <span className="text-amber-300 font-bold block">Suggested Evolution:</span>
-                  <p className="text-amber-200/90 mt-0.5">Export to ONNX / TensorRT with INT8 quantization, achieving sub-20ms latency on edge NPUs.</p>
-                </div>
-                <div className="pt-2 flex items-center justify-between text-[11px] text-slate-400">
-                  <span>Difficulty: ⭐⭐⭐☆☆</span>
-                  <span>Research Value: ⭐⭐⭐⭐⭐</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* TAB 4: 5 EXTENSION PATHS */}
+      {/* TAB 10: 5 EXTENSION PATHS */}
       {activeSubTab === 'extensions' && (
         <div className="space-y-6">
           <div className="flex items-center justify-between flex-wrap gap-4">
@@ -710,7 +1063,7 @@ export const ResearchEvolutionView: React.FC<ResearchEvolutionViewProps> = ({
                 5 Structured Extension Paths
               </h2>
               <p className="text-xs text-slate-400 mt-0.5">
-                Don't generate only one generic suggestion. Choose the precise scientific direction that aligns with your research goals:
+                Choose the precise scientific direction that aligns with your research goals:
               </p>
             </div>
             
@@ -723,7 +1076,6 @@ export const ResearchEvolutionView: React.FC<ResearchEvolutionViewProps> = ({
             </button>
           </div>
 
-          {/* Extension Cards Grid */}
           <div className="grid grid-cols-1 md:grid-cols-5 gap-3">
             {extensionPaths.map((ext) => {
               const isSelected = ext.id === selectedExtension;
@@ -758,97 +1110,10 @@ export const ResearchEvolutionView: React.FC<ResearchEvolutionViewProps> = ({
               );
             })}
           </div>
-
-          {/* Detailed Selected Extension Canvas */}
-          <div className={`p-6 sm:p-8 rounded-3xl border ${isDarkMode ? 'bg-[#0f1738] border-[#1d2b5c]' : 'bg-white border-slate-200 shadow-md'}`}>
-            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 pb-6 border-b border-slate-700/30">
-              <div>
-                <span className="px-3 py-1 rounded-full text-xs font-bold bg-indigo-500/15 text-indigo-400 border border-indigo-500/30">
-                  {activeExtensionData.category}
-                </span>
-                <h3 className={`text-2xl font-black mt-2 ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
-                  {activeExtensionData.title}
-                </h3>
-              </div>
-
-              <div className="flex items-center gap-3">
-                <button
-                  onClick={() => {
-                    navigator.clipboard.writeText(JSON.stringify(activeExtensionData, null, 2));
-                    showCopyNotice('Extension details copied to clipboard!');
-                  }}
-                  className="px-3 py-2 rounded-xl text-xs font-semibold border border-slate-700 text-slate-300 hover:bg-slate-800 flex items-center gap-1.5 cursor-pointer"
-                >
-                  <Copy className="w-3.5 h-3.5" />
-                  <span>Copy Spec</span>
-                </button>
-                <button
-                  onClick={() => handleLaunchPaperStudio(activeExtensionData)}
-                  className="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow-lg shadow-indigo-600/30"
-                >
-                  <span>Build This Proposal</span>
-                  <ArrowRight className="w-4 h-4" />
-                </button>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
-              <div className="space-y-4">
-                <div className="p-4 rounded-2xl bg-slate-900/60 border border-slate-800">
-                  <span className="text-[11px] font-bold text-slate-400 block uppercase tracking-wider">Original Limitation</span>
-                  <p className="text-xs text-slate-300 mt-1 leading-relaxed">{activeExtensionData.originalApproach}</p>
-                </div>
-
-                <div className="p-4 rounded-2xl bg-indigo-950/40 border border-indigo-800/40">
-                  <span className="text-[11px] font-bold text-indigo-300 block uppercase tracking-wider">Proposed Technological Evolution</span>
-                  <p className="text-xs text-indigo-100 font-medium mt-1 leading-relaxed">{activeExtensionData.proposedExtension}</p>
-                </div>
-              </div>
-
-              <div className="space-y-4">
-                <div className="p-4 rounded-2xl bg-slate-900/60 border border-slate-800">
-                  <span className="text-[11px] font-bold text-slate-400 block uppercase tracking-wider">Why It Matters to Science & Industry</span>
-                  <p className="text-xs text-slate-300 mt-1 leading-relaxed">{activeExtensionData.whyItMatters}</p>
-                </div>
-
-                <div className="p-4 rounded-2xl bg-emerald-950/40 border border-emerald-800/40">
-                  <span className="text-[11px] font-bold text-emerald-300 block uppercase tracking-wider">Expected Measurable Outcome</span>
-                  <p className="text-xs text-emerald-100 font-medium mt-1 leading-relaxed">{activeExtensionData.expectedOutcome}</p>
-                </div>
-              </div>
-            </div>
-
-            {/* Feasibility specs */}
-            <div className="mt-6 pt-6 border-t border-slate-700/30 grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <div className="flex items-center gap-3">
-                <Sliders className="w-5 h-5 text-indigo-400" />
-                <div>
-                  <span className="text-[10px] text-slate-400 block">Technical Difficulty</span>
-                  <span className="text-xs font-bold text-slate-200">{'⭐'.repeat(activeExtensionData.difficulty)} ({activeExtensionData.difficulty}/5)</span>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-3">
-                <Award className="w-5 h-5 text-amber-400" />
-                <div>
-                  <span className="text-[10px] text-slate-400 block">Expected Publication Value</span>
-                  <span className="text-xs font-bold text-slate-200">{'⭐'.repeat(activeExtensionData.researchValue)} Top-Tier Fit</span>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-3">
-                <Cpu className="w-5 h-5 text-cyan-400" />
-                <div>
-                  <span className="text-[10px] text-slate-400 block">Compute Requirement</span>
-                  <span className="text-xs font-bold text-slate-200">{activeExtensionData.computeLevel}</span>
-                </div>
-              </div>
-            </div>
-          </div>
         </div>
       )}
 
-      {/* TAB 5: CROSS-PAPER SYNTHESIS (A + B + C) */}
+      {/* TAB 11: CROSS-PAPER SYNTHESIS (A + B + C) */}
       {activeSubTab === 'cross_synthesis' && (
         <div className="space-y-6">
           <div className="flex items-center justify-between">
@@ -860,16 +1125,14 @@ export const ResearchEvolutionView: React.FC<ResearchEvolutionViewProps> = ({
                 </h2>
               </div>
               <p className="text-xs text-slate-400 mt-0.5">
-                Real scientific breakthroughs happen at the intersection of multiple papers. Select components from 3 manuscripts to forge an original hybrid contribution:
+                Select components from 3 manuscripts to forge an original hybrid contribution:
               </p>
             </div>
           </div>
 
-          {/* Interactive 3-Way Paper Synthesizer */}
           <div className={`p-6 sm:p-8 rounded-3xl border ${isDarkMode ? 'bg-[#0f1738] border-[#1d2b5c]' : 'bg-white border-slate-200 shadow-sm'}`}>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               
-              {/* Pillar 1: Model from Paper A */}
               <div className="p-5 rounded-2xl bg-blue-950/30 border border-blue-800/40 flex flex-col justify-between">
                 <div>
                   <div className="flex items-center justify-between mb-2">
@@ -881,12 +1144,8 @@ export const ResearchEvolutionView: React.FC<ResearchEvolutionViewProps> = ({
                     Borrow the high-throughput <strong>recursive latent manifold formulation</strong> from <em>{paperTitle}</em>.
                   </p>
                 </div>
-                <div className="mt-4 pt-3 border-t border-blue-900/50">
-                  <span className="text-[11px] text-blue-300 font-semibold">Contribution: Algorithmic Core</span>
-                </div>
               </div>
 
-              {/* Pillar 2: Dataset from Paper B */}
               <div className="p-5 rounded-2xl bg-emerald-950/30 border border-emerald-800/40 flex flex-col justify-between">
                 <div>
                   <div className="flex items-center justify-between mb-2">
@@ -895,136 +1154,79 @@ export const ResearchEvolutionView: React.FC<ResearchEvolutionViewProps> = ({
                   </div>
                   <h4 className="text-sm font-bold text-white">Paper B: Diverse Multimodal Corpus</h4>
                   <p className="text-xs text-slate-300 mt-2">
-                    Adopt the <strong>50,000 paired clinical & cross-lingual dataset</strong> from benchmark literature to eliminate single-domain bias.
+                    Adopt the <strong>50,000 paired clinical & cross-lingual dataset</strong> from benchmark literature.
                   </p>
-                </div>
-                <div className="mt-4 pt-3 border-t border-emerald-900/50">
-                  <span className="text-[11px] text-emerald-300 font-semibold">Contribution: Robust Generalization</span>
                 </div>
               </div>
 
-              {/* Pillar 3: Evaluation from Paper C */}
               <div className="p-5 rounded-2xl bg-purple-950/30 border border-purple-800/40 flex flex-col justify-between">
                 <div>
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-[10px] font-black uppercase text-purple-400 tracking-wider">Source 3: Rigor & Protocol</span>
                     <Activity className="w-4 h-4 text-purple-400" />
                   </div>
-                  <h4 className="text-sm font-bold text-white">Paper C: Adversarial Evaluation Protocol</h4>
+                  <h4 className="text-sm font-bold text-white">Paper C: Adversarial Stress Testing</h4>
                   <p className="text-xs text-slate-300 mt-2">
-                    Integrate <strong>noise-injected stress curves and expected calibration error (ECE)</strong> to guarantee Reviewer #2 acceptance.
+                    Integrate <strong>noise-injected stress curves and expected calibration error (ECE)</strong>.
                   </p>
-                </div>
-                <div className="mt-4 pt-3 border-t border-purple-900/50">
-                  <span className="text-[11px] text-purple-300 font-semibold">Contribution: Empirical Proof</span>
                 </div>
               </div>
             </div>
 
-            {/* Synthesis Connector Arrow */}
-            <div className="my-6 flex items-center justify-center">
-              <div className="flex items-center gap-2 px-4 py-1.5 rounded-full bg-indigo-600/20 text-indigo-400 border border-indigo-500/30 text-xs font-bold">
-                <GitMerge className="w-4 h-4 text-indigo-400" />
-                <span>SYNTHESIZED NOVEL RESEARCH DIRECTION</span>
-                <ArrowRight className="w-4 h-4" />
-              </div>
-            </div>
-
-            {/* Resulting Synthesized Proposal */}
-            <div className="p-6 rounded-2xl bg-gradient-to-br from-indigo-950/70 to-purple-950/70 border border-indigo-500/50 shadow-2xl">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div>
-                  <span className="px-2.5 py-0.5 rounded text-[10px] font-black bg-indigo-500 text-white uppercase tracking-wider">
-                    Novel Hybrid Direction
-                  </span>
-                  <h3 className="text-lg font-black text-white mt-1.5">
-                    Multi-Domain Stress Calibration: Combining A's Manifold Backbone with B's Corpus and C's Stress Protocol
-                  </h3>
-                  <p className="text-xs text-indigo-200 mt-1">
-                    By merging the mathematical efficiency of Paper A, the data diversity of Paper B, and the statistical validation of Paper C, this proposal directly closes the 3 biggest gaps in contemporary literature.
-                  </p>
-                </div>
-
-                <button
-                  onClick={() => {
-                    handleLaunchPaperStudio({
-                      ...activeExtensionData,
-                      title: `Multi-Domain Stress Calibration: Combining A's Manifold Backbone with B's Corpus and C's Stress Protocol`,
-                      proposedExtension: `A tripartite synthesis leveraging ${paperTitle} architecture, multi-domain diverse dataset, and adversarial calibration metrics.`
-                    });
-                  }}
-                  className="px-5 py-2.5 rounded-xl bg-white text-slate-900 hover:bg-slate-100 text-xs font-bold flex items-center gap-2 shrink-0 cursor-pointer shadow-lg"
-                >
-                  <FileCode2 className="w-4 h-4 text-indigo-600" />
-                  <span>Draft This Tripartite Paper</span>
-                </button>
-              </div>
+            <div className="mt-6 pt-6 border-t border-slate-700/30 flex justify-end">
+              <button
+                onClick={() => handleLaunchPaperStudio({
+                  title: `Tripartite Synthesis: Combining ${paperTitle} Backbone with Multimodal Benchmark`,
+                  proposedExtension: 'A tripartite synthesis combining architecture, multimodal corpus, and adversarial evaluation protocol.'
+                })}
+                className="px-5 py-2.5 rounded-xl bg-white text-slate-900 hover:bg-slate-100 text-xs font-bold flex items-center gap-2 cursor-pointer shadow-lg"
+              >
+                <FileCode2 className="w-4 h-4 text-indigo-600" />
+                <span>Draft This Tripartite Paper</span>
+              </button>
             </div>
           </div>
         </div>
       )}
 
-      {/* TAB 6: 6-WEEK IMPLEMENTATION ROADMAP */}
+      {/* TAB 12: 6-WEEK ROADMAP */}
       {activeSubTab === 'roadmap' && (
         <div className="space-y-6">
           <div className="flex items-center justify-between">
             <div>
               <h2 className={`text-xl font-bold ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
-                Can I Actually Implement This? Feasibility & 6-Week Plan
+                Feasibility & 6-Week Implementation Roadmap
               </h2>
               <p className="text-xs text-slate-400 mt-0.5">
-                Realistic execution timeline calibrated for graduate students, independent researchers, and industry R&D teams:
+                Realistic execution timeline calibrated for graduate researchers and industry labs:
               </p>
             </div>
           </div>
 
-          {/* Feasibility Overview Card */}
-          <div className={`p-6 rounded-3xl border ${isDarkMode ? 'bg-[#0f1738] border-[#1d2b5c]' : 'bg-white border-slate-200 shadow-sm'}`}>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 pb-6 border-b border-slate-700/30">
-              <div>
-                <span className="text-[10px] text-slate-400 font-bold uppercase">Technical Difficulty</span>
-                <span className="text-base font-black text-slate-200 block mt-0.5">⭐⭐⭐☆☆ (Moderate)</span>
-              </div>
-              <div>
-                <span className="text-[10px] text-slate-400 font-bold uppercase">Data Availability</span>
-                <span className="text-base font-black text-emerald-400 block mt-0.5">⭐⭐⭐⭐☆ (Open Access)</span>
-              </div>
-              <div>
-                <span className="text-[10px] text-slate-400 font-bold uppercase">Compute Budget</span>
-                <span className="text-base font-black text-blue-400 block mt-0.5">⭐⭐⭐☆☆ (Single GPU)</span>
-              </div>
-              <div>
-                <span className="text-[10px] text-slate-400 font-bold uppercase">Estimated Timeline</span>
-                <span className="text-base font-black text-purple-400 block mt-0.5">4 to 6 Weeks</span>
-              </div>
-            </div>
-
-            {/* Week-by-Week Timeline */}
-            <div className="mt-6 space-y-3">
-              {[
-                { week: 'Week 1', title: 'Data Pipeline & Baseline Preprocessing', desc: 'Download open-access datasets, clean annotations, establish reproducible train/val/test splits, and verify baseline environment.' },
-                { week: 'Week 2', title: 'Baseline Reproduction & Benchmark Check', desc: 'Re-run existing models from original paper to verify loss curves and reproduce exact published baseline metric.' },
-                { week: 'Week 3', title: 'Implement Proposed Algorithmic Extension', desc: 'Code the novel layer modifications, loss weighting, or quantization module in PyTorch.' },
-                { week: 'Week 4', title: 'Systematic Experiments & Hyperparameter Tuning', desc: 'Execute multi-seed training runs, record ablation tables, and log GPU memory/throughput metrics.' },
-                { week: 'Week 5', title: 'Comparative Evaluation & Stress Testing', desc: 'Generate confusion matrices, calculate calibration errors, and measure adversarial robustness curves.' },
-                { week: 'Week 6', title: 'Camera-Ready Paper Writing in Studio', desc: 'Complete paper draft in Paper Studio, generate LaTeX figures, assemble bibliography, and export.' },
-              ].map((item, idx) => (
-                <div key={idx} className="p-4 rounded-xl bg-slate-900/50 border border-slate-800 flex items-start gap-4">
-                  <div className="w-16 shrink-0 font-mono text-xs font-black text-indigo-400 bg-indigo-500/10 px-2 py-1 rounded-lg border border-indigo-500/20 text-center">
-                    {item.week}
-                  </div>
-                  <div>
-                    <h4 className="text-xs font-bold text-slate-200">{item.title}</h4>
-                    <p className="text-xs text-slate-400 mt-0.5 leading-relaxed">{item.desc}</p>
-                  </div>
+          <div className={`p-6 rounded-3xl border space-y-3 ${isDarkMode ? 'bg-[#0f1738] border-[#1d2b5c]' : 'bg-white border-slate-200 shadow-sm'}`}>
+            {[
+              { week: 'Week 1', title: 'Data Pipeline & Baseline Preprocessing', desc: 'Download open-access datasets, clean annotations, establish reproducible train/val/test splits, and verify baseline environment.' },
+              { week: 'Week 2', title: 'Baseline Reproduction & Benchmark Check', desc: 'Re-run existing models from original paper to verify loss curves and reproduce exact published baseline metric.' },
+              { week: 'Week 3', title: 'Implement Proposed Algorithmic Extension', desc: 'Code the novel layer modifications, loss weighting, or quantization module in PyTorch.' },
+              { week: 'Week 4', title: 'Systematic Experiments & Hyperparameter Tuning', desc: 'Execute multi-seed training runs, record ablation tables, and log GPU memory/throughput metrics.' },
+              { week: 'Week 5', title: 'Comparative Evaluation & Stress Testing', desc: 'Generate confusion matrices, calculate calibration errors, and measure adversarial robustness curves.' },
+              { week: 'Week 6', title: 'Camera-Ready Paper Writing in Studio', desc: 'Complete paper draft in Paper Studio, generate LaTeX figures, assemble bibliography, and export.' },
+            ].map((item, idx) => (
+              <div key={idx} className="p-4 rounded-xl bg-slate-900/50 border border-slate-800 flex items-start gap-4">
+                <div className="w-16 shrink-0 font-mono text-xs font-black text-indigo-400 bg-indigo-500/10 px-2 py-1 rounded-lg border border-indigo-500/20 text-center">
+                  {item.week}
                 </div>
-              ))}
-            </div>
+                <div>
+                  <h4 className="text-xs font-bold text-slate-200">{item.title}</h4>
+                  <p className="text-xs text-slate-400 mt-0.5 leading-relaxed">{item.desc}</p>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       )}
 
-      {/* TAB 7: ORIGINAL VS PROPOSED COMPARISON */}
+      {/* TAB 13: ORIGINAL VS PROPOSED COMPARISON */}
       {activeSubTab === 'comparison' && (
         <div className="space-y-6">
           <div className="flex items-center justify-between">
@@ -1032,9 +1234,6 @@ export const ResearchEvolutionView: React.FC<ResearchEvolutionViewProps> = ({
               <h2 className={`text-xl font-bold ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
                 Original vs. Proposed Research Comparison Matrix
               </h2>
-              <p className="text-xs text-slate-400 mt-0.5">
-                Visual side-by-side breakdown contrasting the current paper against your evolved research manuscript:
-              </p>
             </div>
           </div>
 
@@ -1065,102 +1264,6 @@ export const ResearchEvolutionView: React.FC<ResearchEvolutionViewProps> = ({
                 ))}
               </tbody>
             </table>
-
-            {/* Expected Contribution Bar Meters */}
-            <div className="mt-8 pt-6 border-t border-slate-700/30">
-              <span className="text-xs font-bold text-slate-300 block mb-4 uppercase tracking-wider">
-                Expected Research Contribution Profile
-              </span>
-              <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
-                {[
-                  { label: 'Scientific Novelty', pct: 82, color: 'from-blue-500 to-indigo-500' },
-                  { label: 'Practical Impact', pct: 91, color: 'from-emerald-500 to-teal-500' },
-                  { label: 'Technical Depth', pct: 74, color: 'from-purple-500 to-pink-500' },
-                  { label: 'Student Feasibility', pct: 84, color: 'from-amber-500 to-orange-500' },
-                ].map((item, idx) => (
-                  <div key={idx} className="p-4 rounded-xl bg-slate-900/60 border border-slate-800">
-                    <div className="flex items-baseline justify-between text-xs mb-1">
-                      <span className="text-slate-400 font-medium">{item.label}</span>
-                      <span className="text-slate-200 font-bold">{item.pct}%</span>
-                    </div>
-                    <div className="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
-                      <div className={`h-full bg-gradient-to-r ${item.color} rounded-full`} style={{ width: `${item.pct}%` }} />
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* TAB 8: GAP -> RQ -> HYPOTHESIS */}
-      {activeSubTab === 'hypothesis' && (
-        <div className="space-y-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <h2 className={`text-xl font-bold ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
-                Formal Academic Formulation: Gap → Problem → RQ → Hypothesis
-              </h2>
-              <p className="text-xs text-slate-400 mt-0.5">
-                Transform casual literature observations into a rigorous, fundable research grant or thesis proposal:
-              </p>
-            </div>
-
-            <button
-              onClick={() => handleLaunchPaperStudio(activeExtensionData)}
-              className="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow-md"
-            >
-              <FileCode2 className="w-3.5 h-3.5" />
-              <span>Export into Paper Introduction</span>
-            </button>
-          </div>
-
-          <div className={`p-6 sm:p-8 rounded-3xl border space-y-6 ${isDarkMode ? 'bg-[#0f1738] border-[#1d2b5c]' : 'bg-white border-slate-200 shadow-sm'}`}>
-            {/* Step 1: Research Gap */}
-            <div className="p-4 rounded-2xl bg-slate-900/60 border border-slate-800">
-              <span className="text-[10px] font-black uppercase text-rose-400 tracking-wider">Step 1: Identified Research Gap</span>
-              <p className="text-xs text-slate-300 mt-1 font-medium leading-relaxed">
-                Existing research on <em>{paperTitle}</em> exclusively examines idealized, homogeneous monolingual datasets and ignores latency overhead during quadratic self-attention scaling.
-              </p>
-            </div>
-
-            {/* Step 2: Why it matters */}
-            <div className="p-4 rounded-2xl bg-slate-900/60 border border-slate-800">
-              <span className="text-[10px] font-black uppercase text-amber-400 tracking-wider">Step 2: Why It Matters (The Consequence)</span>
-              <p className="text-xs text-slate-300 mt-1 font-medium leading-relaxed">
-                When deployed in real-world environments with low-resource languages or edge compute constraints, the architecture suffers catastrophic performance degradation, rendering it unusable for high-stakes edge deployment.
-              </p>
-            </div>
-
-            {/* Step 3: Proposed Problem Formulation */}
-            <div className="p-4 rounded-2xl bg-indigo-950/40 border border-indigo-800/40">
-              <span className="text-[10px] font-black uppercase text-indigo-300 tracking-wider">Step 3: Formal Research Problem Formulation</span>
-              <p className="text-xs text-indigo-100 mt-1 font-semibold leading-relaxed">
-                How can state-space layers be hybridized with adaptive quantization to guarantee linear-time scaling and sub-15ms edge inference without degrading semantic reasoning?
-              </p>
-            </div>
-
-            {/* Step 4: Research Questions (RQ1, RQ2) */}
-            <div className="p-4 rounded-2xl bg-purple-950/40 border border-purple-800/40">
-              <span className="text-[10px] font-black uppercase text-purple-300 tracking-wider">Step 4: Formal Research Questions</span>
-              <div className="mt-2 space-y-2 text-xs text-purple-100">
-                <div className="p-2.5 rounded-lg bg-purple-900/30 border border-purple-700/40">
-                  <strong className="text-purple-300">RQ1:</strong> Does linear-time state-space projection preserve cross-lingual semantic alignment across low-resource dialects?
-                </div>
-                <div className="p-2.5 rounded-lg bg-purple-900/30 border border-purple-700/40">
-                  <strong className="text-purple-300">RQ2:</strong> What is the pareto-optimal trade-off between INT4 quantization bit-depth and calibration error on mobile NPUs?
-                </div>
-              </div>
-            </div>
-
-            {/* Step 5: Testable Scientific Hypothesis */}
-            <div className="p-4 rounded-2xl bg-emerald-950/40 border border-emerald-800/40">
-              <span className="text-[10px] font-black uppercase text-emerald-300 tracking-wider">Step 5: Testable Scientific Hypothesis</span>
-              <p className="text-xs text-emerald-100 mt-1 font-bold leading-relaxed">
-                "We hypothesize that fusing selective state-space projections with magnitude-aware INT4 quantization will yield 3.8x faster inference on mobile hardware while preserving at least 95% of full-precision reasoning accuracy on multi-domain benchmark distributions."
-              </p>
-            </div>
           </div>
         </div>
       )}
