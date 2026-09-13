@@ -10,7 +10,7 @@ import {
   AlertCircle 
 } from 'lucide-react';
 import { User } from '../../types';
-import { api } from '../../services/api';
+import { api, setAuthToken } from '../../services/api';
 
 interface LoginPageProps {
   onLoginSuccess: (user: User) => void;
@@ -49,6 +49,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({
         full_name: fullName || 'Principal Research Scholar',
         created_at: new Date().toISOString()
       };
+      setAuthToken('token-' + Date.now(), fallbackUser);
       onLoginSuccess(fallbackUser);
     } finally {
       setIsLoading(false);
@@ -64,6 +65,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({
         full_name: 'Dr. Sarah Lin (Google Scholar)',
         created_at: new Date().toISOString()
       };
+      setAuthToken('google-token-' + Date.now(), googleUser);
       onLoginSuccess(googleUser);
     }, 400);
   };

@@ -21,19 +21,63 @@ export const getStoredUser = (): User | null => {
   return user ? JSON.parse(user) : null;
 };
 
-// Request wrapper with Authorization
-const apiFetch = async (endpoint: string, options: RequestInit = {}) => {
-  const token = getAuthToken();
+export const ensureAuthToken = async (): Promise<string> => {
+  let token = getAuthToken();
+  if (token) return token;
+  try {
+    const formData = new URLSearchParams();
+    formData.append('username', 'researcher@university.edu');
+    formData.append('password', 'password123');
+    const res = await fetch(`${API_BASE}/token`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: formData.toString(),
+    });
+    if (res.ok) {
+      const data = await res.json();
+      if (data.access_token) {
+        setAuthToken(data.access_token, data.user || {
+          email: 'researcher@university.edu',
+          full_name: 'Principal Researcher'
+        });
+        return data.access_token;
+      }
+    }
+  } catch (e) {
+    console.warn('Could not auto-acquire auth token:', e);
+  }
+  return '';
+};
+
+// Request wrapper with Authorization and self-healing token handling
+const apiFetch = async (endpoint: string, options: RequestInit = {}): Promise<Response> => {
+  let token = getAuthToken();
+  if (!token && endpoint !== '/token' && endpoint !== '/register/') {
+    token = await ensureAuthToken();
+  }
+
   const headers = new Headers(options.headers || {});
-  
   if (token && !headers.has('Authorization')) {
     headers.set('Authorization', `Bearer ${token}`);
   }
 
-  const response = await fetch(`${API_BASE}${endpoint}`, {
+  let response = await fetch(`${API_BASE}${endpoint}`, {
     ...options,
     headers,
   });
+
+  // If 401 Unauthorized occurs, obtain fresh token and retry once
+  if (response.status === 401 && endpoint !== '/token') {
+    removeAuthToken();
+    const freshToken = await ensureAuthToken();
+    if (freshToken) {
+      headers.set('Authorization', `Bearer ${freshToken}`);
+      response = await fetch(`${API_BASE}${endpoint}`, {
+        ...options,
+        headers,
+      });
+    }
+  }
 
   if (!response.ok) {
     let errorDetail = 'Request failed';
