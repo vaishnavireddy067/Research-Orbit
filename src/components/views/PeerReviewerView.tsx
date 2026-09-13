@@ -156,7 +156,7 @@ export const PeerReviewerView: React.FC<PeerReviewerViewProps> = ({
 
         {/* Persona Selector Tabs */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-1">
-          {PERSONAS.map((p, idx) => {
+          {personas.map((p, idx) => {
             const isSelected = selectedPersonaIdx === idx;
             return (
               <button

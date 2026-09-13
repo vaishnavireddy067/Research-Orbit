@@ -597,7 +597,7 @@ export const ResearchEvolutionView: React.FC<ResearchEvolutionViewProps> = ({
                 </li>
                 <li className="flex items-center gap-2">
                   <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
-                  <span><strong>Hidden State Size:</strong> Divergent state expansion ratios ($d_{state} = 16$ vs $64$).</span>
+                  <span><strong>Hidden State Size:</strong> Divergent state expansion ratios (d_state = 16 vs 64).</span>
                 </li>
               </ul>
             </div>

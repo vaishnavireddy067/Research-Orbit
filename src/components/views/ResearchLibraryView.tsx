@@ -24,6 +24,7 @@ import {
   Edit3
 } from 'lucide-react';
 import { PaperAnalysis } from '../../types';
+import { EmptyWorkspaceState } from '../EmptyWorkspaceState';
 
 interface LibraryPaper {
   id: string | number;

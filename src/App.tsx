@@ -33,6 +33,7 @@ import { ResearchRoadmapView } from './components/views/ResearchRoadmapView';
 import { ResearchPodcastView } from './components/views/ResearchPodcastView';
 import { DossierModal } from './components/DossierModal';
 import { FloatingCopilotWidget } from './components/FloatingCopilotWidget';
+import { ErrorBoundary } from './components/ErrorBoundary';
 import { PaperAnalysis, User, ArxivPaper } from './types';
 import { api, getStoredUser, removeAuthToken, getAuthToken } from './services/api';
 
@@ -107,7 +108,15 @@ const DEFAULT_SAMPLE_PAPER: PaperAnalysis = {
 
 export const App: React.FC = () => {
   const [currentUser, setCurrentUser] = useState<User | null>(getStoredUser());
-  const [viewMode, setViewMode] = useState<'landing' | 'login' | 'dashboard'>('landing');
+  const [viewMode, setViewMode] = useState<'landing' | 'login' | 'dashboard'>(() => {
+    if (window.location.hash.includes('dashboard') || window.location.hash.includes('overview') || window.location.hash.includes('workspace')) {
+      return 'dashboard';
+    }
+    if (getStoredUser() && getAuthToken()) {
+      return 'dashboard';
+    }
+    return 'landing';
+  });
   const [activeTab, setActiveTab] = useState<NavTab>('overview');
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -269,7 +278,7 @@ export const App: React.FC = () => {
 
         {/* View Switcher displaying all dashboards inside content */}
         <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 max-w-[1700px] w-full mx-auto scrollbar-thin">
-          
+          <ErrorBoundary key={activeTab} onReset={() => setActiveTab('overview')}>
           {/* 1. WORKSPACE */}
           {(activeTab === 'overview' || activeTab === 'dashboard') && (
             <DashboardView
@@ -414,6 +423,7 @@ export const App: React.FC = () => {
             <SettingsView currentUser={currentUser} onLogout={handleLogout} />
           )}
 
+          </ErrorBoundary>
         </main>
 
       </div>

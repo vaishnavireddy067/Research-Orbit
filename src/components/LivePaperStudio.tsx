@@ -43,6 +43,7 @@ interface PaperSection {
   wordTarget: number;
   academicGuide: string;
   content: string;
+  placeholder?: string;
   groundingStatus: 'VERIFIED' | 'NEEDS_VERIFICATION' | 'UNSUPPORTED';
 }
 

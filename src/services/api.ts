@@ -1,6 +1,6 @@
 import { PaperAnalysis, User, ArxivPaper, ResearchIdeaAudit, IdeaMutation, RedTeamCritique, CollisionPoint, LaTeXExportBundle } from '../types';
 
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8001';
+const API_BASE = (import.meta as any).env?.VITE_API_URL || 'http://localhost:8001';
 
 export const getAuthToken = (): string | null => {
   return localStorage.getItem('rp_token');
@@ -407,20 +407,34 @@ export const api = {
   },
 
   async copilotChat(
-    message: string,
+    arg1: string | { message: string; history?: Array<{ role: string; content: string }>; current_idea?: string; paper_context?: string },
     history: Array<{ role: string; content: string }> = [],
     currentIdea?: string,
     paperContext?: string
   ): Promise<{ reply: string }> {
+    let message = '';
+    let hist = history;
+    let idea = currentIdea;
+    let context = paperContext;
+
+    if (typeof arg1 === 'object' && arg1 !== null) {
+      message = arg1.message || '';
+      hist = arg1.history || [];
+      idea = arg1.current_idea;
+      context = arg1.paper_context;
+    } else {
+      message = arg1 || '';
+    }
+
     try {
       const res = await fetch(`${API_BASE}/assistant/copilot-chat/`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           message,
-          history,
-          current_idea: currentIdea,
-          paper_context: paperContext,
+          history: hist,
+          current_idea: idea,
+          paper_context: context,
         }),
       });
 

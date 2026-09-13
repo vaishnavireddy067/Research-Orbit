@@ -141,7 +141,7 @@ export const GapIdeaGeneratorView: React.FC<GapIdeaGeneratorViewProps> = ({
     setIsGenerating(true);
     setTimeout(() => {
       setProposal({
-        ...INITIAL_PROPOSAL,
+        ...initialProposal,
         title: `Autonomous ${gap.proposedDirection} for Critical Infrastructure Resilience`,
         problemStatement: `Directly addressing the evidence that ${gap.evidence} This project resolves the fundamental vulnerability in ${gap.detectedGap}.`,
         novelty: `Pioneers a systematic framework specifically formulated to overcome ${gap.detectedGap.toLowerCase()} with verified real-world adaptability.`

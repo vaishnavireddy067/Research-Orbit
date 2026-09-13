@@ -101,6 +101,7 @@ export const KnowledgeGraphTrendsView: React.FC<KnowledgeGraphTrendsViewProps> =
 
   const initialGraph = buildGraphForPaper(paper);
   const [nodes, setNodes] = useState<GraphNode[]>(initialGraph.nodes);
+  const [edges, setEdges] = useState<GraphEdge[]>(initialGraph.edges);
   const [selectedNode, setSelectedNode] = useState<GraphNode | null>(initialGraph.nodes[0]);
   const [filterType, setFilterType] = useState<string>('all');
   const [searchTerm, setSearchTerm] = useState('');
@@ -109,6 +110,7 @@ export const KnowledgeGraphTrendsView: React.FC<KnowledgeGraphTrendsViewProps> =
     if (paper) {
       const g = buildGraphForPaper(paper);
       setNodes(g.nodes);
+      setEdges(g.edges);
       setSelectedNode(g.nodes[0]);
     }
   }, [paper]);
@@ -221,7 +223,7 @@ export const KnowledgeGraphTrendsView: React.FC<KnowledgeGraphTrendsViewProps> =
               <rect width="100%" height="100%" fill="url(#grid)" />
 
               {/* Render Edges */}
-              {INITIAL_EDGES.map((edge, idx) => {
+              {edges.map((edge, idx) => {
                 const source = nodes.find(n => n.id === edge.from);
                 const target = nodes.find(n => n.id === edge.to);
                 if (!source || !target) return null;
@@ -341,7 +343,7 @@ export const KnowledgeGraphTrendsView: React.FC<KnowledgeGraphTrendsViewProps> =
                   Connected Topological Edges
                 </span>
                 <div className="space-y-1.5">
-                  {INITIAL_EDGES.filter(e => e.from === selectedNode.id || e.to === selectedNode.id).map((e, idx) => {
+                  {edges.filter(e => e.from === selectedNode.id || e.to === selectedNode.id).map((e, idx) => {
                     const otherId = e.from === selectedNode.id ? e.to : e.from;
                     const otherNode = nodes.find(n => n.id === otherId);
                     return (

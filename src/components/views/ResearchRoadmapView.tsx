@@ -11,6 +11,9 @@ import {
   Lightbulb,
   Download
 } from 'lucide-react';
+import { PaperAnalysis } from '../../types';
+import { NavTab } from '../Sidebar';
+import { EmptyWorkspaceState } from '../EmptyWorkspaceState';
 
 interface RoadmapStep {
   level: string;

@@ -265,7 +265,7 @@ How can I partner with you today? You can test an idea or ask in English or Telu
 
   // Handle Idea Mutation Lab
   const handleRunMutator = async () => {
-    const targetIdea = ideaInput.trim() || auditResult.ideaTitle;
+    const targetIdea = ideaInput.trim() || (auditResult ? auditResult.ideaTitle : (paper?.title || 'Generative Latent Modeling'));
     setIsMutating(true);
     try {
       const res = await api.mutateIdea(targetIdea, domainInput, noveltyPressure, computeConstraint);
@@ -280,6 +280,7 @@ How can I partner with you today? You can test an idea or ask in English or Telu
 
   // Handle Red Team Stress Test
   const handleRunRedTeam = async () => {
+    if (!auditResult) return;
     const targetIdea = ideaInput.trim() || auditResult.ideaTitle;
     setIsRedTeaming(true);
     try {
@@ -317,7 +318,7 @@ How can I partner with you today? You can test an idea or ask in English or Telu
       const res = await api.copilotChat(
         text,
         history,
-        auditResult.ideaTitle,
+        auditResult?.ideaTitle,
         paper ? `${paper.title}: ${paper.summary}` : undefined
       );
 
@@ -348,6 +349,7 @@ How can I partner with you today? You can test an idea or ask in English or Telu
   };
 
   const handleCopyObjectives = () => {
+    if (!auditResult) return;
     const text = `
 RESEARCH OBJECTIVES: ${auditResult.ideaTitle}
 Domain: ${auditResult.domain}
@@ -1286,6 +1288,7 @@ ${auditResult.recommendedNextStep}
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => {
+                    if (!latexBundle) return;
                     const content = activeCodeTab === 'abstract'
                       ? latexBundle.latexAbstract
                       : activeCodeTab === 'objectives'
@@ -1342,10 +1345,10 @@ ${auditResult.recommendedNextStep}
             {/* Code Output Box */}
             <div className="relative rounded-xl bg-[#050914] border border-slate-800 p-4 overflow-x-auto font-mono text-xs text-slate-200">
               <pre className="whitespace-pre-wrap leading-relaxed">
-                {activeCodeTab === 'abstract' && latexBundle.latexAbstract}
-                {activeCodeTab === 'objectives' && latexBundle.latexObjectives}
-                {activeCodeTab === 'pytorch' && latexBundle.pytorchCodeScaffold}
-                {activeCodeTab === 'grant' && latexBundle.grantPitch}
+                {activeCodeTab === 'abstract' && latexBundle?.latexAbstract}
+                {activeCodeTab === 'objectives' && latexBundle?.latexObjectives}
+                {activeCodeTab === 'pytorch' && latexBundle?.pytorchCodeScaffold}
+                {activeCodeTab === 'grant' && latexBundle?.grantPitch}
               </pre>
             </div>
 

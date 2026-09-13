@@ -1,7 +1,9 @@
 export interface User {
   email: string;
   full_name?: string;
-  id?: number;
+  id?: number | string;
+  created_at?: string;
+  role?: string;
 }
 
 export interface FailureSimulator {
@@ -93,6 +95,10 @@ export interface PaperAnalysis {
   actionPlan?: ActionPlan;
   authenticityAnalysis?: AuthenticityAnalysis;
   extendedAnalysis?: ExtendedAnalysis;
+  noveltyBreakdown?: {
+    uniqueContribution?: string;
+    algorithmicNovelty?: string;
+  };
   created_at?: string;
   extracted_text?: string;
 }
@@ -165,7 +171,7 @@ export interface ProposalStructure {
 }
 
 export interface ReviewerPersonaFeedback {
-  persona: 'Reviewer #1 (Methodology)' | 'Reviewer #2 (Critical Reviewer)' | 'Reviewer #3 (Statistics)' | 'Reviewer #4 (Novelty)';
+  persona: string;
   recommendation: 'Accept' | 'Minor Revision' | 'Major Revision' | 'Reject';
   score: number;
   comments: string;
@@ -178,23 +184,28 @@ export interface ExperimentModelBenchmark {
   accuracy: number;
   f1: number;
   precision: number;
-  recall: number;
-  latencyMs: number;
-  parametersM: number;
+  recall?: number;
+  latencyMs?: number;
+  latency?: number;
+  parametersM?: number;
 }
 
 export interface ClaimVerificationItem {
   claim: string;
   supportingPaper: string;
-  section: string;
-  evidenceQuote: string;
-  status: 'Verified' | 'Partially Supported' | 'Contradicted';
-  confidenceScore: number;
+  section?: string;
+  pageSection?: string;
+  evidenceQuote?: string;
+  evidenceSnippet?: string;
+  status: 'Verified' | 'Partially Supported' | 'Contradicted' | 'Grounded';
+  confidenceScore?: number;
+  confidence?: number;
 }
 
 export interface PodcastDialogueLine {
-  speaker: 'Researcher A (Dr. Aris)' | 'Researcher B (Dr. Maya)';
+  speaker: string;
   text: string;
+  timestamp?: string;
 }
 
 export interface ExistingPattern {
