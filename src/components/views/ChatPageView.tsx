@@ -2,12 +2,32 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Send, Bot, User, Quote, Sparkles, Loader2 } from 'lucide-react';
 import { PaperAnalysis, ChatMessage } from '../../types';
 import { api } from '../../services/api';
+import { EmptyWorkspaceState } from '../EmptyWorkspaceState';
+import { NavTab } from '../Sidebar';
 
 interface ChatPageViewProps {
-  paper: PaperAnalysis;
+  paper?: PaperAnalysis | null;
+  onNavigate?: (tab: NavTab) => void;
+  isDarkMode?: boolean;
 }
 
-export const ChatPageView: React.FC<ChatPageViewProps> = ({ paper }) => {
+export const ChatPageView: React.FC<ChatPageViewProps> = ({ paper, onNavigate, isDarkMode = false }) => {
+  if (!paper) {
+    return (
+      <div className="space-y-6 pb-12">
+        <div>
+          <h1 className="text-2xl font-black text-slate-900">AI Research Chat</h1>
+          <p className="text-xs text-slate-500 mt-1">Contextual RAG paper interrogation with exact citation quotes and claim references.</p>
+        </div>
+        <EmptyWorkspaceState
+          title="No Manuscript Loaded for Research Chat"
+          description="Upload a research manuscript (PDF) or import a paper from arXiv to enable contextual AI Q&A with citation-backed answers from your paper."
+          onNavigate={onNavigate}
+          isDarkMode={isDarkMode}
+        />
+      </div>
+    );
+  }
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
       id: 'initial',
@@ -75,8 +95,8 @@ export const ChatPageView: React.FC<ChatPageViewProps> = ({ paper }) => {
   return (
     <div className="space-y-6 pb-12">
       <div className="space-y-1">
-        <h1 className="text-2xl font-black text-white">AI Research Chat</h1>
-        <p className="text-xs text-slate-400">
+        <h1 className={`text-2xl font-black ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>AI Research Chat</h1>
+        <p className={`text-xs ${isDarkMode ? 'text-slate-400' : 'text-slate-500'}`}>
           Contextual RAG paper interrogation with exact citation quotes and claim references.
         </p>
       </div>
