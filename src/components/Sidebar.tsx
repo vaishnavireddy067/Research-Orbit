@@ -22,7 +22,9 @@ import {
   BookMarked,
   BookOpen,
   Edit3,
-  GraduationCap
+  GraduationCap,
+  GitMerge,
+  Flame
 } from 'lucide-react';
 
 export type UserRole = 'researcher' | 'student' | 'professor';
@@ -37,6 +39,7 @@ export type NavTab =
   | 'paper_analysis'
   | 'knowledge_graph'
   | 'research_gaps'
+  | 'research_evolution'
   | 'lit_review'
   // 3. BUILD
   | 'idea_lab'
@@ -115,13 +118,13 @@ export const Sidebar: React.FC<SidebarProps> = ({
     return false;
   };
 
-  const renderNavBtn = (tabKey: NavTab, label: string, icon: React.ReactNode) => {
+  const renderNavBtn = (tabKey: NavTab, label: string, icon: React.ReactNode, badge?: string) => {
     const active = isTabActive(tabKey);
     return (
       <button
         onClick={() => setActiveTab(tabKey)}
         title={label}
-        className={`w-full flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-semibold transition-all cursor-pointer select-none ${
+        className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold transition-all cursor-pointer select-none ${
           active
             ? 'bg-[#2563eb] text-white shadow-md shadow-blue-600/30'
             : isDarkMode
@@ -129,10 +132,21 @@ export const Sidebar: React.FC<SidebarProps> = ({
             : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
         }`}
       >
-        <span className={`shrink-0 ${active ? 'text-white' : isDarkMode ? 'text-slate-400' : 'text-slate-500'}`}>
-          {icon}
-        </span>
-        <span className="truncate whitespace-nowrap">{label}</span>
+        <div className="flex items-center gap-3 truncate">
+          <span className={`shrink-0 ${active ? 'text-white' : isDarkMode ? 'text-slate-400' : 'text-slate-500'}`}>
+            {icon}
+          </span>
+          <span className="truncate whitespace-nowrap">{label}</span>
+        </div>
+        {badge && (
+          <span className={`px-1.5 py-0.5 rounded text-[9px] font-black uppercase tracking-wider shrink-0 ${
+            active 
+              ? 'bg-white/20 text-white' 
+              : 'bg-gradient-to-r from-rose-500 to-amber-500 text-white shadow-xs'
+          }`}>
+            {badge}
+          </span>
+        )}
       </button>
     );
   };
@@ -198,6 +212,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
             {renderNavBtn('paper_analysis', 'Paper Analysis', <Brain className="h-4 w-4" />)}
             {renderNavBtn('knowledge_graph', 'Knowledge Graph', <Network className="h-4 w-4" />)}
             {renderNavBtn('research_gaps', 'Research Gaps', <Lightbulb className="h-4 w-4" />)}
+            {renderNavBtn('research_evolution', 'Research Evolution', <GitMerge className="h-4 w-4" />, 'CORE')}
             {renderNavBtn('lit_review', 'Literature Review', <BookOpen className="h-4 w-4" />)}
           </div>
         </div>

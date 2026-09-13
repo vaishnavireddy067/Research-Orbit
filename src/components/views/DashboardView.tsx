@@ -25,7 +25,8 @@ import {
   Radar,
   ShieldAlert,
   FileCode2,
-  Zap
+  Zap,
+  GitMerge
 } from 'lucide-react';
 import { PaperAnalysis } from '../../types';
 import { NavTab } from '../Sidebar';
@@ -480,7 +481,18 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                   </div>
                 </div>
 
-                <div className="self-end sm:self-center">
+                <div className="self-end sm:self-center flex items-center gap-2">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onSelectPaper(papers[0]);
+                      onNavigate('research_evolution');
+                    }}
+                    className="px-3.5 py-2 rounded-xl bg-gradient-to-r from-rose-600 via-amber-600 to-orange-600 hover:from-rose-500 hover:to-orange-500 text-white text-xs font-black shadow-md shadow-rose-600/20 flex items-center gap-1.5 cursor-pointer transition-all hover:scale-102"
+                  >
+                    <GitMerge className="w-3.5 h-3.5 text-white" />
+                    <span>🚀 Evolve</span>
+                  </button>
                   <div className="w-10 h-10 rounded-full bg-blue-600 hover:bg-blue-500 text-white flex items-center justify-center shadow-md shadow-blue-600/30 transition-transform hover:scale-105">
                     <ArrowRight className="w-5 h-5" />
                   </div>

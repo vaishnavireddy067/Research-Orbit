@@ -15,6 +15,7 @@ import { NoveltyScoreView } from './components/views/NoveltyScoreView';
 import { AiDetectionView } from './components/views/AiDetectionView';
 import { ImprovementsView } from './components/views/ImprovementsView';
 import { IdeaExpansionView } from './components/views/IdeaExpansionView';
+import { ResearchEvolutionView } from './components/views/ResearchEvolutionView';
 import { AiAssistantView } from './components/views/AiAssistantView';
 import { InsightsView } from './components/views/InsightsView';
 import { SettingsView } from './components/views/SettingsView';
@@ -290,7 +291,14 @@ export const App: React.FC = () => {
           )}
 
           {(activeTab === 'discover' || activeTab === 'discovery') && (
-            <LiteratureDiscoveryView onImportPaper={handleImportArxivPaper} activePaper={activePaper || undefined} />
+            <LiteratureDiscoveryView 
+              onImportPaper={handleImportArxivPaper} 
+              onEvolvePaper={(ap) => {
+                handleImportArxivPaper(ap);
+                setActiveTab('research_evolution');
+              }}
+              activePaper={activePaper || undefined} 
+            />
           )}
 
           {activeTab === 'library' && (
@@ -308,6 +316,19 @@ export const App: React.FC = () => {
 
           {(activeTab === 'research_gaps' || activeTab === 'gap_analysis') && (
             <GapAnalysisView paper={activePaper} onNavigate={setActiveTab} isDarkMode={isDarkMode} />
+          )}
+
+          {activeTab === 'research_evolution' && (
+            <ResearchEvolutionView
+              paper={activePaper || papers[0] || null}
+              allPapers={papers}
+              onNavigate={setActiveTab}
+              onSelectPaperForStudio={(evolvedPaper) => {
+                setActivePaper(evolvedPaper);
+                setActiveTab('paper_studio');
+              }}
+              isDarkMode={isDarkMode}
+            />
           )}
 
           {/* 3. BUILD */}

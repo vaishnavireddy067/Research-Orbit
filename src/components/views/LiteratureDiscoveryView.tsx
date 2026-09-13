@@ -15,12 +15,16 @@ import {
   Radio,
   TrendingUp,
   CheckCircle2,
-  Tag
+  Tag,
+  Flame,
+  GitMerge,
+  Filter
 } from 'lucide-react';
 import { PaperAnalysis, ArxivPaper } from '../../types';
 
 interface LiteratureDiscoveryViewProps {
   onImportPaper?: (paper: ArxivPaper) => void;
+  onEvolvePaper?: (paper: ArxivPaper) => void;
   activePaper?: PaperAnalysis | null;
 }
 
@@ -133,10 +137,11 @@ const INITIAL_ALERTS: AlertTopic[] = [
 ];
 
 export const LiteratureDiscoveryView: React.FC<LiteratureDiscoveryViewProps> = ({
-  onImportPaper
+  onImportPaper,
+  onEvolvePaper
 }) => {
   const [activeTab, setActiveTab] = useState<'search' | 'alerts' | 'trending'>('search');
-  const [query, setQuery] = useState('AI-based flood prediction using IoT');
+  const [query, setQuery] = useState('Vision-Language Models for Medical Image Diagnosis');
   const [activeTier, setActiveTier] = useState<string>('All');
   const [papers, setPapers] = useState<ArxivPaper[]>(INITIAL_PAPERS);
   const [alerts, setAlerts] = useState<AlertTopic[]>(INITIAL_ALERTS);
@@ -144,7 +149,8 @@ export const LiteratureDiscoveryView: React.FC<LiteratureDiscoveryViewProps> = (
   const [newAlertDomain, setNewAlertDomain] = useState('Computer Science');
   const [importedIds, setImportedIds] = useState<Record<string, boolean>>({});
   const [selectedYear, setSelectedYear] = useState<string>('All');
-  const [sortBy, setSortBy] = useState<'relevance' | 'citations' | 'recent'>('relevance');
+  const [selectedDomain, setSelectedDomain] = useState<string>('All');
+  const [sortBy, setSortBy] = useState<'relevance' | 'citations' | 'recent' | 'growth'>('recent');
   const [isSearching, setIsSearching] = useState(false);
   const [similarMode, setSimilarMode] = useState(false);
 
@@ -194,6 +200,7 @@ export const LiteratureDiscoveryView: React.FC<LiteratureDiscoveryViewProps> = (
   }).sort((a, b) => {
     if (sortBy === 'citations') return (b.citations || 0) - (a.citations || 0);
     if (sortBy === 'recent') return b.published.localeCompare(a.published);
+    if (sortBy === 'growth') return (b.citations || 0) * 1.5 - (a.citations || 0);
     return 0;
   });
 
@@ -268,6 +275,38 @@ export const LiteratureDiscoveryView: React.FC<LiteratureDiscoveryViewProps> = (
 
       {activeTab === 'search' ? (
         <>
+          {/* 🔥 Latest Research Recency Ticker */}
+          <div className="p-3.5 rounded-2xl bg-[#091129] border border-[#1a2b58] flex flex-col sm:flex-row sm:items-center gap-3">
+            <div className="flex items-center gap-1.5 shrink-0">
+              <Flame className="w-4 h-4 text-rose-500 animate-pulse" />
+              <span className="text-[11px] font-black uppercase tracking-wider text-rose-400">
+                Latest Research:
+              </span>
+            </div>
+            <div className="flex items-center gap-2 overflow-x-auto pb-1 sm:pb-0 scrollbar-none">
+              {[
+                { tag: 'AI Agents', recency: '2 days ago', query: 'Autonomous AI Agents LLM Reasoning' },
+                { tag: 'Multimodal AI', recency: '4 days ago', query: 'Multimodal Vision-Language Models' },
+                { tag: 'RAG Systems', recency: '5 days ago', query: 'Retrieval Augmented Generation Vector DB' },
+                { tag: 'Medical AI', recency: '1 week ago', query: 'Vision-Language Models for Medical Image Diagnosis' },
+                { tag: 'Computer Vision', recency: '1 week ago', query: 'State-Space Vision Transformers Mamba' },
+              ].map((chip, idx) => (
+                <button
+                  key={idx}
+                  type="button"
+                  onClick={() => {
+                    setQuery(chip.query);
+                    setSelectedDomain(chip.tag.includes('Medical') ? 'Healthcare' : 'AI');
+                  }}
+                  className="px-2.5 py-1 rounded-xl bg-slate-800/80 hover:bg-indigo-900/40 text-slate-300 hover:text-indigo-200 border border-slate-700/60 hover:border-indigo-500/40 text-[11px] font-medium whitespace-nowrap transition-all cursor-pointer flex items-center gap-1.5 shrink-0"
+                >
+                  <span className="font-bold">{chip.tag}</span>
+                  <span className="text-[10px] text-slate-400">({chip.recency})</span>
+                </button>
+              ))}
+            </div>
+          </div>
+
           {/* Search Form */}
           <form onSubmit={handleSearch} className="flex gap-2">
             <div className="relative flex-1">
@@ -288,6 +327,74 @@ export const LiteratureDiscoveryView: React.FC<LiteratureDiscoveryViewProps> = (
             </button>
           </form>
 
+          {/* Multi-Dimensional Filters Bar */}
+          <div className="p-3.5 rounded-2xl bg-[#091129] border border-[#1b2b5a] space-y-2.5">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              {/* Published Year Filter */}
+              <div className="flex items-center gap-2">
+                <span className="text-[11px] font-bold text-slate-400">Published:</span>
+                <div className="flex items-center gap-1">
+                  {['All', '2026', '2025', '2024'].map((yr) => (
+                    <button
+                      key={yr}
+                      onClick={() => setSelectedYear(yr)}
+                      className={`px-2.5 py-0.5 rounded-lg text-[11px] font-bold transition-colors cursor-pointer ${
+                        selectedYear === yr
+                          ? 'bg-blue-600 text-white shadow-xs'
+                          : 'bg-slate-800 text-slate-400 hover:text-white'
+                      }`}
+                    >
+                      {yr}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Sort Order */}
+              <div className="flex items-center gap-2">
+                <span className="text-[11px] font-bold text-slate-400">Sort:</span>
+                <div className="flex items-center gap-1">
+                  {[
+                    { id: 'recent', label: 'Newest' },
+                    { id: 'citations', label: 'Most Cited' },
+                    { id: 'relevance', label: 'Most Relevant' },
+                    { id: 'growth', label: 'Fastest Growing' }
+                  ].map((s) => (
+                    <button
+                      key={s.id}
+                      onClick={() => setSortBy(s.id as any)}
+                      className={`px-2.5 py-0.5 rounded-lg text-[11px] font-bold transition-colors cursor-pointer ${
+                        sortBy === s.id
+                          ? 'bg-indigo-600 text-white shadow-xs'
+                          : 'bg-slate-800 text-slate-400 hover:text-white'
+                      }`}
+                    >
+                      {s.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Domains Pills */}
+            <div className="flex items-center gap-1.5 overflow-x-auto pt-1 border-t border-slate-800 scrollbar-none">
+              <span className="text-[11px] font-bold text-slate-400 shrink-0">Domain:</span>
+              {['All', 'AI', 'ML', 'NLP', 'Computer Vision', 'Healthcare', 'Cybersecurity', 'Data Science'].map((dm) => (
+                <button
+                  key={dm}
+                  onClick={() => setSelectedDomain(dm)}
+                  className={`px-2.5 py-0.5 rounded-lg text-[11px] font-semibold whitespace-nowrap transition-colors cursor-pointer ${
+                    selectedDomain === dm
+                      ? 'bg-purple-600 text-white'
+                      : 'bg-slate-800/80 text-slate-400 hover:text-white'
+                  }`}
+                >
+                  {dm}
+                </button>
+              ))}
+            </div>
+          </div>
+
           {/* Paper list */}
           <div className="space-y-4">
             {filteredPapers.map(paper => (
@@ -301,16 +408,30 @@ export const LiteratureDiscoveryView: React.FC<LiteratureDiscoveryViewProps> = (
                       {paper.relevanceTier}
                     </span>
                     <span className="text-xs text-slate-400">{paper.published}</span>
+                    <span className="text-xs text-blue-400 font-semibold">{paper.citations || 42} citations</span>
                   </div>
 
-                  <button
-                    onClick={() => handleImport(paper)}
-                    disabled={importedIds[paper.id]}
-                    className="px-3 py-1 rounded-xl bg-blue-600 hover:bg-blue-500 disabled:bg-emerald-600 text-white text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer self-start sm:self-auto"
-                  >
-                    {importedIds[paper.id] ? <Check className="w-3.5 h-3.5" /> : <Plus className="w-3.5 h-3.5" />}
-                    <span>{importedIds[paper.id] ? 'Imported to Library' : 'Add to Library'}</span>
-                  </button>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => {
+                        handleImport(paper);
+                        if (onEvolvePaper) onEvolvePaper(paper);
+                      }}
+                      className="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-rose-600 via-amber-600 to-orange-600 hover:from-rose-500 hover:to-orange-500 text-white text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-md shadow-rose-600/20"
+                    >
+                      <GitMerge className="w-3.5 h-3.5 text-white" />
+                      <span>🚀 Evolve This Paper</span>
+                    </button>
+
+                    <button
+                      onClick={() => handleImport(paper)}
+                      disabled={importedIds[paper.id]}
+                      className="px-3 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-500 disabled:bg-emerald-600/30 disabled:border disabled:border-emerald-500/50 text-white text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer"
+                    >
+                      {importedIds[paper.id] ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Plus className="w-3.5 h-3.5" />}
+                      <span>{importedIds[paper.id] ? 'In Workspace' : 'Add to Workspace'}</span>
+                    </button>
+                  </div>
                 </div>
 
                 <h3 className="text-base font-bold text-white leading-snug">
