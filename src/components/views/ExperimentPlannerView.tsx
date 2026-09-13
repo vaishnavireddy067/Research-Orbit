@@ -100,28 +100,72 @@ const SAMPLE_DATASETS: DatasetItem[] = [
   }
 ];
 
+import { PaperAnalysis } from '../../types';
+import { EmptyWorkspaceState } from '../EmptyWorkspaceState';
+import { NavTab } from '../Sidebar';
+
 interface ExperimentPlannerViewProps {
+  paper?: PaperAnalysis | null;
+  onNavigate?: (tab: NavTab) => void;
   isDarkMode?: boolean;
 }
 
 export const ExperimentPlannerView: React.FC<ExperimentPlannerViewProps> = ({
+  paper,
+  onNavigate,
   isDarkMode = true,
 }) => {
+  if (!paper) {
+    return (
+      <div className="space-y-6 pb-12 animate-fadeIn">
+        <EmptyWorkspaceState
+          title="No Manuscript Loaded for Experiment Planning"
+          description="Upload a research manuscript (PDF) or import papers from arXiv to configure empirical hypotheses, baseline models, reproducibility pre-flight checklists, and open-access dataset benchmarks."
+          onNavigate={onNavigate}
+          isDarkMode={isDarkMode}
+        />
+      </div>
+    );
+  }
+
   const [activeTab, setActiveTab] = useState<'planner' | 'datasets'>('planner');
-  const [researchIdea, setResearchIdea] = useState('Physics-Informed Graph Neural Operators for Flash-Flood Inundation with Packet-Loss Resilient Telemetry');
-  const [baselineModel, setBaselineModel] = useState('Bidirectional LSTM + Random Forest');
-  const [proposedModel, setProposedModel] = useState('HydroEdge-GNN (Spatiotemporal Graph + Saint-Venant Conservation Loss)');
+  const [researchIdea, setResearchIdea] = useState(
+    paper.extendedAnalysis?.structuredBreakdown?.problemStatement ||
+    paper.summary ||
+    `Empirical Validation and Benchmark Reproducibility for ${paper.title}`
+  );
+  const [baselineModel, setBaselineModel] = useState('Standard Domain Baseline / SOTA Literature Comparison');
+  const [proposedModel, setProposedModel] = useState(paper.title);
   const [datasetSearch, setDatasetSearch] = useState('');
   const [selectedDataset, setSelectedDataset] = useState<DatasetItem | null>(SAMPLE_DATASETS[0]);
 
   const [checklist, setChecklist] = useState([
     { id: '1', label: 'Fix global random seed (seed=42 for PyTorch, NumPy, CUDA)', checked: true },
-    { id: '2', label: 'Perform 5-fold cross validation across all 3 river catchments', checked: true },
-    { id: '3', label: 'Implement 0% to 50% simulated sensor packet dropout injection', checked: true },
-    { id: '4', label: 'Log GPU/CPU peak VRAM consumption and edge inference latency (ms)', checked: false },
+    { id: '2', label: `Perform 5-fold cross-validation on ${paper.domain || 'domain benchmark'}`, checked: true },
+    { id: '3', label: 'Implement ablation testing isolating proposed architectural operators', checked: true },
+    { id: '4', label: 'Log peak GPU/CPU VRAM consumption and inference latency (ms)', checked: false },
     { id: '5', label: 'Conduct Wilcoxon signed-rank significance tests (p < 0.01)', checked: false },
-    { id: '6', label: 'Dockerize environment with exact requirements.txt and CUDA 12.2', checked: true },
+    { id: '6', label: 'Dockerize environment with exact requirements.txt and CUDA drivers', checked: true },
   ]);
+
+  React.useEffect(() => {
+    if (paper) {
+      setResearchIdea(
+        paper.extendedAnalysis?.structuredBreakdown?.problemStatement ||
+        paper.summary ||
+        `Empirical Validation and Benchmark Reproducibility for ${paper.title}`
+      );
+      setProposedModel(paper.title);
+      setChecklist([
+        { id: '1', label: 'Fix global random seed (seed=42 for PyTorch, NumPy, CUDA)', checked: true },
+        { id: '2', label: `Perform 5-fold cross-validation on ${paper.domain || 'domain benchmark'}`, checked: true },
+        { id: '3', label: 'Implement ablation testing isolating proposed architectural operators', checked: true },
+        { id: '4', label: 'Log peak GPU/CPU VRAM consumption and inference latency (ms)', checked: false },
+        { id: '5', label: 'Conduct Wilcoxon signed-rank significance tests (p < 0.01)', checked: false },
+        { id: '6', label: 'Dockerize environment with exact requirements.txt and CUDA drivers', checked: true },
+      ]);
+    }
+  }, [paper]);
 
   const toggleChecklist = (id: string) => {
     setChecklist(checklist.map(item => item.id === id ? { ...item, checked: !item.checked } : item));

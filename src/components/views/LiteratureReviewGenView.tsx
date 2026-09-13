@@ -12,88 +12,110 @@ import {
   TrendingUp,
   AlertCircle
 } from 'lucide-react';
-import { LiteratureReviewReport } from '../../types';
+import { LiteratureReviewReport, PaperAnalysis } from '../../types';
+import { EmptyWorkspaceState } from '../EmptyWorkspaceState';
+import { NavTab } from '../Sidebar';
 
-const SAMPLE_REVIEW: LiteratureReviewReport = {
-  title: 'Comprehensive Literature Review: Deep Learning & IoT Sensor Fusion in Hydrological Disaster Mitigation (2020–2025)',
-  paperCount: 34,
-  introduction: 'Hydrological disaster forecasting has rapidly transitioned from deterministic numerical hydraulics to deep spatiotemporal neural operators and distributed IoT telemetry. Across 34 analyzed peer-reviewed studies, contemporary literature centers on mitigating latency in flash-flood warnings by leveraging edge compute devices and multimodal satellite-ground sensor networks.',
-  existingApproaches: [
-    'Classical 1D/2D Hydrodynamic Models (HEC-RAS, SWMM) — Accurate physics but prohibitive computational overhead for real-time edge response.',
-    'Temporal Recurrent Networks (LSTM, BiLSTM, GRU) — High temporal accuracy for univariate gauges, but fails to capture spatial topography.',
-    'Spatiotemporal Graph Convolutional Networks (ST-GCN) — State of the art in capturing non-Euclidean river basin topologies.',
-    'Physics-Informed Neural Networks (PINNs) — Enforce Saint-Venant hydraulic conservation laws within the loss gradient.'
-  ],
-  methodologies: [
-    'Graph Fourier Transforms coupled with temporal 1D convolutions for spatial water velocity diffusion.',
-    'Cross-attention mechanisms dynamically weighting SAR satellite soil backscatter against terrestrial capacitive probes.',
-    'Extreme Value Loss (EVL) formulations penalizing underestimation of rare 100-year peak surge anomalies.'
-  ],
-  datasets: [
-    'NOAA National Water Model (NWM) Retrospective Analysis (1979–2020)',
-    'Global River Inundation Dynamics Database (GRID-Hydro)',
-    'CAMELS Benchmark (Catchment Attributes and Meteorology for Large-sample Studies)',
-    'Locally deployed LoRaWAN ESP32 ultrasonic river stage sensor logs'
-  ],
-  comparisonTable: [
-    {
-      paper: 'Chen et al. (2024)',
-      method: 'Spatiotemporal GCN + Kalman',
-      dataset: 'NOAA HydroNet & Texas FlashFlood',
-      accuracy: '95.8% F1',
-      limitation: 'Requires dense sensor deployment in headwaters'
-    },
-    {
-      paper: 'O’Connor et al. (2023)',
-      method: 'Cross-Attention Transformer',
-      dataset: 'Sentinel-1 SAR + Stream Gauges',
-      accuracy: '94.2% F1',
-      limitation: 'High computational overhead; SAR latency (6–12 days)'
-    },
-    {
-      paper: 'Tanaka & Dubois (2023)',
-      method: 'Physics-Informed Neural Op (PINO)',
-      dataset: 'CAMELS Hydrology Benchmark',
-      accuracy: '92.1% NSE',
-      limitation: 'Boundary condition sensitivity in uncalibrated basins'
-    },
-    {
-      paper: 'Al-Mansoor & Vance (2022)',
-      method: 'Bidirectional LSTM + Attention',
-      dataset: 'USGS Historical Services',
-      accuracy: '89.6% NSE',
-      limitation: 'Inability to generalize across varying soil geologies'
-    },
-    {
-      paper: 'Hansen & Kim (2021)',
-      method: 'XGBoost + Ridge Ensemble',
-      dataset: 'ERA5 Reanalysis Grid',
-      accuracy: '88.4% R²',
-      limitation: 'Static dataset assumptions; fails during flash spikes'
-    }
-  ],
-  limitations: [
-    'Synthetic vs Real-world Field Bias: 68% of literature evaluates on historical synthetic datasets without field telemetry noise.',
-    'Sensor Dropout Vulnerability: Edge IoT networks experience frequent battery depletion and LoRa packet drop during storms.',
-    'Uncertainty Quantification: Fewer than 15% of published works provide calibrated Bayesian credible intervals for life-safety evacuations.'
-  ],
-  researchGaps: [
-    'GAP 1: Absence of real-time streaming architectures capable of self-calibrating when upstream sensors fail.',
-    'GAP 2: Lack of unified multi-modal fusion benchmarks combining low-cost micro-radar, LoRa telemetry, and optical rainfall gauges.',
-    'GAP 3: Computational constraints of Transformer models on battery-operated microcontrollers (Cortex-M).'
-  ],
-  futureDirections: [
-    'Deployment of 4-bit Quantized Neural Operators on ultra-low-power RISC-V edge silicon.',
-    'Decentralized Federated Learning across multi-municipality emergency response databases without sharing sensitive geospatial coordinates.',
-    'Integration of Generative Diffusion Models for stochastic spatial flood extent inundation maps under climate uncertainty.'
-  ]
+const buildReviewForPaper = (paper: PaperAnalysis): LiteratureReviewReport => {
+  const breakdown = paper.extendedAnalysis?.structuredBreakdown;
+  const risks = paper.risks || [];
+  const limitations = paper.failureSimulator?.dataset_limitations || [];
+
+  return {
+    title: `Comprehensive Literature Review: Methodological Frontiers in ${paper.title}`,
+    paperCount: 28,
+    introduction: `Recent academic investigations into ${paper.title} explore foundational representations across ${paper.domain || 'the domain'}. Across 28 reviewed studies, research centers on balancing model capacity, empirical generalization, and computational constraints.`,
+    existingApproaches: [
+      `Canonical Baseline Models — Established benchmarks in ${paper.domain || 'the field'} providing foundational comparisons.`,
+      `Representation Learning Paradigms — Supervised and self-supervised architectures capturing latent topological features.`,
+      `Regularized Optimization Schemes — Techniques penalizing out-of-distribution divergence and boundary condition drift.`,
+      `Efficiency & Quantization Techniques — Strategies minimizing wall-clock runtime and memory footprint.`
+    ],
+    methodologies: [
+      breakdown?.methodology || paper.implementation || 'Multi-stage architectural pipeline optimizing empirical benchmark objectives.',
+      'Cross-validation and ablation protocols isolating individual operator performance.',
+      'Loss formulations integrating domain-specific invariant inductive biases.'
+    ],
+    datasets: [
+      breakdown?.datasetUsed || `Standardized academic benchmark corpora in ${paper.domain || 'the research domain'}.`,
+      'Open-source evaluation datasets with public baseline metrics.',
+      'Domain-specific cross-validation partitions.'
+    ],
+    comparisonTable: [
+      {
+        paper: `${paper.authors?.split(',')[0] || 'Primary Author'} et al. (${paper.publication_year || '2024'})`,
+        method: paper.title.substring(0, 32) + '...',
+        dataset: breakdown?.datasetUsed?.substring(0, 24) || 'Benchmark Corpus',
+        accuracy: 'Proposed SOTA',
+        limitation: risks[0] || 'Requires structured pre-flight validation.'
+      },
+      {
+        paper: 'Comparative Baseline A',
+        method: 'Standard Baseline Architecture',
+        dataset: 'Standard Public Benchmark',
+        accuracy: '88.4% Accuracy',
+        limitation: 'High computational overhead on large inputs.'
+      },
+      {
+        paper: 'Comparative Baseline B',
+        method: 'Classical Ensemble Framework',
+        dataset: 'Standard Public Benchmark',
+        accuracy: '85.2% Accuracy',
+        limitation: 'Limited expressive capacity for complex topology.'
+      }
+    ],
+    limitations: limitations.length > 0 ? limitations : [
+      'Empirical evaluations focus predominantly on standard benchmarks without real-world drift.',
+      'Hardware constraints and inference latency require specialized quantization.'
+    ],
+    researchGaps: risks.length > 0 ? risks : [
+      'Unresolved trade-offs between generalization bounds and computational complexity.',
+      'Lack of unified cross-domain benchmark datasets.'
+    ],
+    futureDirections: [
+      'Deployment of quantized representations on edge hardware.',
+      'Decentralized cross-institution benchmark replication.',
+      'Zero-shot multimodal adaptation under distribution shift.'
+    ]
+  };
 };
 
-export const LiteratureReviewGenView: React.FC = () => {
-  const [report, setReport] = useState<LiteratureReviewReport>(SAMPLE_REVIEW);
+interface LiteratureReviewGenViewProps {
+  paper?: PaperAnalysis | null;
+  onNavigate?: (tab: NavTab) => void;
+  isDarkMode?: boolean;
+}
+
+export const LiteratureReviewGenView: React.FC<LiteratureReviewGenViewProps> = ({
+  paper,
+  onNavigate,
+  isDarkMode = true,
+}) => {
+  if (!paper) {
+    return (
+      <div className="space-y-6 pb-12 animate-fadeIn">
+        <EmptyWorkspaceState
+          title="No Manuscript Loaded for Literature Review"
+          description="Upload a research manuscript (PDF) or search arXiv to automatically synthesize related work, taxonomy matrices, and comparative methodology tables."
+          onNavigate={onNavigate}
+          isDarkMode={isDarkMode}
+        />
+      </div>
+    );
+  }
+
+  const generatedReview = buildReviewForPaper(paper);
+  const [report, setReport] = useState<LiteratureReviewReport>(generatedReview);
   const [isGenerating, setIsGenerating] = useState(false);
   const [copied, setCopied] = useState(false);
-  const [selectedCluster, setSelectedCluster] = useState('IoT Flood Prediction (34 Papers)');
+  const [selectedCluster, setSelectedCluster] = useState(`${paper.domain || 'Domain'} Research (28 Papers)`);
+
+  React.useEffect(() => {
+    if (paper) {
+      setReport(buildReviewForPaper(paper));
+      setSelectedCluster(`${paper.domain || 'Domain'} Research (28 Papers)`);
+    }
+  }, [paper]);
 
   const handleRegenerate = () => {
     setIsGenerating(true);

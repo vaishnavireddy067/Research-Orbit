@@ -311,7 +311,7 @@ export const App: React.FC = () => {
           )}
 
           {activeTab === 'knowledge_graph' && (
-            <KnowledgeGraphTrendsView />
+            <KnowledgeGraphTrendsView paper={activePaper} onNavigate={setActiveTab} isDarkMode={isDarkMode} />
           )}
 
           {(activeTab === 'research_gaps' || activeTab === 'gap_analysis') && (
@@ -320,7 +320,7 @@ export const App: React.FC = () => {
 
           {activeTab === 'research_evolution' && (
             <ResearchEvolutionView
-              paper={activePaper || papers[0] || null}
+              paper={activePaper}
               allPapers={papers}
               onNavigate={setActiveTab}
               onSelectPaperForStudio={(evolvedPaper) => {
@@ -333,15 +333,15 @@ export const App: React.FC = () => {
 
           {/* 3. BUILD */}
           {(activeTab === 'idea_lab' || activeTab === 'gap_idea') && (
-            <GapIdeaGeneratorView />
+            <GapIdeaGeneratorView paper={activePaper} onNavigate={setActiveTab} isDarkMode={isDarkMode} />
           )}
 
           {(activeTab === 'experiments' || activeTab === 'experiment_planner') && (
-            <ExperimentPlannerView isDarkMode={isDarkMode} />
+            <ExperimentPlannerView paper={activePaper} onNavigate={setActiveTab} isDarkMode={isDarkMode} />
           )}
 
           {activeTab === 'experiment_dashboard' && (
-            <ExperimentDashboardView />
+            <ExperimentDashboardView paper={activePaper} onNavigate={setActiveTab} isDarkMode={isDarkMode} />
           )}
 
           {activeTab === 'paper_studio' && (
@@ -349,29 +349,29 @@ export const App: React.FC = () => {
           )}
 
           {activeTab === 'research_proposal' && (
-            <GapIdeaGeneratorView />
+            <GapIdeaGeneratorView paper={activePaper} onNavigate={setActiveTab} isDarkMode={isDarkMode} />
           )}
 
           {activeTab === 'agents' && (
-            <AutonomousAgentView />
+            <AutonomousAgentView paper={activePaper} onNavigate={setActiveTab} isDarkMode={isDarkMode} />
           )}
 
           {/* 4. VALIDATE */}
           {(activeTab === 'peer_review' || activeTab === 'peer_reviewer') && (
-            <PeerReviewerView />
+            <PeerReviewerView paper={activePaper} onNavigate={setActiveTab} isDarkMode={isDarkMode} />
           )}
 
           {(activeTab === 'evidence_check' || activeTab === 'citation_verify') && (
-            <CitationVerifierView />
+            <CitationVerifierView paper={activePaper} onNavigate={setActiveTab} isDarkMode={isDarkMode} />
           )}
 
           {activeTab === 'risk_reproducibility' && (
-            <RiskReproducibilityView />
+            <RiskReproducibilityView paper={activePaper} onNavigate={setActiveTab} isDarkMode={isDarkMode} />
           )}
 
           {/* 5. INSIGHTS */}
           {(activeTab === 'trends' || activeTab === 'roadmap') && (
-            <ResearchRoadmapView />
+            <ResearchRoadmapView paper={activePaper} onNavigate={setActiveTab} isDarkMode={isDarkMode} />
           )}
 
           {(activeTab === 'research_chat' || activeTab === 'ai_assistant') && (
@@ -379,11 +379,11 @@ export const App: React.FC = () => {
           )}
 
           {(activeTab === 'audio_brief' || activeTab === 'podcast') && (
-            <ResearchPodcastView />
+            <ResearchPodcastView paper={activePaper} onNavigate={setActiveTab} isDarkMode={isDarkMode} />
           )}
 
           {activeTab === 'lit_review' && (
-            <LiteratureReviewGenView />
+            <LiteratureReviewGenView paper={activePaper} onNavigate={setActiveTab} isDarkMode={isDarkMode} />
           )}
 
           {activeTab === 'weak_arguments' && (

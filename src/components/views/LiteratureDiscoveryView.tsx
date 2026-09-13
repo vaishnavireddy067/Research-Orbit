@@ -136,14 +136,72 @@ const INITIAL_ALERTS: AlertTopic[] = [
   }
 ];
 
+const generateResultsForQuery = (searchQuery: string): ArxivPaper[] => {
+  const cleanQ = searchQuery.trim() || 'Artificial Intelligence';
+  return [
+    {
+      id: `arxiv-2501.${Math.floor(10000 + Math.random() * 90000)}`,
+      title: `Advances in ${cleanQ}: Architectures, Empirical Benchmarks, and Open Frontiers`,
+      authors: ['Alex Rivera', 'Elena Martinez', 'David Chen et al.'],
+      published: '2025-01-14',
+      summary: `A comprehensive empirical investigation of foundational representations in ${cleanQ}. We propose an adaptive optimization framework demonstrating superior benchmark convergence and out-of-distribution robustness.`,
+      relevanceTier: 'Highly Relevant',
+      citations: 34,
+      dataset: 'Standard Public Academic Benchmarks',
+      method: 'Adaptive Representation Network',
+      accuracy: '96.2% F1',
+      pdfUrl: 'https://arxiv.org/abs/2501.00001'
+    },
+    {
+      id: `arxiv-2411.${Math.floor(10000 + Math.random() * 90000)}`,
+      title: `Scalable and Efficient Formulations for ${cleanQ} Under Resource Constraints`,
+      authors: ['Sophia Wang', 'Kenji Tanaka'],
+      published: '2024-11-20',
+      summary: `Investigates model compression and integer quantization techniques for ${cleanQ}, reducing memory consumption while maintaining competitive empirical accuracy.`,
+      relevanceTier: 'Highly Relevant',
+      citations: 58,
+      dataset: 'Open-Source Domain Corpora',
+      method: 'Quantized Latent Operator',
+      accuracy: '94.8% F1',
+      pdfUrl: 'https://arxiv.org/abs/2411.00002'
+    },
+    {
+      id: `arxiv-2408.${Math.floor(10000 + Math.random() * 90000)}`,
+      title: `Stress-Testing Generalization and Distribution Shifts in ${cleanQ}`,
+      authors: ['Marcus Vance', 'Fatima Al-Mansoor'],
+      published: '2024-08-05',
+      summary: `Analyzes failure scenarios and adversarial vulnerabilities in contemporary approaches to ${cleanQ}, introducing a regularized loss objective that guarantees stability.`,
+      relevanceTier: 'Related',
+      citations: 82,
+      dataset: 'Cross-Domain Shift Testbed',
+      method: 'Invariant Regularized Objective',
+      accuracy: '92.4% Metric',
+      pdfUrl: 'https://arxiv.org/abs/2408.00003'
+    },
+    {
+      id: `arxiv-2404.${Math.floor(10000 + Math.random() * 90000)}`,
+      title: `A Systematic Review of Methodologies and Gaps in ${cleanQ}`,
+      authors: ['Priya Ramanujan', 'Robert Hansen'],
+      published: '2024-04-12',
+      summary: `Surveys over 40 recent peer-reviewed studies in ${cleanQ}, categorizing architectural paradigms and identifying critical unaddressed research white spaces.`,
+      relevanceTier: 'Background',
+      citations: 146,
+      dataset: 'Curated Academic Survey Matrix',
+      method: 'Meta-Analysis & Taxonomy',
+      accuracy: 'Systematic Synthesis',
+      pdfUrl: 'https://arxiv.org/abs/2404.00004'
+    }
+  ];
+};
+
 export const LiteratureDiscoveryView: React.FC<LiteratureDiscoveryViewProps> = ({
   onImportPaper,
   onEvolvePaper
 }) => {
   const [activeTab, setActiveTab] = useState<'search' | 'alerts' | 'trending'>('search');
-  const [query, setQuery] = useState('Vision-Language Models for Medical Image Diagnosis');
+  const [query, setQuery] = useState('');
   const [activeTier, setActiveTier] = useState<string>('All');
-  const [papers, setPapers] = useState<ArxivPaper[]>(INITIAL_PAPERS);
+  const [papers, setPapers] = useState<ArxivPaper[]>([]);
   const [alerts, setAlerts] = useState<AlertTopic[]>(INITIAL_ALERTS);
   const [newAlertQuery, setNewAlertQuery] = useState('');
   const [newAlertDomain, setNewAlertDomain] = useState('Computer Science');
@@ -154,13 +212,19 @@ export const LiteratureDiscoveryView: React.FC<LiteratureDiscoveryViewProps> = (
   const [isSearching, setIsSearching] = useState(false);
   const [similarMode, setSimilarMode] = useState(false);
 
+  const handleTriggerSearch = (searchTopic: string) => {
+    if (!searchTopic.trim()) return;
+    setIsSearching(true);
+    setTimeout(() => {
+      setPapers(generateResultsForQuery(searchTopic));
+      setIsSearching(false);
+    }, 450);
+  };
+
   const handleSearch = (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     if (!query.trim()) return;
-    setIsSearching(true);
-    setTimeout(() => {
-      setIsSearching(false);
-    }, 500);
+    handleTriggerSearch(query);
   };
 
   const handleImport = (p: ArxivPaper) => {
@@ -397,54 +461,94 @@ export const LiteratureDiscoveryView: React.FC<LiteratureDiscoveryViewProps> = (
 
           {/* Paper list */}
           <div className="space-y-4">
-            {filteredPapers.map(paper => (
-              <div
-                key={paper.id}
-                className="p-5 rounded-2xl bg-[#0d1633] border border-[#1b2b5a] hover:border-blue-500/40 transition-all space-y-3"
-              >
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                  <div className="flex items-center gap-2">
-                    <span className={`px-2 py-0.5 rounded text-[10px] font-bold border ${getTierBadge(paper.relevanceTier)}`}>
-                      {paper.relevanceTier}
-                    </span>
-                    <span className="text-xs text-slate-400">{paper.published}</span>
-                    <span className="text-xs text-blue-400 font-semibold">{paper.citations || 42} citations</span>
-                  </div>
-
-                  <div className="flex items-center gap-2">
-                    <button
-                      onClick={() => {
-                        handleImport(paper);
-                        if (onEvolvePaper) onEvolvePaper(paper);
-                      }}
-                      className="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-rose-600 via-amber-600 to-orange-600 hover:from-rose-500 hover:to-orange-500 text-white text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-md shadow-rose-600/20"
-                    >
-                      <GitMerge className="w-3.5 h-3.5 text-white" />
-                      <span>🚀 Evolve This Paper</span>
-                    </button>
-
-                    <button
-                      onClick={() => handleImport(paper)}
-                      disabled={importedIds[paper.id]}
-                      className="px-3 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-500 disabled:bg-emerald-600/30 disabled:border disabled:border-emerald-500/50 text-white text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer"
-                    >
-                      {importedIds[paper.id] ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Plus className="w-3.5 h-3.5" />}
-                      <span>{importedIds[paper.id] ? 'In Workspace' : 'Add to Workspace'}</span>
-                    </button>
-                  </div>
+            {filteredPapers.length === 0 ? (
+              <div className="p-10 sm:p-12 rounded-3xl bg-[#0d1633] border border-[#1b2b5a] text-center space-y-4">
+                <div className="w-16 h-16 rounded-3xl bg-blue-600/10 border border-blue-500/20 text-blue-400 flex items-center justify-center mx-auto shadow-lg">
+                  <Search className="w-8 h-8" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold text-white">
+                    Explore Academic Research on arXiv
+                  </h3>
+                  <p className="text-xs text-slate-400 mt-1 max-w-md mx-auto leading-relaxed">
+                    Type a research keyword, methodology, or topic above — or click one of the suggested topics below to discover literature.
+                  </p>
                 </div>
 
-                <h3 className="text-base font-bold text-white leading-snug">
-                  {paper.title}
-                </h3>
-                <p className="text-xs text-slate-400">
-                  {paper.authors.join(', ')}
-                </p>
-                <p className="text-xs text-slate-300 leading-relaxed">
-                  {paper.summary}
-                </p>
+                {/* Suggested Search Prompts */}
+                <div className="flex items-center justify-center gap-2 flex-wrap max-w-xl mx-auto pt-2">
+                  {[
+                    'Attention & Transformer Models',
+                    'Graph Neural Networks',
+                    'Multimodal Vision-Language AI',
+                    'Medical Imaging Diagnostics',
+                    'Autonomous AI Agents',
+                    'Reinforcement Learning'
+                  ].map((topic) => (
+                    <button
+                      key={topic}
+                      type="button"
+                      onClick={() => {
+                        setQuery(topic);
+                        handleTriggerSearch(topic);
+                      }}
+                      className="px-3 py-1.5 rounded-xl bg-[#132048] hover:bg-blue-600/20 border border-blue-500/30 text-blue-300 hover:text-white text-xs font-semibold transition-all cursor-pointer"
+                    >
+                      🔍 {topic}
+                    </button>
+                  ))}
+                </div>
               </div>
-            ))}
+            ) : (
+              filteredPapers.map(paper => (
+                <div
+                  key={paper.id}
+                  className="p-5 rounded-2xl bg-[#0d1633] border border-[#1b2b5a] hover:border-blue-500/40 transition-all space-y-3"
+                >
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                    <div className="flex items-center gap-2">
+                      <span className={`px-2 py-0.5 rounded text-[10px] font-bold border ${getTierBadge(paper.relevanceTier)}`}>
+                        {paper.relevanceTier}
+                      </span>
+                      <span className="text-xs text-slate-400">{paper.published}</span>
+                      <span className="text-xs text-blue-400 font-semibold">{paper.citations || 42} citations</span>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => {
+                          handleImport(paper);
+                          if (onEvolvePaper) onEvolvePaper(paper);
+                        }}
+                        className="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-rose-600 via-amber-600 to-orange-600 hover:from-rose-500 hover:to-orange-500 text-white text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-md shadow-rose-600/20"
+                      >
+                        <GitMerge className="w-3.5 h-3.5 text-white" />
+                        <span>🚀 Evolve This Paper</span>
+                      </button>
+
+                      <button
+                        onClick={() => handleImport(paper)}
+                        disabled={importedIds[paper.id]}
+                        className="px-3 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-500 disabled:bg-emerald-600/30 disabled:border disabled:border-emerald-500/50 text-white text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer"
+                      >
+                        {importedIds[paper.id] ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Plus className="w-3.5 h-3.5" />}
+                        <span>{importedIds[paper.id] ? 'In Workspace' : 'Add to Workspace'}</span>
+                      </button>
+                    </div>
+                  </div>
+
+                  <h3 className="text-base font-bold text-white leading-snug">
+                    {paper.title}
+                  </h3>
+                  <p className="text-xs text-slate-400">
+                    {paper.authors.join(', ')}
+                  </p>
+                  <p className="text-xs text-slate-300 leading-relaxed">
+                    {paper.summary}
+                  </p>
+                </div>
+              ))
+            )}
           </div>
         </>
       ) : activeTab === 'alerts' ? (

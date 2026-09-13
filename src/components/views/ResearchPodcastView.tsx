@@ -12,41 +12,83 @@ import {
   Clock,
   Sparkle
 } from 'lucide-react';
-import { PodcastDialogueLine } from '../../types';
+import { PodcastDialogueLine, PaperAnalysis } from '../../types';
+import { EmptyWorkspaceState } from '../EmptyWorkspaceState';
+import { NavTab } from '../Sidebar';
 
-const SAMPLE_DIALOGUE: PodcastDialogueLine[] = [
-  {
-    speaker: 'Dr. Aris (Host)',
-    text: 'Welcome back to ResearchPilot Deep Dive. Today we are breaking down a paper that bridges IoT edge telemetry with graph neural operators for flash flood mitigation.',
-    timestamp: '00:00'
-  },
-  {
-    speaker: 'Dr. Maya (Co-Host)',
-    text: 'Right! The key problem they tackle is that traditional hydrodynamic models take hours to run on supercomputers, making real-time warning nearly impossible during sudden cloudbursts.',
-    timestamp: '00:14'
-  },
-  {
-    speaker: 'Dr. Aris (Host)',
-    text: 'And when storms hit, terrestrial wireless sensors drop packets due to heavy rain fade. So how do the authors maintain 95% accuracy when 35% of the upstream river sensors disconnect?',
-    timestamp: '00:29'
-  },
-  {
-    speaker: 'Dr. Maya (Co-Host)',
-    text: 'They embed Saint-Venant hydraulic conservation equations directly into a Spatiotemporal Graph Convolutional Network running on 4-bit edge silicon. The physics imputes missing readings on the fly.',
-    timestamp: '00:46'
-  },
-  {
-    speaker: 'Dr. Aris (Host)',
-    text: 'That is genuinely impressive. Let us take a look at what Reviewer #2 had to say about their baseline evaluation...',
-    timestamp: '01:05'
+const buildDialogueForPaper = (paper: PaperAnalysis): PodcastDialogueLine[] => {
+  const breakdown = paper.extendedAnalysis?.structuredBreakdown;
+  const problem = breakdown?.problemStatement || paper.summary || 'traditional approaches face significant scaling and accuracy trade-offs.';
+  const methodology = breakdown?.methodology || paper.implementation || 'a novel algorithmic framework optimized for empirical performance.';
+  const results = breakdown?.results || 'consistent improvements across all standard benchmark evaluations.';
+  const risks = paper.risks || [];
+
+  return [
+    {
+      speaker: 'Dr. Aris (Host)',
+      text: `Welcome back to ResearchPilot Deep Dive. Today we are exploring a compelling new manuscript: "${paper.title}".`,
+      timestamp: '00:00'
+    },
+    {
+      speaker: 'Dr. Maya (Co-Host)',
+      text: `Excited to dig into this! The fundamental problem the authors address in ${paper.domain || 'this domain'} is that ${problem.substring(0, 180)}.`,
+      timestamp: '00:15'
+    },
+    {
+      speaker: 'Dr. Aris (Host)',
+      text: `And how do they overcome this challenge? What constitutes their core methodological contribution?`,
+      timestamp: '00:30'
+    },
+    {
+      speaker: 'Dr. Maya (Co-Host)',
+      text: `They formulate ${methodology.substring(0, 180)}. In their experiments, they report ${results.substring(0, 140)}.`,
+      timestamp: '00:45'
+    },
+    {
+      speaker: 'Dr. Aris (Host)',
+      text: `That is notable progress. But looking through the lens of critical peer review, ${risks[0] || 'generalization across uncalibrated domains remains a key challenge for future research'}.`,
+      timestamp: '01:05'
+    }
+  ];
+};
+
+interface ResearchPodcastViewProps {
+  paper?: PaperAnalysis | null;
+  onNavigate?: (tab: NavTab) => void;
+  isDarkMode?: boolean;
+}
+
+export const ResearchPodcastView: React.FC<ResearchPodcastViewProps> = ({
+  paper,
+  onNavigate,
+  isDarkMode = true,
+}) => {
+  if (!paper) {
+    return (
+      <div className="space-y-6 pb-12 animate-fadeIn">
+        <EmptyWorkspaceState
+          title="No Manuscript Loaded for Audio Brief"
+          description="Upload a research manuscript (PDF) or search arXiv to generate a 2-host audio briefing breakdown with text-to-speech discussion of core contributions and peer critiques."
+          onNavigate={onNavigate}
+          isDarkMode={isDarkMode}
+        />
+      </div>
+    );
   }
-];
 
-export const ResearchPodcastView: React.FC = () => {
+  const generatedDialogue = buildDialogueForPaper(paper);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentLineIndex, setCurrentLineIndex] = useState(0);
   const [playbackSpeed, setPlaybackSpeed] = useState<number>(1);
-  const [dialogue, setDialogue] = useState<PodcastDialogueLine[]>(SAMPLE_DIALOGUE);
+  const [dialogue, setDialogue] = useState<PodcastDialogueLine[]>(generatedDialogue);
+
+  React.useEffect(() => {
+    if (paper) {
+      setDialogue(buildDialogueForPaper(paper));
+      setCurrentLineIndex(0);
+      setIsPlaying(false);
+    }
+  }, [paper]);
 
   // Web Speech API Vocalizer
   useEffect(() => {

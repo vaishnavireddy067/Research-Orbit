@@ -242,6 +242,19 @@ export const ResearchEvolutionView: React.FC<ResearchEvolutionViewProps> = ({
     }
   };
 
+  if (!paper) {
+    return (
+      <div className="space-y-6 pb-12 animate-fadeIn">
+        <EmptyWorkspaceState
+          title="No Manuscript Loaded for Research Evolution"
+          description="Upload a research manuscript (PDF) or import papers from arXiv to activate the Research Evolution Engine, simulate 'What If?' hypotheses, uncover blind spots, and determine the smartest next research directions."
+          onNavigate={onNavigate}
+          isDarkMode={isDarkMode}
+        />
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6 pb-12 animate-fadeIn">
       

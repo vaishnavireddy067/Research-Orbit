@@ -22,106 +22,94 @@ interface RoadmapStep {
   badgeColor: string;
 }
 
-const ROADMAPS: Record<string, RoadmapStep[]> = {
-  'AI-based Flood Prediction using IoT': [
+const buildRoadmapForPaper = (paper: PaperAnalysis): RoadmapStep[] => {
+  const domain = paper.domain || 'Computer Science & Artificial Intelligence';
+  const title = paper.title;
+  const risks = paper.risks || [];
+
+  return [
     {
       level: 'STEP 1: BEGINNER',
-      title: 'Mathematical & Programming Foundations',
-      description: 'Master linear algebra, numerical calculus, Python scientific libraries (NumPy, SciPy), and time-series manipulations.',
-      keyConcepts: ['Time-Series Stationarity', 'Sliding Window Segmentation', 'Signal Denoising (Butterworth Filters)'],
-      recommendedPapers: ['Foundations of Time Series Analysis in Environmental Data (2018)'],
+      title: `Mathematical & Theoretical Foundations of ${domain}`,
+      description: 'Master core linear algebra, probability, loss function optimization, and canonical baseline paradigms.',
+      keyConcepts: ['Foundational Mathematics', 'Empirical Loss Gradients', 'Statistical Preprocessing & Normalization'],
+      recommendedPapers: [`Foundations of ${domain} (Foundational Literature)`],
       status: 'completed',
       badgeColor: 'bg-emerald-50 text-emerald-700 border-emerald-200'
     },
     {
-      level: 'STEP 2: CLASSICAL ML',
-      title: 'Statistical & Ensemble Baselines',
-      description: 'Build predictive baselines using Gradient Boosted Trees and Support Vector Regressors to establish baseline benchmarks.',
-      keyConcepts: ['Random Forest Regressors', 'XGBoost Feature Importances', '5-Fold Chronological Cross-Validation'],
-      recommendedPapers: ['Hansen & Kim (2021) - Statistical Downscaling of Rainfall'],
+      level: 'STEP 2: CLASSICAL BASELINES',
+      title: 'Statistical & Algorithmic Baselines',
+      description: 'Implement classical baseline models and benchmark pipelines to evaluate empirical progress.',
+      keyConcepts: ['Baseline Comparison Metrics', 'Cross-Validation Protocols', 'Standard Evaluation Corpora'],
+      recommendedPapers: ['Canonical Benchmark Studies in ' + domain],
       status: 'completed',
       badgeColor: 'bg-blue-50 text-blue-700 border-blue-200'
     },
     {
-      level: 'STEP 3: DEEP LEARNING',
-      title: 'Recurrent & Spatiotemporal Networks',
-      description: 'Implement Long Short-Term Memory (LSTM) and Gated Recurrent Units (GRU) to capture temporal stream gauge dependencies.',
-      keyConcepts: ['Bidirectional LSTMs', 'Temporal Attention Mechanisms', 'Vanishing Gradient Mitigation'],
-      recommendedPapers: ['Al-Mansoor & Vance (2022) - Deep Recurrent Approaches in Hydrology'],
+      level: 'STEP 3: CONTEMPORARY SOTA',
+      title: `Deep Architectural Paradigms in ${domain}`,
+      description: 'Explore state-of-the-art representations, attention mechanisms, and deep architectures.',
+      keyConcepts: ['Representation Learning', 'Multi-Task Optimization', 'Feature Inductive Biases'],
+      recommendedPapers: [title],
       status: 'completed',
       badgeColor: 'bg-purple-50 text-purple-700 border-purple-200'
     },
     {
-      level: 'STEP 4: DOMAIN TELEMETRY',
-      title: 'Hydrological Physics & Sensor Fusion',
-      description: 'Integrate Saint-Venant shallow water equations with LoRaWAN wireless ultrasonic sensor networks and SAR satellite soil data.',
-      keyConcepts: ['Hydrodynamic Wave Propagation', 'LoRaWAN Packet Rain-Attenuation', 'Sentinel-1 SAR Radar Backscatter'],
-      recommendedPapers: ['O’Connor et al. (2023) - Multimodal Sensor Fusion for River Basins'],
+      level: 'STEP 4: ACTIVE STUDY',
+      title: `Analysis of "${title}"`,
+      description: 'Dissect the core methodological contributions, dataset requirements, and empirical claims of your active paper.',
+      keyConcepts: ['Ablation Analysis', 'Dataset Preprocessing', 'Experimental Reproducibility'],
+      recommendedPapers: [title],
       status: 'current',
       badgeColor: 'bg-amber-50 text-amber-700 border-amber-200'
     },
     {
-      level: 'STEP 5: SOTA ARCHITECTURES',
-      title: 'Graph Neural Networks & Neural Operators',
-      description: 'Formulate river catchments as topological directed acyclic graphs using Fourier Neural Operators and Spatiotemporal GCNs.',
-      keyConcepts: ['Spatiotemporal GCNs (ST-GCN)', 'Fourier Neural Operators (FNO)', 'Physics-Informed Loss Gradients (PINN)'],
-      recommendedPapers: ['Chen et al. (2024) - Real-Time IoT Flood Prediction via Edge GCN'],
-      status: 'upcoming',
-      badgeColor: 'bg-indigo-50 text-indigo-700 border-indigo-200'
-    },
-    {
-      level: 'STEP 6: CURRENT GAPS',
-      title: 'Unexplored Frontier Gaps',
-      description: 'Address real-time edge microcontroller constraints and sensor dropout failure during active severe flooding events.',
-      keyConcepts: ['Edge INT4 Model Quantization', 'Self-Healing Topology Imputation', 'Decentralized Edge Consensus'],
-      recommendedPapers: ['Identified Research Gap: 14/20 papers lack edge streaming resilience'],
+      level: 'STEP 5: CRITICAL AUDIT',
+      title: 'Stress-Testing Limitations & Vulnerabilities',
+      description: 'Evaluate identified failure scenarios, data distribution drift, and reviewer traps.',
+      keyConcepts: [risks[0] || 'Out-of-distribution drift', 'Hyperparameter sensitivity', 'Ablation rigor'],
+      recommendedPapers: ['Peer Review Critiques & Rebuttals'],
       status: 'upcoming',
       badgeColor: 'bg-rose-50 text-rose-700 border-rose-200'
     },
     {
-      level: 'STEP 7: FLAGSHIP TOPIC',
-      title: 'Proposed Major Project / Thesis Direction',
-      description: 'HydroEdge-GNN: A Self-Healing Edge Spatiotemporal Graph Neural Operator for Flash-Flood Prediction Under Sensor Dropout.',
-      keyConcepts: ['Novelty: First edge-deployable physics-informed graph operator', 'Impact: 95.8% precision at <40ms latency'],
-      recommendedPapers: ['Synthesized Formal Research Proposal (ResearchPilot Generated)'],
+      level: 'STEP 6: RESEARCH EXTENSION',
+      title: 'Formulating Next-Gen Research Directions',
+      description: 'Synthesize unexplored white spaces into a novel, defensible thesis proposal or conference manuscript.',
+      keyConcepts: ['Novelty Formulation', 'Empirical Significance Bounds', 'Camera-Ready Paper Writing'],
+      recommendedPapers: [`Proposed Extension Framework for ${title}`],
       status: 'upcoming',
       badgeColor: 'bg-emerald-500 text-white border-emerald-600'
     }
-  ],
-  'Medical AI & Imaging Diagnostics': [
-    {
-      level: 'STEP 1: BEGINNER',
-      title: 'Computer Vision & Biomedical Foundations',
-      description: 'Study DICOM/NIfTI medical image processing, radiological anatomy, and convolutional spatial filters.',
-      keyConcepts: ['DICOM Hounsfield Units', 'Slice Normalization', 'Spatial Transformations'],
-      recommendedPapers: ['Biomedical Image Processing Fundamentals (2019)'],
-      status: 'completed',
-      badgeColor: 'bg-emerald-50 text-emerald-700 border-emerald-200'
-    },
-    {
-      level: 'STEP 2: DEEP LEARNING',
-      title: 'U-Net & Segmentation Paradigms',
-      description: 'Implement encoder-decoder skip connection architectures for precise organ and lesion boundary delineation.',
-      keyConcepts: ['U-Net Architecture', 'Dice Similarity Loss', 'Focal Loss for Small Tumors'],
-      recommendedPapers: ['Ronneberger et al. - U-Net: Convolutional Networks for Biomedical Segmentation'],
-      status: 'completed',
-      badgeColor: 'bg-blue-50 text-blue-700 border-blue-200'
-    },
-    {
-      level: 'STEP 3: ADVANCED FRONTIER',
-      title: 'Medical Vision Transformers & Multimodal LLMs',
-      description: 'Cross-attention between radiological scans and clinical pathology notes for diagnostic report generation.',
-      keyConcepts: ['Swin UNETR', 'BiomedCLIP', 'Clinical LLM Hallucination Safeguards'],
-      recommendedPapers: ['Recent Med-PaLM & BioGPT Surveys (2024)'],
-      status: 'current',
-      badgeColor: 'bg-purple-50 text-purple-700 border-purple-200'
-    }
-  ]
+  ];
 };
 
-export const ResearchRoadmapView: React.FC = () => {
-  const [activeDomain, setActiveDomain] = useState<string>('AI-based Flood Prediction using IoT');
-  const steps = ROADMAPS[activeDomain] || ROADMAPS['AI-based Flood Prediction using IoT'];
+interface ResearchRoadmapViewProps {
+  paper?: PaperAnalysis | null;
+  onNavigate?: (tab: NavTab) => void;
+  isDarkMode?: boolean;
+}
+
+export const ResearchRoadmapView: React.FC<ResearchRoadmapViewProps> = ({
+  paper,
+  onNavigate,
+  isDarkMode = true,
+}) => {
+  if (!paper) {
+    return (
+      <div className="space-y-6 pb-12 animate-fadeIn">
+        <EmptyWorkspaceState
+          title="No Manuscript Loaded for Research Roadmap"
+          description="Upload a research manuscript (PDF) or import papers from arXiv to generate a personalized mastery roadmap from foundational theory to state-of-the-art breakthrough architectures."
+          onNavigate={onNavigate}
+          isDarkMode={isDarkMode}
+        />
+      </div>
+    );
+  }
+
+  const steps = buildRoadmapForPaper(paper);
 
   return (
     <div className="space-y-6">
@@ -140,16 +128,11 @@ export const ResearchRoadmapView: React.FC = () => {
           </p>
         </div>
 
-        {/* Domain Selector */}
+        {/* Domain Badge & Export Button */}
         <div className="flex items-center gap-2">
-          <select
-            value={activeDomain}
-            onChange={(e) => setActiveDomain(e.target.value)}
-            className="bg-slate-50 border border-slate-200 text-slate-800 text-xs font-bold rounded-xl px-3 py-2 focus:outline-none"
-          >
-            <option value="AI-based Flood Prediction using IoT">AI-based Flood Prediction using IoT</option>
-            <option value="Medical AI & Imaging Diagnostics">Medical AI & Imaging Diagnostics</option>
-          </select>
+          <span className="bg-blue-50 border border-blue-200 text-blue-800 text-xs font-bold rounded-xl px-3 py-2">
+            {paper.domain || 'Computer Science & AI'}
+          </span>
 
           <button
             onClick={() => alert('Exporting Roadmap to PDF / Study Schedule...')}

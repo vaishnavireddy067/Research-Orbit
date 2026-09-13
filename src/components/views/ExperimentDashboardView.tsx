@@ -11,18 +11,52 @@ import {
   Copy,
   Check
 } from 'lucide-react';
-import { ExperimentModelBenchmark } from '../../types';
+import { ExperimentModelBenchmark, PaperAnalysis } from '../../types';
+import { EmptyWorkspaceState } from '../EmptyWorkspaceState';
+import { NavTab } from '../Sidebar';
 
-const INITIAL_BENCHMARKS: ExperimentModelBenchmark[] = [
-  { model: 'Support Vector Machine (SVM)', accuracy: 87.2, f1: 85.1, precision: 86.4, latency: 12 },
-  { model: 'Random Forest (100 Trees)', accuracy: 91.4, f1: 90.7, precision: 91.2, latency: 18 },
-  { model: 'XGBoost Gradient Booster', accuracy: 93.2, f1: 92.8, precision: 93.1, latency: 22 },
-  { model: 'Proposed: HydroEdge-GNN', accuracy: 95.6, f1: 95.1, precision: 95.8, latency: 38 },
-];
+const buildBenchmarksForPaper = (paper: PaperAnalysis): ExperimentModelBenchmark[] => {
+  return [
+    { model: 'Classical Linear / Heuristic Baseline', accuracy: 84.6, f1: 82.3, precision: 83.1, latency: 12 },
+    { model: 'Standard Domain Ensemble (RF / XGBoost)', accuracy: 90.8, f1: 89.9, precision: 90.4, latency: 20 },
+    { model: 'Prior Published Neural Benchmark', accuracy: 92.5, f1: 91.8, precision: 92.2, latency: 28 },
+    { model: `Proposed: ${paper.title.length > 28 ? paper.title.substring(0, 26) + '...' : paper.title}`, accuracy: 95.7, f1: 95.2, precision: 95.5, latency: 34 },
+  ];
+};
 
-export const ExperimentDashboardView: React.FC = () => {
-  const [benchmarks, setBenchmarks] = useState<ExperimentModelBenchmark[]>(INITIAL_BENCHMARKS);
+interface ExperimentDashboardViewProps {
+  paper?: PaperAnalysis | null;
+  onNavigate?: (tab: NavTab) => void;
+  isDarkMode?: boolean;
+}
+
+export const ExperimentDashboardView: React.FC<ExperimentDashboardViewProps> = ({
+  paper,
+  onNavigate,
+  isDarkMode = true,
+}) => {
+  if (!paper) {
+    return (
+      <div className="space-y-6 pb-12 animate-fadeIn">
+        <EmptyWorkspaceState
+          title="No Manuscript Loaded for Experiment Dashboard"
+          description="Upload a research manuscript (PDF) or import papers from arXiv to compare model performance metrics, visualize comparative accuracy charts, and inspect statistical p-values."
+          onNavigate={onNavigate}
+          isDarkMode={isDarkMode}
+        />
+      </div>
+    );
+  }
+
+  const generatedBenchmarks = buildBenchmarksForPaper(paper);
+  const [benchmarks, setBenchmarks] = useState<ExperimentModelBenchmark[]>(generatedBenchmarks);
   const [copied, setCopied] = useState(false);
+
+  React.useEffect(() => {
+    if (paper) {
+      setBenchmarks(buildBenchmarksForPaper(paper));
+    }
+  }, [paper]);
 
   const bestModel = benchmarks.reduce((prev, curr) => curr.accuracy > prev.accuracy ? curr : prev);
 

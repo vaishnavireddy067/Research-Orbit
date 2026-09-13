@@ -186,8 +186,33 @@ export const ResearchLibraryView: React.FC<ResearchLibraryViewProps> = ({
   const [studyNoteText, setStudyNoteText] = useState('');
   const [activePaperForNotes, setActivePaperForNotes] = useState<LibraryPaper | null>(null);
 
-  // Collections list
-  const collections = ['ALL', 'Flood Prediction Project', 'Student Dropout Project', 'Core Machine Learning', 'Healthcare AI'];
+  if (papersList.length === 0) {
+    return (
+      <div className="space-y-6 pb-12 animate-fadeIn">
+        <div className="flex items-center gap-2.5">
+          <BookMarked className="w-8 h-8 text-blue-500" />
+          <div>
+            <h1 className={`text-2xl font-black tracking-tight ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
+              Research Library & Citation Center
+            </h1>
+            <p className="text-xs text-slate-400 mt-0.5">
+              Your centralized personal knowledge vault for saving manuscripts, organizing collections, and 1-click citation export.
+            </p>
+          </div>
+        </div>
+
+        <EmptyWorkspaceState
+          title="Your Personal Research Library is Empty"
+          description="You haven't added or uploaded any papers yet. Upload a research manuscript (PDF) or search arXiv to save papers to your personal collections and citation manager."
+          onNavigate={onNavigate}
+          isDarkMode={isDarkMode}
+        />
+      </div>
+    );
+  }
+
+  // Collections list derived dynamically
+  const collections = ['ALL', ...Array.from(new Set(papersList.map(p => p.collection).filter(Boolean)))];
 
   // All tags
   const allTags = Array.from(new Set(papersList.flatMap(p => p.tags)));

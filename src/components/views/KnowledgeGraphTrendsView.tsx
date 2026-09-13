@@ -32,27 +32,39 @@ interface GraphEdge {
   label: 'cites' | 'uses' | 'improves' | 'compares' | 'authored by' | 'similar to';
 }
 
-const INITIAL_NODES: GraphNode[] = [
-  { id: 'n1', label: 'Paper: Chen et al. (2024)', type: 'paper', x: 260, y: 150, connections: 4, meta: 'Real-Time IoT Flood Prediction via Edge GCN' },
-  { id: 'n2', label: 'Method: Spatiotemporal GCN', type: 'method', x: 420, y: 120, connections: 5, meta: 'Non-Euclidean topological river flow modeling' },
-  { id: 'n3', label: 'Dataset: NOAA HydroNet', type: 'dataset', x: 460, y: 240, connections: 3, meta: 'High-resolution telemetry stream' },
-  { id: 'n4', label: 'Researcher: Dr. Liang Chen', type: 'author', x: 160, y: 260, connections: 2, meta: 'Lead author at MIT Urban Climate Lab' },
-  { id: 'n5', label: 'Paper: O’Connor et al. (2023)', type: 'paper', x: 600, y: 170, connections: 3, meta: 'Multimodal Sensor Fusion for River Basin' },
-  { id: 'n6', label: 'Research Gap: Edge Dropout', type: 'gap', x: 340, y: 320, connections: 3, meta: 'Zero-calibration when headwater sensors drop' },
-  { id: 'n7', label: 'Potential Idea: Self-Healing Edge', type: 'idea', x: 520, y: 340, connections: 2, meta: 'Decentralized Kalman-GNN Consensus' },
-  { id: 'n8', label: 'Inst: Stanford AI Lab', type: 'institution', x: 120, y: 140, connections: 2, meta: 'Affiliated Academic Institution' },
-];
+import { PaperAnalysis } from '../../types';
+import { EmptyWorkspaceState } from '../EmptyWorkspaceState';
+import { NavTab } from '../Sidebar';
 
-const INITIAL_EDGES: GraphEdge[] = [
-  { from: 'n1', to: 'n2', label: 'uses' },
-  { from: 'n1', to: 'n3', label: 'uses' },
-  { from: 'n1', to: 'n4', label: 'authored by' },
-  { from: 'n4', to: 'n8', label: 'cites' },
-  { from: 'n2', to: 'n5', label: 'compares' },
-  { from: 'n1', to: 'n6', label: 'improves' },
-  { from: 'n6', to: 'n7', label: 'similar to' },
-  { from: 'n5', to: 'n3', label: 'uses' },
-];
+const buildGraphForPaper = (paper: PaperAnalysis): { nodes: GraphNode[]; edges: GraphEdge[] } => {
+  const breakdown = paper.extendedAnalysis?.structuredBreakdown;
+  const primaryAuthor = paper.authors?.split(',')[0] || 'Lead Author';
+  const method = breakdown?.methodology?.substring(0, 28) || 'Proposed Core Architecture';
+  const dataset = breakdown?.datasetUsed?.substring(0, 24) || 'Academic Benchmark Set';
+  const gap = paper.risks?.[0] || 'Distribution Drift Resilience';
+  const titleShort = paper.title.length > 32 ? paper.title.substring(0, 30) + '...' : paper.title;
+
+  const nodes: GraphNode[] = [
+    { id: 'n1', label: `Paper: ${titleShort}`, type: 'paper', x: 260, y: 150, connections: 4, meta: paper.title },
+    { id: 'n2', label: `Method: ${method}`, type: 'method', x: 420, y: 120, connections: 4, meta: `Core algorithm of ${paper.title}` },
+    { id: 'n3', label: `Dataset: ${dataset}`, type: 'dataset', x: 460, y: 240, connections: 3, meta: 'Evaluation Corpus' },
+    { id: 'n4', label: `Author: ${primaryAuthor}`, type: 'author', x: 160, y: 260, connections: 2, meta: 'Principal Investigator / Author' },
+    { id: 'n5', label: `Domain: ${paper.domain || 'AI & Science'}`, type: 'institution', x: 120, y: 140, connections: 2, meta: 'Academic Field' },
+    { id: 'n6', label: `Research Gap: ${gap.substring(0, 24)}...`, type: 'gap', x: 340, y: 320, connections: 3, meta: gap },
+    { id: 'n7', label: `Next Evolution: Adaptive SOTA`, type: 'idea', x: 520, y: 340, connections: 2, meta: 'Evolved Direction' },
+  ];
+
+  const edges: GraphEdge[] = [
+    { from: 'n1', to: 'n2', label: 'uses' },
+    { from: 'n1', to: 'n3', label: 'uses' },
+    { from: 'n1', to: 'n4', label: 'authored by' },
+    { from: 'n4', to: 'n5', label: 'cites' },
+    { from: 'n1', to: 'n6', label: 'improves' },
+    { from: 'n6', to: 'n7', label: 'similar to' },
+  ];
+
+  return { nodes, edges };
+};
 
 const TREND_TIMELINE = [
   { year: '2021', paradigm: 'CNN & Classical Ensembles', benchmark: 'XGBoost / 2D Conv', momentum: '42%' },
@@ -63,11 +75,43 @@ const TREND_TIMELINE = [
   { year: '2026', paradigm: 'Multimodal Autonomous Research Agents', benchmark: 'Closed-Loop Hypothesis Testing', momentum: 'Projected Frontier' },
 ];
 
-export const KnowledgeGraphTrendsView: React.FC = () => {
-  const [nodes, setNodes] = useState<GraphNode[]>(INITIAL_NODES);
-  const [selectedNode, setSelectedNode] = useState<GraphNode | null>(nodes[0]);
+interface KnowledgeGraphTrendsViewProps {
+  paper?: PaperAnalysis | null;
+  onNavigate?: (tab: NavTab) => void;
+  isDarkMode?: boolean;
+}
+
+export const KnowledgeGraphTrendsView: React.FC<KnowledgeGraphTrendsViewProps> = ({
+  paper,
+  onNavigate,
+  isDarkMode = true,
+}) => {
+  if (!paper) {
+    return (
+      <div className="space-y-6 pb-12 animate-fadeIn">
+        <EmptyWorkspaceState
+          title="No Manuscript Loaded for Knowledge Graph"
+          description="Upload a research manuscript (PDF) or search arXiv to map academic connections between methods, datasets, authors, and unexplored research gaps."
+          onNavigate={onNavigate}
+          isDarkMode={isDarkMode}
+        />
+      </div>
+    );
+  }
+
+  const initialGraph = buildGraphForPaper(paper);
+  const [nodes, setNodes] = useState<GraphNode[]>(initialGraph.nodes);
+  const [selectedNode, setSelectedNode] = useState<GraphNode | null>(initialGraph.nodes[0]);
   const [filterType, setFilterType] = useState<string>('all');
   const [searchTerm, setSearchTerm] = useState('');
+
+  React.useEffect(() => {
+    if (paper) {
+      const g = buildGraphForPaper(paper);
+      setNodes(g.nodes);
+      setSelectedNode(g.nodes[0]);
+    }
+  }, [paper]);
 
   const getNodeColor = (type: GraphNode['type']) => {
     switch (type) {

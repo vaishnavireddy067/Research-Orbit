@@ -11,68 +11,98 @@ import {
   ChevronRight,
   MessageSquare
 } from 'lucide-react';
-import { ReviewerPersonaFeedback } from '../../types';
+import { ReviewerPersonaFeedback, PaperAnalysis } from '../../types';
+import { EmptyWorkspaceState } from '../EmptyWorkspaceState';
+import { NavTab } from '../Sidebar';
 
-const PERSONAS: ReviewerPersonaFeedback[] = [
-  {
-    persona: 'Reviewer #2 (Critical Reviewer)',
-    recommendation: 'Major Revision',
-    score: 6.8,
-    comments: 'The paper tackles an important domain in edge hydrology, but the claims regarding generalization across uncalibrated catchments are overstated. Furthermore, baseline evaluations lack comparisons against modern physics-informed neural operators.',
-    majorIssues: [
-      'The experimental evaluation tests only 3 localized river basins. Results cannot be generalized globally without broader multi-basin validation.',
-      'Baseline comparison omits recent 2024 Fourier Neural Operator (FNO) implementations, making the empirical superiority claim questionable.'
-    ],
-    minorIssues: [
-      'Equation 4 contains an undefined symbol (γ_attenuation). Please clarify notation.',
-      'Figure 3 topology schematic is low-resolution and unreadable in monochrome print.'
-    ]
-  },
-  {
-    persona: 'Reviewer #1 (Methodology)',
-    recommendation: 'Minor Revision',
-    score: 8.0,
-    comments: 'The formulation of the Saint-Venant hydraulic conservation loss within the graph operator is theoretically sound and well-derived.',
-    majorIssues: [
-      'Sensor packet loss is injected synthetically using a uniform random distribution, which does not reflect bursty real-world rain fade.'
-    ],
-    minorIssues: [
-      'Provide details on the microcontroller floating point emulation overhead.',
-      'Clarify hyperparameter tuning bounds for the Kalman smoothing factor.'
-    ]
-  },
-  {
-    persona: 'Reviewer #3 (Statistics)',
-    recommendation: 'Minor Revision',
-    score: 7.5,
-    comments: 'Statistical methodology is good with 5-fold cross-validation, but error bars and confidence intervals are omitted from Table 2.',
-    majorIssues: [
-      'Report 95% bootstrap confidence intervals for all F1 and RMSE metrics rather than single point estimates.'
-    ],
-    minorIssues: [
-      'Specify degree of freedom in the Wilcoxon signed-rank test.',
-      'Define whether data outliers were clipped prior to normalisation.'
-    ]
-  },
-  {
-    persona: 'Reviewer #4 (Novelty)',
-    recommendation: 'Accept',
-    score: 8.5,
-    comments: 'Deploying physics-informed graph operators directly on edge microcontrollers for real-time flood warning is highly original and practically impactful.',
-    majorIssues: [
-      'Ensure the PyTorch-to-Edge quantization codebase is publicly released with open weights.'
-    ],
-    minorIssues: [
-      'Cite recent NeurIPS 2024 work on TinyML graph compression.'
-    ]
+const buildPersonasForPaper = (paper: PaperAnalysis): ReviewerPersonaFeedback[] => {
+  const risks = paper.risks || [];
+  const limitations = paper.failureSimulator?.dataset_limitations || [];
+  return [
+    {
+      persona: 'Reviewer #2 (Critical Reviewer)',
+      recommendation: 'Major Revision',
+      score: 6.8,
+      comments: `The paper "${paper.title}" tackles a relevant topic in ${paper.domain || 'the field'}, but the claims regarding generalization across unseen distributions require stronger ablation evidence.`,
+      majorIssues: [
+        risks[0] || 'Empirical baselines omit recent contemporary 2024-2025 comparison architectures.',
+        risks[1] || 'Evaluation metrics rely on single point estimates without cross-dataset significance intervals.'
+      ],
+      minorIssues: [
+        'Equation notation in the methodology formulation could be made more consistent with standard conventions.',
+        'Figure legends and ablation tables require clearer baseline annotations.'
+      ]
+    },
+    {
+      persona: 'Reviewer #1 (Methodology & Theory)',
+      recommendation: 'Minor Revision',
+      score: 8.0,
+      comments: `The formulation proposed in "${paper.title}" is mathematically well-motivated and presents sound theoretical convergence properties.`,
+      majorIssues: [
+        limitations[0] || 'Clarify the exact preprocessing pipeline and hyperparameter tuning grid bounds.'
+      ],
+      minorIssues: [
+        'Include precise wall-clock runtime measurements and peak memory overhead.',
+        'Discuss failure modes when input representations experience high noise.'
+      ]
+    },
+    {
+      persona: 'Reviewer #3 (Statistics & Reproducibility)',
+      recommendation: 'Minor Revision',
+      score: 7.6,
+      comments: 'The experimental design is generally solid, but statistical rigor can be improved by reporting bootstrap confidence intervals.',
+      majorIssues: [
+        'Report 95% bootstrap confidence intervals for all primary evaluation metrics.',
+        'Document exact random seeds and compute environment specifications for 100% reproducibility.'
+      ],
+      minorIssues: [
+        'Confirm whether outlier points were clipped prior to normalization.'
+      ]
+    },
+    {
+      persona: 'Reviewer #4 (Novelty & Impact)',
+      recommendation: 'Accept',
+      score: 8.7,
+      comments: `The unique perspective explored in "${paper.title}" provides a refreshing contribution to ${paper.domain || 'the scientific community'}.`,
+      majorIssues: [
+        'Ensure open-source replication repository is linked with pretrained weights upon camera-ready publication.'
+      ],
+      minorIssues: [
+        'Expand related work discussion to include recent survey papers.'
+      ]
+    }
+  ];
+};
+
+interface PeerReviewerViewProps {
+  paper?: PaperAnalysis | null;
+  onNavigate?: (tab: NavTab) => void;
+  isDarkMode?: boolean;
+}
+
+export const PeerReviewerView: React.FC<PeerReviewerViewProps> = ({
+  paper,
+  onNavigate,
+  isDarkMode = true,
+}) => {
+  if (!paper) {
+    return (
+      <div className="space-y-6 pb-12 animate-fadeIn">
+        <EmptyWorkspaceState
+          title="No Manuscript Loaded for Peer Review"
+          description="Upload a research manuscript (PDF) or search arXiv to simulate a multi-persona academic peer-review panel (Reviewer #2 Critical, Methodology, Statistics, Novelty) and calculate acceptance probabilities."
+          onNavigate={onNavigate}
+          isDarkMode={isDarkMode}
+        />
+      </div>
+    );
   }
-];
 
-export const PeerReviewerView: React.FC = () => {
+  const personas = buildPersonasForPaper(paper);
   const [selectedPersonaIdx, setSelectedPersonaIdx] = useState<number>(0);
-  const current = PERSONAS[selectedPersonaIdx];
+  const current = personas[selectedPersonaIdx] || personas[0];
 
-  const overallAcceptanceProb = 68; // 68%
+  const overallAcceptanceProb = paper.noveltyScore ? Math.min(95, Math.round(paper.noveltyScore * 8.5)) : 74;
 
   return (
     <div className="space-y-6">
