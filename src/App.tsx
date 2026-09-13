@@ -4,7 +4,7 @@ import { Header } from './components/Header';
 import { LandingPage } from './components/landing/LandingPage';
 import { LoginPage } from './components/views/LoginPage';
 import { DashboardView } from './components/views/DashboardView';
-import { UploadView } from './components/views/UploadView';
+import { AnalysisView } from './components/AnalysisView';
 import { MyPapersView } from './components/views/MyPapersView';
 import { ResearchLibraryView } from './components/views/ResearchLibraryView';
 import { PaperStudioView } from './components/views/PaperStudioView';
@@ -145,7 +145,7 @@ export const App: React.FC = () => {
         const history = await api.getHistory();
         if (history && history.length > 0) {
           setPapers(history);
-          setActivePaper(history[0]);
+          // Keep activePaper as null so sidebar views remain empty until user uploads or selects a paper
         }
       } catch (err) {
         console.log('History load notice');
@@ -168,12 +168,12 @@ export const App: React.FC = () => {
   const handlePaperAnalyzed = (p: PaperAnalysis) => {
     setPapers((prev) => [p, ...prev.filter((item) => item.id !== p.id)]);
     setActivePaper(p);
-    setActiveTab('my_papers');
+    setActiveTab('paper_analysis');
   };
 
   const handleSelectPaper = (p: PaperAnalysis) => {
     setActivePaper(p);
-    setActiveTab('gap_analysis');
+    setActiveTab('paper_analysis');
   };
 
   const handleImportArxivPaper = (ap: ArxivPaper) => {
@@ -316,7 +316,15 @@ export const App: React.FC = () => {
 
           {/* 2. ANALYZE */}
           {(activeTab === 'paper_analysis' || activeTab === 'upload') && (
-            <UploadView onPaperAnalyzed={handlePaperAnalyzed} />
+            <AnalysisView
+              activePaper={activePaper}
+              onPaperAnalyzed={handlePaperAnalyzed}
+              onOpenChat={() => setActiveTab('research_chat')}
+              onOpenAudio={() => setActiveTab('audio_brief')}
+              onOpenDossier={() => setIsDossierOpen(true)}
+              onSelectAnotherPaper={() => setActivePaper(null)}
+              onNavigate={setActiveTab}
+            />
           )}
 
           {activeTab === 'knowledge_graph' && (
@@ -404,7 +412,7 @@ export const App: React.FC = () => {
           )}
 
           {activeTab === 'ai_detection' && (
-            <AiDetectionView paper={activePaper || undefined} />
+            <AiDetectionView paper={activePaper} onNavigate={setActiveTab} isDarkMode={isDarkMode} />
           )}
 
           {activeTab === 'improvements' && (
@@ -416,7 +424,7 @@ export const App: React.FC = () => {
           )}
 
           {activeTab === 'insights' && (
-            <InsightsView paper={activePaper || undefined} />
+            <InsightsView paper={activePaper} onNavigate={setActiveTab} isDarkMode={isDarkMode} />
           )}
 
           {activeTab === 'settings' && (

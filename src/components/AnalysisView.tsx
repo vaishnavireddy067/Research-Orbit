@@ -19,10 +19,12 @@ import {
   MessageSquareText, 
   Download,
   Lightbulb,
-  ExternalLink
+  ExternalLink,
+  GitMerge
 } from 'lucide-react';
 import { PaperAnalysis } from '../types';
 import { api } from '../services/api';
+import { NavTab } from './Sidebar';
 
 interface AnalysisViewProps {
   activePaper: PaperAnalysis | null;
@@ -31,6 +33,7 @@ interface AnalysisViewProps {
   onOpenAudio: () => void;
   onOpenDossier: () => void;
   onSelectAnotherPaper?: () => void;
+  onNavigate?: (tab: NavTab) => void;
 }
 
 export const AnalysisView: React.FC<AnalysisViewProps> = ({
@@ -40,6 +43,7 @@ export const AnalysisView: React.FC<AnalysisViewProps> = ({
   onOpenAudio,
   onOpenDossier,
   onSelectAnotherPaper,
+  onNavigate,
 }) => {
   const [isDragging, setIsDragging] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
@@ -262,6 +266,16 @@ export const AnalysisView: React.FC<AnalysisViewProps> = ({
 
               {/* Action Toolbar */}
               <div className="flex flex-wrap lg:flex-col gap-2 shrink-0">
+                {onNavigate && (
+                  <button
+                    onClick={() => onNavigate('research_evolution')}
+                    className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-rose-600 via-amber-600 to-orange-600 hover:from-rose-500 hover:to-orange-500 px-4 py-2.5 text-xs font-black text-white shadow-lg shadow-rose-600/30 transition-all hover:scale-102 cursor-pointer"
+                  >
+                    <GitMerge className="h-4 w-4 text-white" />
+                    🚀 Evolve Research
+                  </button>
+                )}
+
                 <button
                   onClick={onOpenAudio}
                   className="flex items-center gap-2 rounded-xl bg-purple-600/20 border border-purple-500/30 px-3.5 py-2 text-xs font-semibold text-purple-300 hover:bg-purple-600/30 transition-all"

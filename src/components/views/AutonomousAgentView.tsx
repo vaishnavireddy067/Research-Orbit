@@ -27,6 +27,7 @@ interface AgentNode {
 
 import { PaperAnalysis } from '../../types';
 import { NavTab } from '../Sidebar';
+import { EmptyWorkspaceState } from '../EmptyWorkspaceState';
 
 interface AutonomousAgentViewProps {
   paper?: PaperAnalysis | null;
@@ -36,7 +37,35 @@ interface AutonomousAgentViewProps {
 
 export const AutonomousAgentView: React.FC<AutonomousAgentViewProps> = ({
   paper,
+  onNavigate,
+  isDarkMode = true,
 }) => {
+  if (!paper) {
+    return (
+      <div className="space-y-6 pb-12 animate-fadeIn">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-2xl bg-blue-600/20 text-blue-400 border border-blue-500/30 flex items-center justify-center shadow-lg">
+            <Bot className="w-5 h-5" />
+          </div>
+          <div>
+            <h1 className="text-2xl font-black text-white tracking-tight">
+              Autonomous Agent Swarm
+            </h1>
+            <p className="text-xs text-slate-400 mt-0.5">
+              Multi-agent pipeline automating discovery, extraction, baseline benchmarking, and peer review.
+            </p>
+          </div>
+        </div>
+
+        <EmptyWorkspaceState
+          title="No Manuscript Loaded for Autonomous Agents"
+          description="Upload a research manuscript (PDF) or search arXiv to dispatch an 8-agent swarm for automated literature cross-synthesis, code audit, and empirical verification."
+          onNavigate={onNavigate}
+          isDarkMode={isDarkMode}
+        />
+      </div>
+    );
+  }
   const [topic, setTopic] = useState(paper ? `Autonomous Investigation: ${paper.title}` : '');
   const [isRunning, setIsRunning] = useState(false);
   const [activeStep, setActiveStep] = useState<number>(paper ? 6 : 0);
