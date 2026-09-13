@@ -217,10 +217,6 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             </div>
           </div>
 
-          {/* Arrow */}
-          <div className="hidden sm:flex items-center justify-center text-slate-600">
-            <ChevronRight className="w-5 h-5" />
-          </div>
 
           {/* Step 2 */}
           <div
